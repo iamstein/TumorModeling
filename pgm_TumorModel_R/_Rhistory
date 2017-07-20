@@ -1,0 +1,512 @@
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+g = g + theme_gray()
+g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+g = g + theme_gray()
+#g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+#g = g + theme_gray()
+g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green",fill="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+#g = g + theme_gray()
+g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green",fill="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+#g = g + theme_gray()
+g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+g = g + theme_minimal()
+g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+g = g + theme_light()
+g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+g = g + theme_light()
+#g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+g = g + theme_gray()
+#g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + theme_gray()
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+#g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + theme_dark()
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+#g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+sessionInfo()
+#plot average drug concentration vs T0   ----
+d1 = subset(d,!duplicated(d$drug))
+lim = c(min(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE),
+max(c(d1$T0.nM,d1$Cavg.nM),na.rm=TRUE))
+g = ggplot(d1,aes(x=T0.nM,y=Cavg.nM,label=TargetEnterDrug))
+g = g + annotate("segment",x=lim[1],xend=lim[2],y=lim[1],yend=lim[2])
+g = g + geom_text_repel(size=2.5)
+g = g + geom_point(size=3)
+g = g + scale.y.log10(1,limits=lim)
+g = g + scale.x.log10(1,limits=lim)
+g = g + no.legend()
+g = g + ggtitle("Baseline Conc. vs Average Drug Conc.")
+g = g + labs(x="Baseline Target Conc. (nM)",y="Average Drug Conc.")
+#g = g + theme(panel.grid=element_line(color="black"),axis.line=element_line(color="green"))
+gg = saveplot(5,5,dirs,"T0_vs_Cavg",draft.flag)
+grid.arrange(gg)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task05_AFIRT_Predict_Explore.R')
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task01_3cmtct_full_example.R', echo=TRUE)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/ams_initialize_script.R', echo=TRUE)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+?facet_grid
+d        = xlsx::read.xlsx("ivsc_3cmtc_shed3_param.xlsx",1)
+head(d)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+head(d)
+View(d)
+d        = xlsx::read.xlsx("ivsc_3cmtc_shed3_param.xlsx",1)
+param    = d
+param
+head(param)
+row.names(param) = param$Parameter
+mod      = ivsc_3cmtct_shed3()
+d        = xlsx::read.xlsx("ivsc_3cmtc_shed3_param.xlsx",1)
+param    = d
+row.names(param) = param$Parameter
+param$Parameter
+View(d)
+d        = xlsx::read.xlsx("ivsc_3cmtc_shed3_param.xlsx",1,stringsAsFactors=FALSE)
+d        = d %>% filter(!is.na(Parameter))
+param    = d
+row.names(param) = param$Parameter
+head(d)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+head(d)
+max(d$time)
+param
+Cavg.pla = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+mutate(dose.nM = dose.mg/1000/150e3*1e9) %>%
+group_by(dose.mg)
+unique(Cavg.pla$dose.nM)
+names(out)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+names(d)
+Cavg.pla = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.ss.nM = mean(value)) %>%
+ungroup()
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+Cavg.pla
+Cavg.pla = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.ss.nM = mean(value),
+Cmax.ss.nM = max(value)) %>%
+ungroup()
+Cavg.pla
+p
+p$CL
+p
+#plot of PK-Target Engagement ----
+CL  = p$keD1*p$VD1 #L/d
+tau = 14 #days
+dsumm = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.ss.nM = mean(value),
+Cavg.ss.nM.thry = dose.nM/(CL*tau)) %>%
+ungroup()
+g = ggplot(d,aes(x=time,y=value,group=varnice,color=varnice))
+g = g + facet_grid(molecule~dose.mg,scales = "free_y",switch = "y")
+g = g + geom_line(size=1)
+#g = g + geom_line(aes(linetype=variable))
+#g = g + geom_point(aes(y=value),size=3)
+g = g + scale.y.log10()
+#g = g + scale.y.log10(limits=c())
+g = g + scale_color_manual(   values=color)
+#g = g + scale_linetype_manual(values=linetype)
+g = xscale("m3")
+g = g + ggtitle(paste0("Dosing (mg): q", dose.tau, "w"))
+#g = g + scale_size_manual(values=popt$linesize)
+g = g + ylab("Conc (nM) or percent")
+gg = saveplot(5,5,dirs,"3cmtct_shed3_explore",draft.flag)
+grid.arrange(gg)
+#plot of PK-Target Engagement ----
+CL  = p$keD1*p$VD1 #L/d
+tau = 14 #days
+dsumm = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.ss.nM = mean(value),
+Cavg.ss.nM.thry = dose.nM/(CL*tau)) %>%
+ungroup()
+CL  = p$keD1*p$VD1 #L/d
+p
+p$keD1
+pp  = as.data.frame(P)
+pp  = as.data.frame(p)
+pp
+pp  = as.data.frame(t(p))
+pp
+pp  = as.data.frame(t(p))
+CL  = pp$keD1*pp$VD1 #L/d
+tau = 14 #days
+dsumm = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.ss.nM = mean(value),
+Cavg.ss.nM.thry = dose.nM/(CL*tau)) %>%
+ungroup()
+dsumm = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.ss.nM = mean(value) %>%
+ungroup() %>%
+mutate(Cavg.ss.nM.thry = dose.nM/CL/tau)
+dsumm = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.ss.nM = mean(value)) %>%
+ungroup() %>%
+mutate(Cavg.ss.nM.thry = dose.nM/CL/tau)
+d
+dsumm = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.ss.nM = mean(value)) %>%
+ungroup() %>%
+mutate(Cavg.ss.nM.thry = dose.nM/CL/tau)
+dsumm
+dsumm = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.pla = mean(value),
+Cavg.tum) %>%
+ungroup() %>%
+mutate(Cavg.pla.ss.thry = dose.nM/CL/tau)
+dsumm = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.pla.ss = mean(value)) %>%
+ungroup() %>%
+mutate(Cavg.pla.ss.thry = dose.nM/CL/tau)
+pp
+ABCisf = param["ABCisfD","Value"]
+ABCisf
+dsumm = Cavg %>%
+left_join(Cavgtum)
+Cavg = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.pla.ss = mean(value)) %>%
+ungroup() %>%
+mutate(Cavg.pla.ss.thry = dose.nM/CL/tau,
+Cavg.tum.ss.thry = ABCisf*Cavg.pla.ss.thry)
+Cavgtum = d %>%
+filter(varnice == "Drug..tum",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.tum.ss = mean(value)) %>%
+dsumm = Cavg %>%
+left_join(Cavgtum)
+Cavgtum = d %>%
+filter(varnice == "Drug..tum",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.tum.ss = mean(value)) %>%
+Cavgtum = d %>%
+filter(varnice == "Drug..tum",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.tum.ss = mean(value))
+dsumm = Cavg %>%
+left_join(Cavgtum)
+Cavg = d %>%
+filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.pla.ss = mean(value)) %>%
+ungroup() %>%
+mutate(Cavg.pla.ss.thry = dose.nM/CL/tau,
+Cavg.tum.ss.thry = ABCisf*Cavg.pla.ss.thry)
+Cavgtum = d %>%
+filter(varnice == "Drug..tum",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(Cavg.tum.ss = mean(value))
+dsumm = Cavg %>%
+left_join(Cavgtum,by=)
+print(dsumm)
+unique(d$varnice)
+param$Kd
+pp$koff1/pp$kon1
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+dsumm = Cavg %>%
+left_join(Cavgtum,by="dose.nM") %>%
+left_join(AFIRT,by="does.nM") %>%
+mutate(AFIRT.m.thry = Kd*Tacc.tum/(Cavg.pla.ss*ABCisf))
+AFIRT = d %>%
+filter(varnice == "m-Targetfree%",time>28*2 & time<=28*3) %>%
+group_by(dose.nM) %>%
+summarise(AFIRT.m = mean(value)) %>%
+ungroup()
+dsumm = Cavg %>%
+left_join(Cavgtum,by="dose.nM") %>%
+left_join(AFIRT,by="does.nM") %>%
+mutate(AFIRT.m.thry = Kd*Tacc.tum/(Cavg.pla.ss*ABCisf))
+dsumm = Cavg %>%
+left_join(Cavgtum,by="dose.nM") %>%
+left_join(AFIRT,by="dose.nM") %>%
+mutate(AFIRT.m.thry = Kd*Tacc.tum/(Cavg.pla.ss*ABCisf))
+dsumm
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+print(signif(dsumm,2))
+dose = d %>%
+!duplicated(dose.mg) %>%
+select(dose.nM,dose.mg)
+dose = d %>%
+subset(!duplicated(dose.mg)) %>%
+select(dose.nM,dose.mg)
+dose
+dsumm = Cavg %>%
+left_join(Cavgtum,by="dose.nM") %>%
+left_join(dose,by="dose.nM") %>%
+left_join(AFIRT,by="dose.nM") %>%
+mutate(AFIRT.m.thry = Kd*Tacc.tum/(Cavg.pla.ss*ABCisf))
+dsumm
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+#plot results ----
+g = ggplot(d,aes(x=time,y=value,group=varnice,color=varnice))
+g = g + facet_grid(molecule~dose.mg,scales = "free_y",switch = "y")
+g = g + geom_line(size=1)
+g = g + geom_hline(data=dsumm,aes(yintercept=AFIRT.m.thry),color="lightblue")
+#g = g + geom_line(aes(linetype=variable))
+#g = g + geom_point(aes(y=value),size=3)
+g = g + scale.y.log10()
+#g = g + scale.y.log10(limits=c())
+g = g + scale_color_manual(   values=color)
+#g = g + scale_linetype_manual(values=linetype)
+g = xscale("m3")
+g = g + ggtitle(paste0("Dosing (mg): q", dose.tau, "w"))
+#g = g + scale_size_manual(values=popt$linesize)
+g = g + ylab("Conc (nM) or percent")
+gg = saveplot(5,5,dirs,"3cmtct_shed3_explore",draft.flag)
+grid.arrange(gg)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+d$molecule
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+color
+#plot results ----
+g = ggplot(d,aes(x=time,y=value,group=varnice,color=varnice))
+g = g + facet_grid(molecule~dose.mg,scales = "free_y",switch = "y")
+g = g + geom_line(size=1)
+g = g + geom_hline(data=dsumm,aes(yintercept=AFIRT.m.thry),color="dodgerblue4")
+#g = g + geom_line(aes(linetype=variable))
+#g = g + geom_point(aes(y=value),size=3)
+g = g + scale.y.log10()
+#g = g + scale.y.log10(limits=c())
+g = g + scale_color_manual(   values=color)
+#g = g + scale_linetype_manual(values=linetype)
+g = xscale("m3")
+g = g + ggtitle(paste0("Dosing (mg): q", dose.tau, "w"))
+#g = g + scale_size_manual(values=popt$linesize)
+g = g + ylab("Conc (nM) or percent")
+gg = saveplot(5,5,dirs,"3cmtct_shed3_explore",draft.flag)
+grid.arrange(gg)
+#plot results ----
+g = ggplot(d,aes(x=time,y=value,group=varnice,color=varnice))
+g = g + facet_grid(molecule~dose.mg,scales = "free_y",switch = "y")
+g = g + geom_line(size=1)
+g = g + geom_hline(data=dsumm,aes(yintercept=AFIRT.m.thry),color="dodgerblue2")
+#g = g + geom_line(aes(linetype=variable))
+#g = g + geom_point(aes(y=value),size=3)
+g = g + scale.y.log10()
+#g = g + scale.y.log10(limits=c())
+g = g + scale_color_manual(   values=color)
+#g = g + scale_linetype_manual(values=linetype)
+g = xscale("m3")
+g = g + ggtitle(paste0("Dosing (mg): q", dose.tau, "w"))
+#g = g + scale_size_manual(values=popt$linesize)
+g = g + ylab("Conc (nM) or percent")
+gg = saveplot(5,5,dirs,"3cmtct_shed3_explore",draft.flag)
+grid.arrange(gg)
+#plot results ----
+g = ggplot(d,aes(x=time,y=value,group=varnice,color=varnice))
+g = g + facet_grid(molecule~dose.mg,scales = "free_y",switch = "y")
+g = g + geom_line(size=1)
+g = g + geom_hline(data=dsumm,aes(yintercept=AFIRT.m.thry),color="dodgerblue")
+#g = g + geom_line(aes(linetype=variable))
+#g = g + geom_point(aes(y=value),size=3)
+g = g + scale.y.log10()
+#g = g + scale.y.log10(limits=c())
+g = g + scale_color_manual(   values=color)
+#g = g + scale_linetype_manual(values=linetype)
+g = xscale("m3")
+g = g + ggtitle(paste0("Dosing (mg): q", dose.tau, "w"))
+#g = g + scale_size_manual(values=popt$linesize)
+g = g + ylab("Conc (nM) or percent")
+gg = saveplot(5,5,dirs,"3cmtct_shed3_explore",draft.flag)
+grid.arrange(gg)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task06_3cmtct_shed3_explore.R', echo=TRUE)
+source('~/svn/BiologicsWorkstream/Work/010_Tissue_Concentration_Prediction/pgm/Task02_Chen16_CNTO_IL6_Explore.R', echo=TRUE)
+2*3e-9*8e-6/(75e-6)^2
+2*3e-9*8e-6/(75e-6)^2*3600*24
+pp
+p
+.4e11/6e23*1e6
+.4e11/6e23*1e6*1e9
+.4e11/6e23*1e6
+.4e11/6e23*1e9
+.4e11/6e23*1e6
+4e11/6e23*1e6
+4e11/6e23*1e9
+4e11/6e23*1e9*1e6

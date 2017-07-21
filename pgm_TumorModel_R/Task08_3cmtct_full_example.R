@@ -18,7 +18,7 @@ names(p) = d$Parameter
   ndose     = 1
   ev       = eventTable(amount.units="nmol", time.units = "days")
   ev$add.sampling(unique(sort(c(seq(-7,13*7,.1),10^(-9:0)))))
-  ev$add.dosing(dose=300/ndose*scale.mpk2nmol,nbr.doses=4*ndose,dosing.interval=21/ndose,dosing.to=2)
+  ev$add.dosing(dose=300000000/ndose*scale.mpk2nmol,nbr.doses=4*ndose,dosing.interval=21/ndose,dosing.to=2)
   
   out         = mod$rxode$solve(p, ev, mod$init(p))
   out         = mod$rxout(out,p)

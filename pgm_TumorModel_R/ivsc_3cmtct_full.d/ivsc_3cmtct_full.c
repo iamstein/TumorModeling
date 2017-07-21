@@ -11,11 +11,12 @@ extern double tlast;
 void RxODE_mod_ivsc_3cmtct_full_dydt(unsigned int neq, double t, double *__zzStateVar__, double *__DDtStateVar__)
 {
 double
+	D1,
+	AmtD1,
+	VD1,
 	AmtD0,
 	ka,
-	D1,
 	F,
-	VD1,
 	k13D,
 	k31D,
 	VD3,
@@ -49,9 +50,9 @@ double
 	keDT1,
 	keDT3;
 
-	ka = par_ptr[0];
-	F = par_ptr[1];
-	VD1 = par_ptr[2];
+	VD1 = par_ptr[0];
+	ka = par_ptr[1];
+	F = par_ptr[2];
 	k13D = par_ptr[3];
 	k31D = par_ptr[4];
 	VD3 = par_ptr[5];
@@ -80,7 +81,7 @@ double
 	keDT3 = par_ptr[28];
 
 	AmtD0 = __zzStateVar__[0];
-	D1 = __zzStateVar__[1];
+	AmtD1 = __zzStateVar__[1];
 	D2 = __zzStateVar__[2];
 	D3 = __zzStateVar__[3];
 	T1 = __zzStateVar__[4];
@@ -88,8 +89,9 @@ double
 	DT1 = __zzStateVar__[6];
 	DT3 = __zzStateVar__[7];
 
+	D1 = AmtD1 / VD1;
 	__DDtStateVar__[0] = InfusionRate[0] + - ka * AmtD0;
-	__DDtStateVar__[1] = InfusionRate[1] + F * ka * AmtD0 / VD1 - k13D * D1 + k31D * VD3 / VD1 * D3 - keD1 * D1 - kon1 * D1 * T1 + koff1 * DT1 - k12D * D1 + k21D * VD2 / VD1 * D2;
+	__DDtStateVar__[1] = InfusionRate[1] +( F * ka * AmtD0 / VD1 - k13D * D1 + k31D * VD3 / VD1 * D3 - keD1 * D1 - kon1 * D1 * T1 + koff1 * DT1 - k12D * D1 + k21D * VD2 / VD1 * D2) * VD1;
 	__DDtStateVar__[2] = InfusionRate[2] + k12D * VD1 / VD2 * D1 - k21D * D2;
 	__DDtStateVar__[3] = InfusionRate[3] + k13D * VD1 / VD3 * D1 - k31D * D3 - keD3 * D3 - kon3 * D3 * T3 + koff3 * DT3;
 	__DDtStateVar__[4] = InfusionRate[4] + ksyn1 - k13T * T1 + k31T * VT3 / VT1 * T3 - keT1 * T1 - kon1 * D1 * T1 + koff1 * DT1;
@@ -102,11 +104,12 @@ double
 // prj-specific derived vars
 void RxODE_mod_ivsc_3cmtct_full_calc_lhs(double t, double *__zzStateVar__, double *lhs) {
 double
+	D1,
+	AmtD1,
+	VD1,
 	AmtD0,
 	ka,
-	D1,
 	F,
-	VD1,
 	k13D,
 	k31D,
 	VD3,
@@ -140,9 +143,9 @@ double
 	keDT1,
 	keDT3;
 
-	ka = par_ptr[0];
-	F = par_ptr[1];
-	VD1 = par_ptr[2];
+	VD1 = par_ptr[0];
+	ka = par_ptr[1];
+	F = par_ptr[2];
 	k13D = par_ptr[3];
 	k31D = par_ptr[4];
 	VD3 = par_ptr[5];
@@ -171,7 +174,7 @@ double
 	keDT3 = par_ptr[28];
 
 	AmtD0 = __zzStateVar__[0];
-	D1 = __zzStateVar__[1];
+	AmtD1 = __zzStateVar__[1];
 	D2 = __zzStateVar__[2];
 	D3 = __zzStateVar__[3];
 	T1 = __zzStateVar__[4];
@@ -179,5 +182,7 @@ double
 	DT1 = __zzStateVar__[6];
 	DT3 = __zzStateVar__[7];
 
+	D1 = AmtD1 / VD1;
 
+	lhs[0]=D1;
 }

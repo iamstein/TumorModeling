@@ -1,6 +1,7 @@
 
+     D1           = AmtD1/VD1;
      d/dt(AmtD0)  =  -ka *AmtD0;
-     d/dt(D1)     = F*ka *AmtD0/VD1- k13D *D1 +  k31D *VD3/VD1*D3    - keD1 *D1  - kon1*D1*T1 + koff1*DT1 - k12D*D1 + k21D*VD2/VD1*D2;
+     d/dt(AmtD1)  =(F*ka *AmtD0/VD1- k13D *D1 +    k31D *VD3/VD1*D3  - keD1 *D1  - kon1*D1*T1 + koff1*DT1 - k12D*D1 + k21D*VD2/VD1*D2)*VD1;
      d/dt(D2)     =                                                                                         k12D*VD1/VD2*D1 - k21D*D2;
      d/dt(D3)     =                  k13D *VD1/VD3*D1     - k31D*D3  - keD3 *D3  - kon3*D3*T3 + koff3*DT3;
      d/dt(T1)     = ksyn1          - k13T *T1 +     k31T*VT3/VT1*T3  - keT1 *T1  - kon1*D1*T1 + koff1*DT1;

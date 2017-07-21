@@ -1,1 +1,1 @@
-ka F VD1 k13D k31D VD3 keD1 kon1 koff1 k12D k21D VD2 keD3 kon3 koff3 ksyn1 k13T k31T VT3 VT1 keT1 ksyn3 keT3 k13DT k31DT VDT3 VDT1 keDT1 keDT3 
+VD1 ka F k13D k31D VD3 keD1 kon1 koff1 k12D k21D VD2 keD3 kon3 koff3 ksyn1 k13T k31T VT3 VT1 keT1 ksyn3 keT3 k13DT k31DT VDT3 VDT1 keDT1 keDT3 

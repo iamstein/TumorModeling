@@ -1,16 +1,16 @@
 source("ams_initialize_script.R")
-source("../models/ivsc_2cmtc_keq.R")
+source("ivsc_2cmtc_keq.R")
 dirs = get.dirs(sys.calls(),dirs)
 
 mod      = ivsc_2cmtc_keq()
-pin      = param.import("../params/siltuximab_mayer15_steintweak_param.csv")
+pin      = param.import("../data/siltuximab_mayer15_steintweak_param.csv")
 
 #these functions aren't strictly needed here.  just testing because will be useful later
 p        = pin[mod$pin]
 p        = mod$repar(p)
 
 #read data
-d        = read.csv("../../../Data/Literature/Puchalski10_Siltuximab/Puchalski10_Pooled.csv",stringsAsFactors = FALSE)
+d        = read.csv("../data/Puchalski10_Pooled.csv",stringsAsFactors = FALSE)
 ddose    = d[!duplicated(d$dose_nmol),]
 
 #simulate model and put into OUT

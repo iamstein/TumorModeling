@@ -2,7 +2,7 @@ source("ams_initialize_script.R")
 dirs = get.dirs(sys.calls(),dirs)
 
 mod      = ivsc_3cmtct_full()
-d        = xlsx::read.xlsx("../data/Bx_DTN_example.xlsx",1)
+d        = xlsx::read.xlsx("../data/Bx_DTN_example.xlsx",1) abc
 p        = d$Value
 names(p) = d$Parameter
 

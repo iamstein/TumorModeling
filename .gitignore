@@ -12,3 +12,6 @@ pgm_TumorModel_R/ivsc_2cmtc_keq.d/ivsc_2cmtc_keq.so
 pgm_TumorModel_R/ivsc_2cmtc_keq.d/model.txt
 pgm_TumorModel_R/ivsc_2cmtc_keq.d/ODE_PARS.txt
 data/~$Bx_PK_Binding.xlsx
+data/~$Bx_AndyDrug.xlsx
+data/~$Bx_DTN_example.xlsx
+data/~$Bx_Herceptin.xlsx

@@ -19,6 +19,7 @@
   library(tidyr)
   library(dplyr)
   library(ggrepel)
+  library(readxl)
   
   mapvalues = plyr::mapvalues #only need this one function from plyr
   

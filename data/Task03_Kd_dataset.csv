@@ -1,0 +1,34 @@
+"","drug","Kd.nM"
+"1","adalimumab",0.0787
+"2","atezolizumab",0.216
+"3","avelumab",0.0421
+"4","bevacizumab",71.273275
+"5","brentuximab vedotin",3
+"6","canakinumab",1.117
+"7","cetuximab",0.39
+"8","denosumab",0.003
+"9","eculizumab",0.0176
+"10","etanercept",0.0114
+"11","FAZ053",0.13175
+"12","golimumab",0.018
+"13","hVEGFR1-Fc",0.00933
+"14","hVEGFR2-Fc",0.0888
+"15","infliximab",0.03565
+"16","ixekizumab",0.0018
+"17","LAG525",2.20225
+"18","MBG453",NA
+"19","nivolumab",1.57333333333333
+"20","ofatumumab",4.76
+"21","omalizumab",NA
+"22","panitumumab",0.05
+"23","PDR001",2.17566666666667
+"24","pembrolizumab",0.62725
+"25","ranibizumab",0.0333
+"26","rituximab",5.45
+"27","secukinumab",0.06
+"28","siltuximab",NA
+"29","tocilizumab",0.182
+"30","trastuzumab",0.335
+"31","trastuzumab emtansine",0.14
+"32","ustekinumab",0.1
+"33","VEGF Trap",0.000575

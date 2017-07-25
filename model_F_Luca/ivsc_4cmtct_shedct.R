@@ -32,7 +32,7 @@ ivsc_4cmtct_shedct = function() {
                       'k12D','k21D','k13D','k31D','k13S','k31S','k13DS','k31DS',
                       'ksynS1','ksynS3','ksynM3','keD1','keD3','keS1','keS3','keDS1','keDS3','keM3','keDM3',
                       'kon1','koff1','kon3','koff3',
-                      'kshedM3','kshedDM3','ksynM1','kshedM1','kshedDM1','keM1','keDM1','k13M','k31M'); #input parameters
+                      'kshedM3','kshedDM3','ksynM1','kshedM1','kshedDM1','keM1','keDM1','k13M','k31M','k13DM','k31DM'); #input parameters
   model$pode      = model$pin
   model$repar     = function(p){return(p)} #reparameterization function
 
@@ -48,8 +48,8 @@ ivsc_4cmtct_shedct = function() {
      d/dt(M3)     = ksynM3 -kshedM3*M3  -k31M*M3+k13M*VD1/VD3*M1             - keM3 *M3  - kon3*D3*M3      + koff3*DM3;
      d/dt(DS1)    =       +kshedM1*DM1               - k13DS*DS1 + k31DS*VDS3/VDS1*DS3 - keDS1*DS1 + kon1*D1*S1      - koff1*DS1;
      d/dt(DS3)    =         kshedDM3*DM3 + k13DS*VDS1/VDS3*DS1 - k31DS*DS3 - keDS3*DS3 + kon3*D3*S3      - koff3*DS3;
-     d/dt(DM3)    =        -kshedDM3*DM3                                   - keDM3*DM3 + kon3*D3*M3      - koff3*DM3;
-     d/dt(DM1)    = -keDM1*DM1 -kshedDM1*DM1 +kon1*D1*M1 -koff1*DM1;
+     d/dt(DM3)    = -kshedDM3*DM3  - keDM3*DM3 + kon3*D3*M3 - koff3*DM3-k31DM*DM3+k13DM*(VD1/VD3)*DM1;
+     d/dt(DM1)    = -keDM1*DM1 -kshedDM1*DM1 +kon1*D1*M1 -koff1*DM1-k13DM*DM1+k31DM*(VD3/VD1)*DM3;
      d/dt(M1)     = ksynM1 -kshedM1*M1 -keM1*M1 +k31M*VD3/VD1*M3 -k13M*M1 -kon1*D1*M1 +koff1*DM1;
   '
   model$rxode     = RxODE(model = model$rxode.str, modName = model$name)

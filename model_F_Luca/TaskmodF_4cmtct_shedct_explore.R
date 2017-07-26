@@ -15,9 +15,9 @@ names(p) = d$Parameter
   p        = p[mod$pin]
   p        = mod$repar(p)
   
-  p[str_detect(names(p),"syn")]=0
-  p["k12D"] = 0
-  p["k21D"] = 0
+  # p[str_detect(names(p),"syn")]=0
+  # p["k12D"] = 0
+  # p["k21D"] = 0
   
   print(t(data.frame(t(p))))
 
@@ -27,10 +27,10 @@ n.dose = 600
 #dose.range = c(8,80,4000) #mg
 dose0 = 80
 
-foldchange = lseq(0.1,1000,20)
+foldchange = lseq(0.01,1000,20)
 dose.range = dose0*foldchange
 
-dose.tau= 1/7 #dose every tau weeks
+dose.tau= 14 #dose every tau weeks
 #OUT = list()
 OUT = NULL
 i   = 0
@@ -117,7 +117,7 @@ kss = with(pp,(koff3+keDM3+kshedM3)/kon3)
 Mtot3ss = (pp$k13DM*(pp$VD1/pp$VD3)*pp$ksynM1+(pp$keDM1+pp$kshedM1+pp$k13DM)*pp$kshedM3)/((pp$keDM1+pp$kshedM1+pp$k13DM)*(pp$keDM3+pp$kshedM3+pp$k31DM)-pp$k31DM*pp$k13DM)
 M03 = ((pp$k13M*(pp$VD1/pp$VD3)*pp$ksynM1+(pp$keM1+pp$kshedM1+pp$k13D)*pp$kshedM3)/((pp$keM1+pp$kshedM1+pp$k13D)*(pp$keD3+pp$kshedM3+pp$k31D)-pp$k31D*pp$k13D))
 Tacc.tum = Mtot3ss/M03
-B = with(pp,(keD1+k12D+k13D)/(keD3+k31D))
+B = with(pp,(k13D*VD1/VD3)/(keD3+k31D))
 
 
 dose = d %>%
@@ -143,7 +143,8 @@ AFIRT = d %>%
   summarise(AFIRT.sim = mean(value),
             dose.mg   = dose.mg[1]) %>%
   ungroup() %>%
-  mutate(AFIRT.theory = kss*Tacc.tum/(dose.nM/CL/tau*B))
+  mutate(AFIRT.theory.ss = kss*Tacc.tum/(dose.nM/CL/tau*B), 
+         AFIRT.theory.d= Kd*Tacc.tum/(dose.nM/CL/tau*B))
 
 B.sim = out %>%
   filter(time>28*2 & time<=28*3) %>%
@@ -181,15 +182,17 @@ B.sim = out %>%
 
 #test1 = mean %>% filter(dose. < 2000)
 #test2 = AFIRT %>% filter(dose.nM < 2000)
-h = ggplot(AFIRT, aes(dose.mg,AFIRT.sim)) +
-  scale.x.log10()+scale.y.log10()+ 
-  geom_point() +
-  geom_line(aes(y=AFIRT.theory))
-print(h)
+AFIRTlong = AFIRT %>%
+  gather(key,value,-c(dose.mg,dose.nM))
+g = ggplot(AFIRTlong, aes(dose.mg,value,color=key,shape=key)) +
+   scale.x.log10()+scale.y.log10()+ 
+  geom_line() +
+  geom_point()
+print(g)
 #g = ggplot(data = test2, aes(dose.nM, AFIRT.m)) +geom_line()
 h = ggplot(B.sim, aes(dose.mg,B.sim)) +
   scale.x.log10()+
-  geom_point() +
+  geom_point(size=3) +
   geom_line(aes(y=B.theory))
 print(h)
 

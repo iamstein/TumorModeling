@@ -19,34 +19,34 @@ p = pin$Value
 names(p) = pin$Parameter
 
 # Specify ranges of parameters to explore
-# param   = c('kon3', 'koff3','dose')
-# units   = c('1/(nM*d)','1/(nM*d)','mg')
-param   = c('dose')
-units   = c('mg')
+
+param   = c('dose','kon3')
+units   = c('mg/kg', 'L/d')
 nparam  = length(param)
 order   = 1:nparam             #order for parameters to be plotted
 title.scale = c(rep(1,nparam)) #in case one wants to change units in title
 
 # Setup and exploration data.frame to iterate through for each of the analysis to perform.
 explore = data.frame(param = param, units=units, title.scale=title.scale, order=1:nparam,
-fold.min = .001, fold.max = 10, fold.n   = 6,
+fold.min = 0.01, fold.max = 1, fold.n = 6,
 stringsAsFactors = FALSE)
+
 explore = explore[explore$order,]
 row.names(explore) = param
   
-# Specify dosing and sampling. I am pretty sure I rewrite all of these values later when I set up the event table.
-p["dose"]   = 420 #mg
-p["tau"]    = 1   #dosing interval
+
+p["dose"]   = 42 #mg/kg
+p["kon3"]    = 100  
 ev = list(
 t.sample = c(1e-4,1e-3,1e-2,seq(.1,6*7,.1)), #d
 n.dose   = 1,
-# cmt      = which(mod$cmtname=="Amt.central")
 cmt      = which(mod$cmtshort=="D1")
 )
 
 # Simulate model and put into OUT
 # key variables are: ev-dosing event matrix, p0-baseline parameters, model, ex=exploration space
 # function(model,p0,ev,ex)
+
 p0    = p
 OUT   = data.frame()
 
@@ -57,12 +57,13 @@ for (par in explore$param) {
     # Set up parameters
     p      = p0
     p[par] = p0[par]*foldpar
-    T_30 = p["koff3"]/p["kon3"]
+  
     # Set up dosing (where dose and dosing interval are parameters that can vary)
     ndose     = 1
     event     = eventTable(amount.units="nmol", time.units = "days")
     event$add.sampling(unique(sort(c(seq(0,13*7,.1),10^(-9:0)))))
-    event$add.dosing(dose=p["dose"]/ndose*scale.mpk2nmol,nbr.doses=4*ndose,dosing.interval=21/ndose,dosing.to=2)
+    event$add.dosing(dose=p["dose"]/ndose*scale.mpk2nmol,nbr.doses=8*ndose,dosing.interval=12/ndose,dosing.to=2)
+  
     
     # Solve the ODEs.
     out      = mod$rxode$solve(p, event, mod$init(p))
@@ -78,17 +79,16 @@ for (par in explore$param) {
 
     out$label.ind  = paste(par,signif(p[par]))
     
-    
-    # Sanity check. 
-    #g = ggplot(data=out,aes(x=time,y=M3)) + labs(title = p[par]) + geom_line() + scale_y_log10() + xlab("day") 
-    #print(g)
-    
-    # Append to data.frame()
     OUT = rbind(OUT,out)
   }
     # Sensitivity Plot
   
-    g = ggplot(data=OUT,aes(x=time,y=Dtot1,group=pval, color=pval)) + geom_line() + facet_grid(~label.group) + 
-        scale_y_log10() + scale_colour_gradient2(trans="log",name = par,guide="legend",breaks=foldchange*p0[par], low="blue",high="red" )
+    g = ggplot(data=OUT,aes(x=time, y=Dtot3, group=pval, color=pval))
+    g = g + geom_line() 
+    g = g + facet_grid(~label.group) 
+    g = g + scale_y_log10() 
+#    g = g + scale_colour_gradient2(trans="log",name = par,guide="legend",breaks=foldchange*p0[par], low="blue",high="red" )
     print(g)
+    
 }
+ggsave("SensitivityAnalysis.png", plot=g)

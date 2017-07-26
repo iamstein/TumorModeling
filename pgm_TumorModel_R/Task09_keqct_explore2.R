@@ -12,8 +12,12 @@ dirs = get.dirs(sys.calls(),dirs)
 #test function
   event    = eventTable()
   event$add.sampling(c(1e-4,1e-3,1e-2,seq(.1,6*7,.1)))
+# becomes an event table with 423 obersevation tim in hours records
+
   event$add.dosing(dose=3*scale.mpk2nmol, nbr.doses=1, dosing.to=2)
+
   out      = mod$rxode$solve(mod$repar(p), event, mod$init(p))
+# mod$repar(p) will compute keD, k12, k21, keT, keDTT
 
 #specify ranges of parameters to explore
   param   = c('dose' ,'CL' ,'Q'  ,'ksyn','Keq','T0')
@@ -25,18 +29,18 @@ dirs = get.dirs(sys.calls(),dirs)
   explore = data.frame(param = param, units=units, title.scale=title.scale, order=1:nparam,
                        fold.min = .01, fold.max = 100, fold.n   = 5,
                        stringsAsFactors = FALSE)
-  explore = explore[explore$order,]
-  row.names(explore) = param
+  explore = explore[explore$order,] #explore[2,] means get the second row
+  row.names(explore) = param # refering each row of explore by the corresponding param name
   
   explore2= data.frame(param="T0",units="nM",fold.min=.001,fold.max=10,fold.n=5,stringsAsFactors = FALSE)
   
 #specify dosing and sampling
-  p["dose"]   = 1*scale.mpk2nmol #nmol
+  p["dose"]   = 1*scale.mpk2nmol #nmol scale.mpk2nmol is defined somewhere eles, scale.mpk2nmol = 466.6667, 1 means nbr.dose = 1,
   p["tau"]    = 1   #dosing interval
   event = list(
     t.sample = c(1e-4,1e-3,1e-2,seq(.1,6*7,.1)), #d
     n.dose   = 1,
-    cmt      = which(mod$cmtname=="Amt.central")
+    cmt      = which(mod$cmtname=="Amt.central") # which returns the ordinal label of Amt.central
   )
   
 #simulate model and put into OUT ----

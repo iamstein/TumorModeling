@@ -6,9 +6,9 @@ ivsc_4cmtct_shedct = function() {
   model$name      = as.character(sys.calls()[[sys.nframe()]])
   
   #COMPARTMENTS AND INITIAL CONDITIONS
-  model$cmtshort  = c('AmtD0','D1','D2','D3','S1','S3','M1','M3','DS1','DS3','DM1','DM3')
+  model$cmtshort  = c('AmtD0','D1','D2','D3','S1','S3','M3','DS1','DS3','DM3','DM1','M1')
   model$init      = function(p){
-             init = c(AmtD0=0,D1=0,D2=0,D3=0,S1=0,S3=0,M1=0,M3=0,DS1=0,DS3=0,DM1=0,DM3=0)
+             init = c(AmtD0=0,D1=0,D2=0,D3=0,S1=0,S3=0,M3=0,DS1=0,DS3=0,DM3=0,DM1=0,M1=0)
              p    = p %>% t() %>% as.data.frame()
                 
                 

@@ -64,7 +64,7 @@ meanMfree = OUT %>%
 
 #plot data ----
 d = out %>%
-  select(time,D1,D3,S1,S3,Stot1,Stot3,M1,Mtot1,M3,Mtot3,Sfree.pct,Mfree.pct,dose.mg,dose.nM) %>%
+  dplyr::select(time,D1,D3,S1,S3,Stot1,Stot3,M1,Mtot1,M3,Mtot3,Sfree.pct,Mfree.pct,dose.mg,dose.nM) %>%
   gather(variable,value,-c(time,dose.mg,dose.nM)) %>%
   mutate(value = ifelse(value>1e-8,value,NA))
   
@@ -124,7 +124,7 @@ B = with(pp,(k13D*VD1/VD3)/(keD3+k31D))
 
 dose = d %>%
   subset(!duplicated(dose.mg)) %>%
-  select(dose.nM,dose.mg)
+  dplyr::select(dose.nM,dose.mg)
 
 # Cavg = d %>%
 #   filter(varnice == "Drug..pla",time>28*2 & time<=28*3) %>%
@@ -186,16 +186,24 @@ B.sim = out %>%
 #test2 = AFIRT %>% filter(dose.nM < 2000)
 AFIRTlong = AFIRT %>%
   gather(key,value,-c(dose.mg,dose.nM))
+
+theme = theme(text = element_text(size = 16), legend.title=element_blank())
 g = ggplot(AFIRTlong, aes(dose.mg,value,color=key,shape=key)) +
-   scale.x.log10()+scale.y.log10()+ 
+  scale.x.log10()+scale.y.log10()+ 
   geom_line() +
-  geom_point()
+  geom_point() +
+  theme + 
+  ylab("AFIRT") + 
+  xlab("dose (mg)") + 
+  guides(shape=FALSE) + 
+  scale_color_manual(values = c("red", "green", "blue"), labels = c("Simulated","Theoretical,Kd", "Theoretical,Kss"))
 print(g)
-#g = ggplot(data = test2, aes(dose.nM, AFIRT.m)) +geom_line()
+
 h = ggplot(B.sim, aes(dose.mg,B.sim)) +
   scale.x.log10()+
   geom_point(size=3) +
-  geom_line(aes(y=B.theory))
+  geom_line(aes(y=B.theory)) + 
+  theme
 print(h)
 
 h = ggplot(out,aes(time,D1,group=dose.mg))+geom_line()

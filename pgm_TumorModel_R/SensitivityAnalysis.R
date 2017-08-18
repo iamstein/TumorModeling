@@ -1,69 +1,66 @@
-#header
-source("ams_initialize_script.R")
-source("ivsc_2cmtc_keq.R")
+# The function basic.sensitivity.analysis returns a data frame of three columns:
+# column 1 = time, 
+# column 2 = variable
+# column 3 = quantity that the sensitivity analysis is performed on
+# To see an example of the use of the function basic.sensitivity, 
+# you can run the script "BasicSensitivityAnalysisExample.R" located in the same directory 
 
+lseq = function(from, to, length.out){
+    sequence = seq(log(from), log(to), length.out=length.out)
+    sequence = exp(sequence)
+    return(sequence)
+}
 
-dirs <- get.dirs(sys.calls(), dirs)
+basic.sensitivity.analysis = function(parameter.file, # string, full path of the parameter file
+                                      model.file, # string, full path of the model file
+                                      model, #function, function name of the model
+                                      quantity, # string, the quantity you want to perform sensitity analysis on
+                                      variable, # string, the variable you want to perform sensitity analysis against
+                                      variable.from, # double, initial variable value
+                                      variable.to, # double, final variable value
+                                      fold.number, # integer, number of folds for the sensitity analysis
+                                      dose.nmol, # double, dose amount in nmol
+                                      tau, # integer, dosing interval
+                                      tmax, # integer, total number of days the observation is conducted
+                                      compartment # integer, the number of the compartment to which dosing applied
+                                      ){
+  source("ams_initialize_script.R")
+  source(model.file)
 
-mod <- ivsc_2cmtc_keqct_CLV_T0()
-
-# input parameter
-pin <- param.import("../data/efalizumab_bauer99_keq_steinfit_param.csv")
-p <- mod$repar(pin)[mod$pin] # reparametrization
-
-p["T0"] <- 10
-
-# test function
-event <- eventTable()
-event$add.sampling(c('1e-4', '1e-3', '1e-2', seq(.1, 6*7, .1)))
-event$add.dosing(dose<-3*scale.mpk2nmol, nbr.doses<-1, dosing.to<-2)
-out <- mod$rxode$solve(mod$repar(p), event, mod$init(p))
-
-# specify ranges of parameters to exploreparam <- c("dose", "CL", "Q", "ksyn", "Keq", "T0")
-units <- c("nmol", "L/d", "L/d", "nM/d", "nM", "nM")
-nparam <- length(param)
-order <- 1:nparam
-title.scale <- c(rep(1, nparam))
-
-explore <- data.frame(param=param, units=units, title.scale=title.scale, order=order,
-                    fold.min=0.01, fold.max=100, fold.n=5, StringAsFactors=FALSE)
-
-
-
-
-
-explore2 <- data.frame(param="T0", units="nM", fold.min=0.001, fold.max=10, fold.n=5,
-                    StringAsFactors = FALSE)
-
-
-# specify dosing and sampling
-
-p["dose"] = 1*scale.mpk2nmol
-p["tau"] = 1
-event = list(
-    t.sample = c(1e-4, 1e-3, 1e-2, seq(.1, 6*7, 0.1)), 
-    n.dose = 1,
-    cmt = which(mod$cmtnae="Amt.central")
-)
-
-# simulate model and put into OUT
-# key variables are: ev-dosing, event matrix, p0-baseline parameter, model, ex=exploration space
-# function(model, p0, ev,ex)
-
-time1 = proc.time() # take the initial time
-
-OUT = multi.solve(mod, p, event, explore, explore2)
-
-
-
-
-
-
-
-
-
-
-
+  d <- read.csv(parameter.file)
+  param.as.double <- d$Value
+  names(param.as.double) <- d$Parameter
+  
+  model = model
+  
+  ev = eventTable(amount.units="nmol", time.units = "days")
+  sample.points = c(seq(-7, tmax, 0.1), 10^(-3:0)) # sample time, increment by 0.1
+  sample.points = sort(sample.points)
+  sample.points = unique(sample.points)
+  ev$add.sampling(sample.points)
+  ev$add.dosing(dose=dose.nmol, nbr.doses=floor(tmax/tau)+1, dosing.interval=tau,
+                dosing.to=compartment)
+  
+  variable.range = seq(log(variable.from), log(variable.to), length.out=fold.number)
+  variable.range = exp(variable.range)
+  OUT = data.frame()
+  for (value in variable.range){
+    param.as.double[variable]=value
+    init = model$init(param.as.double)
+    out = model$rxode$solve(param.as.double, ev, init)
+    out = model$rxout(out)
+    out = out %>% 
+      mutate(variable = value)
+    OUT = rbind(OUT, out)
+  }
+  
+  OUT = OUT[,c("time", "variable", quantity)]
+  colnames(OUT)=c("time", variable, quantity)
+  return(OUT) 
+}
+    
+  
+  
 
 
 

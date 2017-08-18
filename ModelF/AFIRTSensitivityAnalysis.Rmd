@@ -78,7 +78,6 @@ sensitivity_analysis_wrt_dose.nmol = function(dose.nmol.range){
   for (dose.nmol in dose.nmol.range){
     AFIRT.sim = AFIRT_sim(dose.nmol=dose.nmol)
     AFIRT.theory = AFIRT_theory(dose.nmol = dose.nmol) 
-    
     row = append(c(dose.nmol, AFIRT.sim), AFIRT.theory)
     df = rbind(df, row)
   }
@@ -94,38 +93,6 @@ print(df)
 
 
 
-sim = AFIRT_sim(param.as.double = p,
-                model = ivsc_4cmtct_shedct(),
-                dose.nmol = 0.08,
-                tmax = 28*3,
-                dosing.interval = 14,
-                compartment = 2)
-
-print(sim)
-
-
-
-
-
-df = data.frame()
-for (dose.nmol in dose.range){
-#    print(AFIRT.theory(p=p, dose.nmol=dose.nmol, tau=14))
-    row = append(c(dose.nmol), AFIRT.theory(p=p, dose.nmol=dose.nmol,tau=14))
-    df = rbind(df, row)
-}
-
-colnames(df) = c("dose.nmol", "AFIRT.theory.Kss", "AFIRT.theory.Kd")
-print(df)
-
-
-# The following is the scatter plot the AFIRT.theory.Kss and AFIRT.theory.Kd
-# Against dose.nmol. AFIRT.theory.Kss is green, and AFIRT.theory.Kd is red
-{
-g = ggplot(df, aes(x=dose.nmol, y=AFIRT.theory.Kss))
-g = g + geom_point(color="green")
-g = g + geom_point(aes(y=AFIRT.theory.Kd), color="red")
-print(g)
-}
 
 
 

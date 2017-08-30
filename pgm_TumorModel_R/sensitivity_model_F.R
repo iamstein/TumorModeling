@@ -8,8 +8,8 @@ theme_set(theme_classic())
 lseq = function(from,to,length.out){exp(seq(log(from), log(to), length.out = length.out))}
 
 # Load data and model.
-mod = ivsc_3cmtct_full()
-pin = xlsx::read.xlsx("../data/Bx_DTN_example.xlsx",1)
+mod = ivsc_4cmtct_shedct()
+pin = xlsx::read.xlsx("../data/ivsc_4cmtct_shedct_param.xlsx",1)
 # Assumption made for model C. Comment out if model changes to F.
 pin[14:17,3] = 0
 
@@ -18,7 +18,7 @@ p = pin$Value
 names(p) = pin$Parameter
 
 # Specify parameters to explore
-param   = c('kon3', 'koff3','dose','keD1','k13D','keDT3')
+param   = c('kon3', 'koff3','dose','keD1','k13D','keDM3')
 units   = c('1/(nM*d)','1/(nM*d)','mg','1/d','1/d','1/d')
 nparam  = length(param)
 order   = 1:nparam             # order for parameters to be plotted
@@ -54,7 +54,7 @@ for (par in explore$param) {
     # Set up local verion of parameter list for exploration.
     p      = p0
     p[par] = p0[par]*foldpar
-    T_30 = p["koff3"]/p["kon3"]
+    M_30 = p["koff3"]/p["kon3"]
     
     # Set up dosing (where dose and dosing interval are parameters that can vary)
     ndose     = 1
@@ -76,7 +76,7 @@ for (par in explore$param) {
                             signif(ex$title.scale*p0[par]*ex$fold.min,2),"-",
                             signif(ex$title.scale*p0[par]*ex$fold.max,2))
     out$label.ind  = paste(par,signif(p[par]))
-    out$ratio = out$T3/T_30
+    out$ratio = out$M3/M_30
     
     # Append to data.frame()
     OUT = rbind(OUT,out)
@@ -88,7 +88,7 @@ for (par in explore$param) {
 theme = theme(text = element_text(size = 16))
 
 # Vector of which variables from OUT you would like to be plotted.
-plotme = c("Dtot1", "Ttot1", "ratio")
+plotme = c("Dtot1", "Mtot1", "ratio")
 
 for (feature in plotme){
     # aes_string needed to do this in a loop

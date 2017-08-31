@@ -62,13 +62,12 @@ basic.sensitivity.analysis = function(parameter.file, # string, full path of the
  
 plot.basic.sensitivity.anlysis = function(data){
     names = names(data)
-    g = ggplot(data, ase(x=time, y=data[,2], color=data[,1]) +
+    g = ggplot(data, ase(x=time, y=data[,2], color=data[,1])) +
         scale.x.log10() +
         sclae.y.log10() + 
         geom_point() + 
         ylab(names[3]) + 
         xlab(names[1])
-
     return(g)
 }
 

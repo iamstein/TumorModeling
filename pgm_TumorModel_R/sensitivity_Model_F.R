@@ -19,8 +19,8 @@ p = pin$Value
 names(p) = pin$Parameter
 
 # Specify parameters to explore
-param   = c('kon3', 'koff3','dose','keD1','k13D','keDM3')
-units   = c('1/(nM*d)','1/(nM*d)','mg','1/d','1/d','1/d')
+param   = c('kshedM3','dose','ksynM3','k13D','k13M','VD3')
+units   = c('1/d','mg','1/d','1/d','1/d','L')
 nparam  = length(param)
 order   = 1:nparam             # order for parameters to be plotted
 title.scale = c(rep(1,nparam)) # in case one wants to change units in title
@@ -89,7 +89,7 @@ for (par in explore$param) {
 theme = theme(text = element_text(size = 16))
 
 # Vector of which variables from OUT you would like to be plotted.
-plotme = c("Dtot1", "Mtot3", "ratio")
+plotme = c("Dtot3", "Mtot3", "ratio")
 
 for (feature in plotme){
     # aes_string needed to do this in a loop

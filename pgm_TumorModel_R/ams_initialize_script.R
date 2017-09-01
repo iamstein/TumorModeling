@@ -28,7 +28,7 @@
   source("ams_graphics_v2.R")
   source("ams_tmdd_helper.R")
   source("ivsc_3cmtct_full.R")
-  
+  source("ivsc_4cmtct_shedct.R")
   
 #flag for labeling figures as draft
   draft.flag      = FALSE

@@ -1,4 +1,3 @@
-```{r}
 source("ams_initialize_script.R")
 source("ivsc_4cmtct_shedct.R")
 
@@ -89,11 +88,37 @@ dose.nmol.range = 80*scale.mg2nmol*lseq(0.01, 1000, 20)
 
 df = sensitivity_analysis_wrt_dose.nmol(dose.nmol.range = dose.nmol.range)
 print(df)
-```
+
+
+# sensitivity analysis on AFIRT wrt ksynM3
+df = data.frame()
+ksynM3.range = lseq(1, 100, 20)
+ksynM3.init = param.as.double["ksynM3"]
+for (i in ksynM3.range){
+    ksynM3 = ksynM3.init*i
+    param.as.double["ksysM3"] = ksynM3
+    AFIRT.sim = AFIRT_sim(dose.nmol=0.8)
+    AFIRT.theory = AFIRT_theory(dose.nmol=0.8)
+    row = append(c(ksynM3, AFIRT.sim), AFIRT.theory)
+    df = rbind(df, row)
+}
+colnames(df) = c("ksynM3", "AFIRT.sim", "AFIRT.theory.Kss", "AFIRT.theory.Kd")
+print(df)
 
 
 
-
-
+df = data.frame()
+ksynM3.range = lseq(1, 100, 20)
+ksynM3.init = param.as.double["VD1"]
+for (i in ksynM3.range){
+    VD1 = ksynM3.init*i
+    param.as.double["VD1"] = ksynM3
+    AFIRT.sim = AFIRT_sim(dose.nmol=0.8)
+    AFIRT.theory = AFIRT_theory(dose.nmol=0.8)
+    row = append(c(VD1, AFIRT.sim), AFIRT.theory)
+    df = rbind(df, row)
+}
+colnames(df) = c("VD1", "AFIRT.sim", "AFIRT.theory.Kss", "AFIRT.theory.Kd")
+print(df)
 
 

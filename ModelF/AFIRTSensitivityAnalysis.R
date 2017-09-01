@@ -84,7 +84,7 @@ sensitivity_analysis_wrt_dose.nmol = function(dose.nmol.range){
   return(df)
 }
 
-dose.nmol.range = 80*scale.mg2nmol*lseq(0.01, 1000, 20)
+dose.nmol.range = lseq(1, 100000, 20)
 
 df = sensitivity_analysis_wrt_dose.nmol(dose.nmol.range = dose.nmol.range)
 print(df)

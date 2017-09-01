@@ -89,7 +89,7 @@ for (par in explore$param) {
 theme = theme(text = element_text(size = 16))
 
 # Vector of which variables from OUT you would like to be plotted.
-plotme = c("Dtot3", "Mtot3", "ratio")
+plotme = c("Dtot3", "M3", "ratio")
 
 for (feature in plotme){
     # aes_string needed to do this in a loop

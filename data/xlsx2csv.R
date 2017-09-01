@@ -1,5 +1,8 @@
 
+<<<<<<< HEAD
 data_file = "ivsc_3cmtct_shed3_param.xlsx"
 file_name = "ivsc_3cmtct_shed3_param.csv"
 d = xlsx::read.xlsx(data_file, 1)
 write.csv(d, file= file_name, row.names=FALSE, na="NA")
+=======
+>>>>>>> 8ad03243a2daaf1a89a375048a473adaac33ac44

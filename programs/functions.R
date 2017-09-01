@@ -62,7 +62,7 @@ basic.sensitivity.analysis = function(parameter.file, # string, full path of the
  
 plot.basic.sensitivity.anlysis = function(data){
     names = names(data)
-    g = ggplot(data, ase(x=time, y=data[,2], color=data[,1]) +
+    g = ggplot(data, ase(x=time, y=data[,2], color=data[,1])) +
         scale.x.log10() +
         sclae.y.log10() + 
         geom_point() + 
@@ -74,6 +74,62 @@ plot.basic.sensitivity.anlysis = function(data){
 
                         
   
+sanity.check = function(parameter.file, # string, full path of the parameter file
+                        model.file, # string, full path of the model file
+                        model, #function, function name of the model
+                        quantities, # A list of quantities to check 
+                        variables, # A list of variables set to 0
+                        dose.nmol, # double, dose amount in nmol
+                        tau, # integer, dosing interval
+                        tmax, # integer, total number of days the observation is conducted
+                        compartment # integer, the number of the compartment to which dosing applied
+                                      ){
+    # The return of this function is a data frame with columns 
+    # <time> +  <quantities>
+    # If all variables in <variables> are set to 0, then all quantities in <quantities>
+    # should take on the values you expect
+
+
+
+
+    source("ams_initialize_script.R")
+    source(model.file)
+
+    d <- read.csv(parameter.file)
+    param.as.double <- d$Value
+    names(param.as.double) <- d$Parameter
+
+    # set the variables you specified in <variables> to 0
+    for (var in variables){
+        param.as.double[var] = 0
+    }
+    
+  
+    model = model
+  
+    ev = eventTable(amount.units="nmol", time.units = "days")
+    sample.points = c(seq(-7, tmax, 0.1), 10^(-3:0)) # sample time, increment by 0.1
+    sample.points = sort(sample.points)
+    sample.points = unique(sample.points)
+    ev$add.sampling(sample.points)
+    ev$add.dosing(dose=dose.nmol, nbr.doses=floor(tmax/tau)+1, dosing.interval=tau,
+                dosing.to=compartment)
+  
+
+    init = model$init(param.as.double)
+    out = model$rxode$solve(param.as.double, ev, init)
+    
+    columns = c("time")
+    
+    for (quan in quantities){
+        columns = append(columns, quan)
+    }
+    
+    out = out[,columns]
+    out = data.frame(out)
+  
+    return(out) 
+}
 
 
 

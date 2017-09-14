@@ -1,6 +1,6 @@
-source("ams_initialize_script.R")
 ## 
 ```{r}
+source("ams_initialize_script.R")
 source("ivsc_4cmtct_shedct.R")
 # Global Variables
 model = ivsc_4cmtct_shedct()
@@ -90,9 +90,9 @@ plot.AFIRT.sensitivity.analysis = function(data, filename){
     data = data %>% gather(key, value, -c(get(names[1])))
     g = ggplot(data, aes(get(names[1]), value, color=key)) +
         scale.x.log10() +
-        scale.y.log10() + 
+        scale.y.log10() +
+        geom_point() +
         ylab("AFIRT") + 
-        geom_point()
         xlab(names[1])
     ggsave(filename, g)
     return(g)
@@ -116,7 +116,7 @@ sensitivity_analysis_wrt_dose.nmol = function(dose.nmol.range){
 
 dose.nmol.range = lseq(1, 100000, 20)
 df = sensitivity_analysis_wrt_dose.nmol(dose.nmol.range = dose.nmol.range)
-plot.AFIRT.sensitivity_analysis(df, "AFIRTwrtdose.jpg")
+plot.AFIRT.sensitivity.analysis(df, "AFIRTwrtdose.jpg")
 ```
 
 

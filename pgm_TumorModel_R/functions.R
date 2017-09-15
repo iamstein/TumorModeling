@@ -68,6 +68,10 @@ plot.basic.sensitivity.anlysis = function(data){
         geom_point() + 
         ylab(names[3]) + 
         xlab(names[1])
+<<<<<<< HEAD
+=======
+
+>>>>>>> 6c05f5e2292a086056e8deaa61be8eb3d42792be
     return(g)
 }
 

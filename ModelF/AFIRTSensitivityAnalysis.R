@@ -1,7 +1,14 @@
+<<<<<<< HEAD
 
 source("ams_initialize_script.R")
 source("ivsc_4cmtct_shedct.R")
 
+=======
+source("ams_initialize_script.R")
+## 
+```{r}
+source("ivsc_4cmtct_shedct.R")
+>>>>>>> 6c05f5e2292a086056e8deaa61be8eb3d42792be
 # Global Variables
 model = ivsc_4cmtct_shedct()
 tmax = 3*28 # End of the observation time, unit=day
@@ -9,10 +16,23 @@ tau = 14 # dosing interval, unit=day
 compartment = 2 # compartment to which dosing is applied
 
 # Import parameters
+<<<<<<< HEAD
 d = read.csv("ivsc_4cmtct_shedct_param.csv")
 param.as.double = d$Value
 names(param.as.double) = d$Parameter
 
+=======
+d = xlsx::read.xlsx("../data/ModelF_Atezolizumab_Params.xlsx",1)
+param.as.double = d$Value
+names(param.as.double) = d$Parameter
+
+# Function for ranges
+lseq = function(from, to, length.out){
+    sequence = seq(log(from), log(to), length.out=length.out)
+    sequence = exp(sequence)
+    return(sequence)
+}
+>>>>>>> 6c05f5e2292a086056e8deaa61be8eb3d42792be
 # Theoretical AFIRT
 AFIRT_theory = function(dose.nmol){
     p = as.data.frame(t(param.as.double))
@@ -40,6 +60,7 @@ AFIRT_theory = function(dose.nmol){
     return(c(AFIRT.theory.Kss, AFIRT.theory.Kd))
 }
 
+<<<<<<< HEAD
 lseq = function(from, to, length.out){
     sequence = seq(log(from), log(to), length.out=length.out)
     sequence = exp(sequence)
@@ -47,6 +68,8 @@ lseq = function(from, to, length.out){
 }
 
 
+=======
+>>>>>>> 6c05f5e2292a086056e8deaa61be8eb3d42792be
 AFIRT_sim = function(dose.nmol){
   ev = eventTable(amount.units="nmol", time.units="days")
   sample.points = c(seq(-7, tmax, 0.1), 10^(-3:0)) # sample time, increment by 0.1
@@ -72,6 +95,39 @@ AFIRT_sim = function(dose.nmol){
   return(AFIRT.sim)
 }
 
+<<<<<<< HEAD
+=======
+sensitivity_analysis_for_AFIRT = function(dose.nmol, variable, range){
+    df = data.frame()
+    for (value in range){
+        param.as.double[variable] = value
+        AFIRT.sim = AFIRT_sim(dose.nmol)
+        AFIRT.theory = AFIRT_theory(dose.nmol)
+        row = append(c(value, AFIRT.sim), AFIRT.theory)
+        df = rbind(df, row)
+    }
+    colnames(df) = c(variable, "AFIRF.sim", "AFIRT.theory.Kss", "AFIRT.theory.Kd")  
+    return(df)
+}
+
+# A function that plots the sensitivity analysis
+plot.AFIRT.sensitivity.analysis = function(data, filename){
+    names = names(data)
+    data = data %>% gather(key, value, -c(get(names[1])))
+    g = ggplot(data, aes(get(names[1]), value, color=key)) +
+        scale.x.log10() +
+        scale.y.log10() + 
+        ylab("AFIRT") + 
+        geom_point()
+        xlab(names[1])
+    ggsave(filename, g)
+    return(g)
+}
+```
+
+## Performance sensitivity analysis for AFIRT on dose.nmol
+```{r}
+>>>>>>> 6c05f5e2292a086056e8deaa61be8eb3d42792be
 sensitivity_analysis_wrt_dose.nmol = function(dose.nmol.range){
   # Return: a data frame with two columns(column1 = dose.nmol, column2 = AFIRT.sim)
   df = data.frame()
@@ -85,14 +141,39 @@ sensitivity_analysis_wrt_dose.nmol = function(dose.nmol.range){
   return(df)
 }
 
+<<<<<<< HEAD
 dose.nmol.range = 80*scale.mg2nmol*lseq(0.01, 1000, 20)
 
 df = sensitivity_analysis_wrt_dose.nmol(dose.nmol.range = dose.nmol.range)
 print(df)
 
 
+=======
+dose.nmol.range = lseq(1, 100000, 20)
+df = sensitivity_analysis_wrt_dose.nmol(dose.nmol.range = dose.nmol.range)
+plot.AFIRT.sensitivity_analysis(df, "AFIRTwrtdose.jpg")
+```
+>>>>>>> 6c05f5e2292a086056e8deaa61be8eb3d42792be
 
 
 
 
+<<<<<<< HEAD
 
+=======
+##  AFIRT sensitivity analysis on kshedM3
+## kshedM3 = 3 in the parameter file
+## set range of kshedM3 to be [1, 10] with 6 folds
+```{r}
+sen = sensitivity_analysis_for_AFIRT(dose.nmol=80, variable="kshedM3", range = lseq(1, 10 ,6))
+plot.AFIRT.sensitivity.analysis(sen, "AFIRTwrtkshedM3.jpg")
+```
+
+## AFIRT sensitivity analysis on VD3 (tumor size)
+## VD3 = 0.1 in the parameter file
+## set range of VD3 to be [0.01, 1] with 6 folds
+```{r}
+sen = sensitivity_analysis_for_AFIRT(dose.nmol=80, variable="kshedM3", range = lseq(0.01, 1, 6))
+plot.AFIRT.sensitivity.analysis(sen, "AFIRTwrtVD3.jpg")
+```
+>>>>>>> 6c05f5e2292a086056e8deaa61be8eb3d42792be

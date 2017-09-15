@@ -1,7 +1,84 @@
-```{r}
-source("ams_initialize_script.R")
-source("ivsc_4cmtct_shedct.R")
+---
+output:
+  pdf_document: default
+  html_document: default
+---
+### Analysis on Model F
 
+```{r}
+suppressMessages(source("ams_initialize_script.R"))
+suppressMessages(library(RxODE))
+suppressMessages(library(dplyr))
+```
+# Model F is defined below
+```{r}
+ivsc_4cmtct_shedct = function() {
+  model           = list()
+  model$name      = as.character(sys.calls()[[sys.nframe()]])
+  
+  #COMPARTMENTS AND INITIAL CONDITIONS
+  model$cmtshort  = c('AmtD0','D1','D2','D3','S1','S3','M3','DS1','DS3','DM3','DM1','M1')
+  model$init      = function(p){
+             init = c(AmtD0=0,D1=0,D2=0,D3=0,S1=0,S3=0,M3=0,DS1=0,DS3=0,DM3=0,DM1=0,M1=0)
+             p    = p %>% t() %>% as.data.frame()
+                
+                
+             ksyn = with(p,c(ksynS1,ksynS3,ksynM1,ksynM3))
+             K    = with(p,matrix(c(keS1+k13S         , -k13S*VS1/VS3       ,  -kshedM1,         0,
+                                    -k31S*VS3/VS1 ,  keS3 + k31S        ,  0       ,  -kshedM3,
+                                    0            ,  0                  , kshedM1+keM1+k13M, -k31M*VD3/VD1,
+                                    0            ,  0                  , -k13M*VD3/VD1,   kshedM3+keM3+k31M), 
+                                  nrow = 4, byrow=TRUE))
+             x    = solve(K,ksyn)
+                
+             init["S1"] = unlist(x[1])
+             init["S3"] = unlist(x[2])
+             init["M1"] = unlist(x[3])
+             init["M3"] = unlist(x[4])
+             return(init)
+  }
+  
+  #PARAMEETRS IN MODEL
+  model$pin       = c('F','ka','VD1','VD2','VD3','VS1','VS3','VDS1','VDS3',
+                      'k12D','k21D','k13D','k31D','k13S','k31S','k13DS','k31DS',
+                      'ksynS1','ksynS3','ksynM3','keD1','keD3','keS1','keS3','keDS1','keDS3','keM3','keDM3',
+                      'kon1','koff1','kon3','koff3',
+                      'kshedM3','kshedDM3','ksynM1','kshedM1','kshedDM1','keM1','keDM1','k13M','k31M','k13DM','k31DM'); #input parameters
+  model$pode      = model$pin
+
+                   #INPUT/SYNTHESIS/SHED   DISTRIBUTION (CENTRAL/TUMOR)      BINDING                                DISTRIBUTION (CENTRAL/PERIPH)
+  model$rxode.str = '
+     D1           = AmtD1/VD1;
+     d/dt(AmtD0)  =  -ka *AmtD0;
+     d/dt(AmtD1)  =(F*ka *AmtD0/VD1 - k13D *D1 +  k31D *VD3/VD1*D3  - keD1 *D1  - kon1*D1*S1 + koff1*DS1  - kon1*D1*M1 + koff1*DM1 - k12D*D1 + k21D*VD2/VD1*D2)*VD1;
+     d/dt(D2)     = k12D*VD1/VD2*D1 - k21D*D2;
+     d/dt(D3)     = k13D *VD1/VD3*D1 - k31D*D3  - keD3 *D3  - kon3*D3*(S3+M3) + koff3*(DS3+DM3);
+     d/dt(S1)     = ksynS1+kshedM1*M1 - k13S *S1 +  k31S*VS3/VS1*S3  - keS1 *S1  - kon1*D1*S1      + koff1*DS1;
+     d/dt(S3)     = ksynS3 +kshedM3*M3   + k13S *VS1/VS3*S1 - k31S*S3  - keS3 *S3  - kon3*D3*S3  + koff3*DS3;
+     d/dt(M3)     = ksynM3 -kshedM3*M3  -k31M*M3+k13M*VD1/VD3*M1  - keM3 *M3  - kon3*D3*M3 + koff3*DM3;
+     d/dt(DS1)    = kshedM1*DM1 - k13DS*DS1 + k31DS*VDS3/VDS1*DS3 - keDS1*DS1 + kon1*D1*S1 - koff1*DS1;
+     d/dt(DS3)    = kshedDM3*DM3 + k13DS*VDS1/VDS3*DS1 - k31DS*DS3 - keDS3*DS3 + kon3*D3*S3  - koff3*DS3;
+     d/dt(DM3)    = -kshedDM3*DM3  - keDM3*DM3 + kon3*D3*M3 - koff3*DM3-k31DM*DM3+k13DM*(VD1/VD3)*DM1;
+     d/dt(DM1)    = -keDM1*DM1 -kshedDM1*DM1 +kon1*D1*M1 -koff1*DM1-k13DM*DM1+k31DM*(VD3/VD1)*DM3;
+     d/dt(M1)     = ksynM1 -kshedM1*M1 -keM1*M1 +k31M*VD3/VD1*M3 -k13M*M1 -kon1*D1*M1 +koff1*DM1;
+  '
+  model$rxode     = RxODE(model = model$rxode.str, modName = model$name)
+  
+  model$rxout     = function(result)    {
+    result        = as.data.frame(result)
+    result = mutate(result,
+                    Dtot1 = D1+DS1,
+                    Stot1 = S1+DS1,
+                    Dtot3 = D3+DS3,
+                    Stot3 = S3+DS3,
+                    Mtot1 = M1+DM1,
+                    Mtot3 = M3+DM3)
+  }
+  
+  return(model)
+}
+```
+```{r}
 # Global Variables
 model = ivsc_4cmtct_shedct()
 tmax = 3*28 # End of the observation time, unit=day
@@ -9,23 +86,33 @@ tau = 14 # dosing interval, unit=day
 compartment = 2 # compartment to which dosing is applied
 
 # Import parameters
-d = read.csv("ivsc_4cmtct_shedct_param.csv")
+d = xlsx::read.xlsx("../data/ModelF_Atezolizumab_Params.xlsx",1)
 param.as.double = d$Value
 names(param.as.double) = d$Parameter
 
-# Theoretical AFIRT
+# Helper function to make the range of a variable when performing sensitivity analysis
+lseq = function(from, to, length.out){
+    sequence = seq(log(from), log(to), length.out=length.out)
+    sequence = exp(sequence)
+    return(sequence)
+}
+```
+# The function below calculate AFIRT from theory
+Argument: dose amount in nmol
+Return: theoretical AFIRT for both Kss and Kd
+```{r}
 AFIRT_theory = function(dose.nmol){
     p = as.data.frame(t(param.as.double))
     Kss = with(p, (koff3 + keDM3 + kshedM3)/kon3)
     Kd = with(p, koff3 / kon3)
     
     # numerator and denomenator for Mtot3.ss(Mtot3 at steady state)
-    numerator = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedM1+k13DM)*kshedM3)
+    numerator = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedM1+k13DM)*ksynM3)
     denomenator = with(p, (keDM1+kshedM1+k13DM)*(keDM3+kshedM3+k31DM)-k31DM*k13DM)
     Mtot3.ss = numerator / denomenator
 
     # numerator and denomenator for M3.0 (M3 at initial state)
-    numerator = with(p, k13M*(VD1/VD3)*ksynM1+(keM1+kshedM1+k13D)*kshedM3)
+    numerator = with(p, k13M*(VD1/VD3)*ksynM1+(keM1+kshedM1+k13D)*ksynM3)
     denomenator = with(p, (keM1+kshedM1+k13D)*(keD3+kshedM3+k31D)-k31D*k13D)
     M3.0 = numerator / denomenator
 
@@ -39,14 +126,12 @@ AFIRT_theory = function(dose.nmol){
     AFIRT.theory.Kd = Kd*Tacc.tum*(CL*tau)/(dose.nmol*B)
     return(c(AFIRT.theory.Kss, AFIRT.theory.Kd))
 }
-
-lseq = function(from, to, length.out){
-    sequence = seq(log(from), log(to), length.out=length.out)
-    sequence = exp(sequence)
-    return(sequence)
-}
-
-
+```
+# The function below simulates AFIRT as the average of free target to initial target
+Argument: dose amount in nmol
+Return: simulated AFIRT
+Note: This function computes AFIRT as the average of M3/M3.0 when time \in (56, 84).
+```{r}
 AFIRT_sim = function(dose.nmol){
   ev = eventTable(amount.units="nmol", time.units="days")
   sample.points = c(seq(-7, tmax, 0.1), 10^(-3:0)) # sample time, increment by 0.1
@@ -54,7 +139,7 @@ AFIRT_sim = function(dose.nmol){
   sample.points = unique(sample.points)
   ev$add.sampling(sample.points)
   ev$add.dosing(dose=dose.nmol, nbr.doses=floor(tmax/tau)+1, dosing.interval=tau,
-                dosing.to=compartment)
+                dosing.to=2)
       
   init = model$init(param.as.double)
   out = model$rxode$solve(param.as.double, ev, init)
@@ -71,9 +156,116 @@ AFIRT_sim = function(dose.nmol){
 
   return(AFIRT.sim)
 }
+```
+# The function below performs sensitivity analysis for AFIRT
+Argument: 
+    dose.nmol: dose amount in nmol, 
+    variable: the name of the variable you want to vary, e.g. kshedM3, kon3, koff3 etc
+    range: the range of the variable, typically the return of lseq function
+Return:
+    A data frame with columns: <variable>, AFIRT.sim, AFIRT.theory.Kss, AFIRT.theoy.Kd
+    Each row correspond to a particular value of <variable>
+```{r}
+sensitivity_analysis_for_AFIRT = function(dose.nmol, variable, range){
+    df = data.frame()
+    for (value in range){
+        param.as.double[variable] = value
+        AFIRT.sim = AFIRT_sim(dose.nmol)
+        AFIRT.theory = AFIRT_theory(dose.nmol)
+        row = append(c(value, AFIRT.sim), AFIRT.theory)
+        df = rbind(df, row)
+    }
+    colnames(df) = c(variable, "AFIRF.sim", "AFIRT.theory.Kss", "AFIRT.theory.Kd")  
+    return(df)
+}
+```
+# A function that plots the sensitivity analysis for AFIRT
+Basically, it puts the data frame returned from sensitivity_analysis_for_AFIRT onto a picture
+```{r}
+plot.AFIRT.sensitivity.analysis = function(data, filename){
+    names = names(data)
+    data = data %>% gather(key, value, -c(get(names[1])))
+    g = ggplot(data, aes(get(names[1]), value, color=key)) +
+        scale.x.log10() +
+        scale.y.log10() +
+        geom_point() +
+        ylab("AFIRT") + 
+        xlab(names[1])
+    ggsave(filename, g)
+    return(g)
+}
+```
+# A fuction that simulates the Model F
+Argument:
+    dose.nmol: dose amount in nmol
+Return:
+    A data frame containing all the compartments of the model
+Note: dose amount is sent to the second compartment (or the second differential equation)
+```{r}
+simulation = function(dose.nmol){
+  ev = eventTable(amount.units="nmol", time.units="days")
+  sample.points = c(seq(-7, tmax, 0.1), 10^(-3:0)) # sample time, increment by 0.1
+  sample.points = sort(sample.points)
+  sample.points = unique(sample.points)
+  ev$add.sampling(sample.points)
+  ev$add.dosing(dose=dose.nmol, nbr.doses=floor(tmax/tau)+1, dosing.interval=tau,
+                dosing.to=2)
+      
+  init = model$init(param.as.double)
+  out = model$rxode$solve(param.as.double, ev, init)
+  out = model$rxout(out)
+  out = out %>% 
+    mutate(Sfree.pct = S1/init["S1"],
+             Mfree.pct = M3/init["M3"],
+             dose.nmol = dose.nmol)
+  return(out)
+}
 
+dose.nmol = 80
+df = simulation(dose.nmol)
+```
+# Here is how the simulated output looks like for time > 0
+```{r}
+dose_applied = df %>%
+  filter(time >0)
+print(head(dose_applied, 5))
+```
+
+There is something wrong with the model. We can see it by looking at the plot of some columns of the above data frame
+
+# D1 agaist time
+```{r}
+g = ggplot(df, aes(time, D1)) + geom_point()
+print(g)
+```
+
+# D3 agaist time
+```{r}
+g = ggplot(df, aes(time, D3)) + geom_point()
+print(g)
+```
+# complex against time
+```{r}
+g = ggplot(df, aes(time, DM3)) + geom_point()
+print(g)
+```
+# Free target agaist time
+```{r}
+g = ggplot(df, aes(time, M3)) + geom_point()
+print(g)
+```
+
+
+# Free target to initial target agaist time
+```{r}
+g = ggplot(df, aes(time, Mfree.pct)) + geom_point()
+print(g)
+```
+
+
+## Perform sensitivity analysis for AFIRT on dose.nmol
+```{r}
 sensitivity_analysis_wrt_dose.nmol = function(dose.nmol.range){
-  # Return: a data frame with two columns(column1 = dose.nmol, column2 = AFIRT.sim)
   df = data.frame()
   for (dose.nmol in dose.nmol.range){
     AFIRT.sim = AFIRT_sim(dose.nmol=dose.nmol)
@@ -85,15 +277,30 @@ sensitivity_analysis_wrt_dose.nmol = function(dose.nmol.range){
   return(df)
 }
 
-dose.nmol.range = 80*scale.mg2nmol*lseq(0.01, 1000, 20)
-
+dose.nmol.range = lseq(1, 100000, 20)
 df = sensitivity_analysis_wrt_dose.nmol(dose.nmol.range = dose.nmol.range)
 print(df)
+```
+## Make a plot of the above data frame
+```{r}
+plot.AFIRT.sensitivity.analysis(df, "AFIRTwrtdose.jpg")
 ```
 
 
 
 
+##  AFIRT sensitivity analysis on kshedM3
+## kshedM3 = 3 in the parameter file
+## set range of kshedM3 to be [1, 10] with 6 folds
+```{r}
+sen = sensitivity_analysis_for_AFIRT(dose.nmol=80, variable="kshedM3", range = lseq(1, 10 ,6))
+plot.AFIRT.sensitivity.analysis(sen, "AFIRTwrtkshedM3.jpg")
+```
 
-
-
+## AFIRT sensitivity analysis on VD3 (tumor size)
+## VD3 = 0.1 in the parameter file
+## set range of VD3 to be [0.01, 1] with 6 folds
+```{r}
+sen = sensitivity_analysis_for_AFIRT(dose.nmol=80, variable="kshedM3", range = lseq(0.01, 1, 6))
+plot.AFIRT.sensitivity.analysis(sen, "AFIRTwrtVD3.jpg")
+```

@@ -5,7 +5,7 @@
 
 
 
-source("functions.R")
+source("SensitivityAnalysis.R")
 
 sim = basic.sensitivity.analysis(parameter.file="~/IMAProjs/TumorModeling/ModelF/ivsc_4cmtct_shedct_param.csv",
                                  model.file="~/IMAProjs/TumorModeling/ModelF/ivsc_4cmtct_shedct.R",

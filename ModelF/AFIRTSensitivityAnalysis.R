@@ -45,7 +45,7 @@ AFIRT_theory = function(dose.nmol){
     Mtot3.ss = numerator / denomenator
 
     # numerator and denomenator for M3.0 (M3 at initial state)
-    numerator = with(p, k13M*(VD1/VD3)*ksynM1+(keM1+kshedM1+k13D)*kshedM3)
+    numerator = with(p, k13M*(VD1/VD3)*ksynM1+(keM1+kshedM1+k13D)*ksyn3)
     denomenator = with(p, (keM1+kshedM1+k13D)*(keD3+kshedM3+k31D)-k31D*k13D)
     M3.0 = numerator / denomenator
 

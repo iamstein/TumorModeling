@@ -310,11 +310,16 @@ set range of VD3 to be [0.01, 1] with 6 folds
 sen = sensitivity_analysis_for_AFIRT(dose.nmol=80, variable="kshedM3", range = lseq(0.01, 1, 6))
 plot.AFIRT.sensitivity.analysis(sen, "AFIRTwrtVD3.jpg")
 ```
-# Test the theory and simulation of the following parameters
-### M30, M3tot.ss, B, Davg3 
-### The function below takes a dataset and calculate these lumped parameters from theory
+
+# Test the theory and simulation of the lumped parameters: M30, M3tot.ss, B, Davg3 
+## The function below takes a dataset and calculate these lumped parameters from theory
 ```{r}
 lumped.parameters.theory = function(params_file_path){
+    # Arguments: 
+    #   params_file_path: path to the parameters file
+    # Return:
+    #   A data frame of lumped parameter calcuated from theory
+    
     d <- xlsx::read.xlsx(params_file_path, 1)
     param.as.double = d$Value
     names(param.as.double) = d$Parameter
@@ -349,26 +354,15 @@ lumped.parameters.theory = function(params_file_path){
 lumped_parameters_theory = lumped.parameters.theory("../data/ModelF_Atezolizumab_Params.xlsx")
 print(lumped_parameters_theory)
 ```
-## Calculate lumped parameters from simulation for Atezolizumab
-Different dose should give same result. This can used as a sanity check. I will run simulation for dose.nmol=80 and dose.nmol=8000
-to see if they give the same results
-```{r}
-sim_80 = simulation(dose.nmol=80, "../data/ModelF_Atezolizumab_Params.xlsx")
-initial_state = sim_80 %>%
-    filter(time==0)
-M30_sim_80 = initial_state$M3
 
-sim_8000 = simulation(dose.nmol=8000, "../data/ModelF_Atezolizumab_Params.xlsx")
-initial_state = sim_8000 %>%
-    filter(time==0)
-M30_sim_8000 = initial_state$M3
-print(c(M30_sim_80, M30_sim_8000))
-```
-Awesome, they do agree.
-
-### The function below computes the lumped parameters from simulation
+## The function below computes the lumped parameters from simulation
 ```{r}
 lumped.parameters.simulation = function(dose.nmol, params_file_path){
+    # Arguments:
+    #   dose.nmol: The dose amount in nmol
+    #   params_file_path: path to the parameter file
+    # Return:
+    #   A data frame of simulated lumped parameters
   sim = simulation(dose.nmol=dose.nmol, params_file_path = params_file_path)
   initial_state = sim %>%
     filter(time==0)
@@ -385,7 +379,8 @@ lumped.parameters.simulation = function(dose.nmol, params_file_path){
   return(lumped_parameters_sim)
 }
 ```
-
+For sanity check, the lumped parameters M30, Mtot3.ss, and Tacc.tum  should not depends on the initial dose amount.
+For different dose amount, the function lumped.parameters.simulation should return the same data frame
 ```{r}
 dose.range = c(80, 800, 8000, 80000)
 for (dose.nmol in dose.range){
@@ -393,6 +388,8 @@ for (dose.nmol in dose.range){
   print(lumped_parameters_sim)
 }
 ```
+Okay, for different inital doses, we do get the same simulated lumped parameters. However, M30 seems to be the same as Mtot3.ss
+in the simulation which is kind of weird. Also, M30 calculated from theory and M30 calculated from simulation are off by a lot.
 
 
 

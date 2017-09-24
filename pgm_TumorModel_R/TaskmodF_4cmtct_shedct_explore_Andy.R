@@ -1,5 +1,4 @@
 # Setup.
-setwd("~/TumorModeling/pgm_TumorModel_R")
 source("ams_initialize_script.R")
 source("ivsc_4cmtct_shedct.R")
 dirs = get.dirs(sys.calls(),dirs)
@@ -26,7 +25,7 @@ var2nice = function(df) {
 
 # Model and parameters. 
 mod      = ivsc_4cmtct_shedct()
-d        = xlsx::read.xlsx("../data/ivsc_4cmtct_shedct_param.xlsx",1,stringsAsFactors=FALSE)
+d        = xlsx::read.xlsx("../data/ModelF_Atezolizumab_Params.xlsx",1,stringsAsFactors=FALSE)
 d        = d %>% filter(!is.na(Parameter))
 param    = d
 row.names(param) = param$Parameter
@@ -100,10 +99,10 @@ Kd  = pp$koff3/pp$kon3
 kss = with(pp, ( koff3 + keDM3 + kshedM3 ) / kon3 )
 
 Mtot3ss = with(pp,
-          (k13DM*ksynM1*(VD1/VD3)+(keDM1+kshedM1+k13DM)*kshedM3) /
+          (k13DM*ksynM1*(VD1/VD3)+(keDM1+kshedM1+k13DM)*ksynM3) /
           ((keDM1+kshedM1+k13DM)*(keDM3+kshedM3+k31DM)-k31DM*k13DM))
 M03     = with(pp, 
-          ((k13M*ksynM1*(VD1/VD3)+(keM1+kshedM1+k13D)*kshedM3)/
+          ((k13M*ksynM1*(VD1/VD3)+(keM1+kshedM1+k13D)*ksynM3)/
           ((keM1+kshedM1+k13M)*(keM3+kshedM3+k31M)-k31M*k13M)))
 Tacc.tum = Mtot3ss/M03
 B = with(pp, ( k13D*VD1/VD3 ) / ( keD3 + k31D ))
@@ -149,7 +148,7 @@ g = ggplot(AFIRTlong, aes(dose.mg,value,color=key,shape=key)) +
   xlab("dose (mg)") + 
   guides(shape=FALSE) + 
   scale_color_manual(values = c("red", "green", "blue"), labels = c("Simulated","Theoretical,Kd", "Theoretical,Kss"))
-print(g)
+ggsave("AFIRT.jpg", g)
 
 h = ggplot(B.sim, aes(dose.mg,B.sim)) +
   scale.x.log10()+

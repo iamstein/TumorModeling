@@ -1,6 +1,17 @@
+---
+title: "Analysis of Model F"
+author: "Hongshan"
+date:  "September 2017"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+---
+
 ### Analysis on Model F
 
-```{r}
+```{r warning=FALSE}
 suppressMessages(source("ams_initialize_script.R"))
 suppressMessages(library(RxODE))
 suppressMessages(library(dplyr))
@@ -19,10 +30,10 @@ ivsc_4cmtct_shedct = function() {
                 
                 
              ksyn = with(p,c(ksynS1,ksynS3,ksynM1,ksynM3))
-             K    = with(p,matrix(c(keS1+k13S         , -k13S*VS1/VS3       ,  -kshedM1,         0,
-                                    -k31S*VS3/VS1 ,  keS3 + k31S        ,  0       ,  -kshedM3,
-                                    0            ,  0                  , kshedM1+keM1+k13M, -k31M*VD3/VD1,
-                                    0            ,  0                  , -k13M*VD3/VD1,   kshedM3+keM3+k31M), 
+             K    = with(p,matrix(c( keS1+k13S    , -k13S*VS1/VS3       ,  -kshedM1         , 0,
+                                    -k31S*VS3/VS1 ,  keS3 + k31S        ,  0                ,-kshedM3,
+                                    0             ,  0                  , kshedM1+keM1+k13M ,-k31M*VD3/VD1,
+                                    0             ,  0                  , -k13M*VD3/VD1     , kshedM3+keM3+k31M), 
                                   nrow = 4, byrow=TRUE))
              x    = solve(K,ksyn)
                 
@@ -81,7 +92,7 @@ tau = 14 # dosing interval, unit=day
 compartment = 2 # compartment to which dosing is applied
 
 # Import parameters
-d = xlsx::read.xlsx("../data/ivsc_4cmtct_shedct_param.xlsx",1)
+d = readxl::read_excel("../data/ivsc_4cmtct_shedct_param.xlsx",1)
 param.as.double = d$Value
 names(param.as.double) = d$Parameter
 
@@ -230,7 +241,10 @@ df = simulation(dose.nmol, "../data/ModelF_Atezolizumab_Params.xlsx")
 ```{r}
 dose_applied = df %>%
   filter(time >0)
-print(head(dose_applied, 5))
+dose_applied %>%
+  head(5) %>%
+  signif(2) %>%
+  kable()
 ```
 
 There is something wrong with the model. We can see it by looking at the plot of some columns of the above data frame
@@ -285,7 +299,7 @@ sensitivity_analysis_wrt_dose.nmol = function(dose.nmol.range){
 
 dose.nmol.range = lseq(1, 100000, 20)
 df = sensitivity_analysis_wrt_dose.nmol(dose.nmol.range = dose.nmol.range)
-print(df)
+kable(signif(df,2))
 ```
 ## Make a plot of the above data frame
 ```{r}

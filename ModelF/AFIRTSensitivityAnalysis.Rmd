@@ -1,6 +1,17 @@
+---
+title: "Analysis of Model F"
+author: "Hongshan"
+date:  "September 2017"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+---
+
 ### Analysis on Model F
 
-```{r}
+```{r warning=FALSE}
 suppressMessages(source("ams_initialize_script.R"))
 suppressMessages(library(RxODE))
 suppressMessages(library(dplyr))
@@ -19,10 +30,10 @@ ivsc_4cmtct_shedct = function() {
                 
                 
              ksyn = with(p,c(ksynS1,ksynS3,ksynM1,ksynM3))
-             K    = with(p,matrix(c(keS1+k13S         , -k13S*VS1/VS3       ,  -kshedM1,         0,
-                                    -k31S*VS3/VS1 ,  keS3 + k31S        ,  0       ,  -kshedM3,
-                                    0            ,  0                  , kshedM1+keM1+k13M, -k31M*VD3/VD1,
-                                    0            ,  0                  , -k13M*VD3/VD1,   kshedM3+keM3+k31M), 
+             K    = with(p,matrix(c( keS1+k13S    , -k13S*VS1/VS3       ,  -kshedM1         , 0,
+                                    -k31S*VS3/VS1 ,  keS3 + k31S        ,  0                ,-kshedM3,
+                                    0             ,  0                  , kshedM1+keM1+k13M ,-k31M*VD3/VD1,
+                                    0             ,  0                  , -k13M*VD3/VD1     , kshedM3+keM3+k31M), 
                                   nrow = 4, byrow=TRUE))
              x    = solve(K,ksyn)
                 
@@ -81,7 +92,7 @@ tau = 14 # dosing interval, unit=day
 compartment = 2 # compartment to which dosing is applied
 
 # Import parameters
-d = xlsx::read.xlsx("../data/ivsc_4cmtct_shedct_param.xlsx",1)
+d = readxl::read_excel("../data/ivsc_4cmtct_shedct_param.xlsx",1)
 param.as.double = d$Value
 names(param.as.double) = d$Parameter
 
@@ -230,7 +241,10 @@ df = simulation(dose.nmol, "../data/ModelF_Atezolizumab_Params.xlsx")
 ```{r}
 dose_applied = df %>%
   filter(time >0)
-print(head(dose_applied, 5))
+dose_applied %>%
+  head(5) %>%
+  signif(2) %>%
+  kable()
 ```
 
 There is something wrong with the model. We can see it by looking at the plot of some columns of the above data frame
@@ -285,7 +299,7 @@ sensitivity_analysis_wrt_dose.nmol = function(dose.nmol.range){
 
 dose.nmol.range = lseq(1, 100000, 20)
 df = sensitivity_analysis_wrt_dose.nmol(dose.nmol.range = dose.nmol.range)
-print(df)
+kable(signif(df,2))
 ```
 ## Make a plot of the above data frame
 ```{r}
@@ -327,15 +341,16 @@ lumped.parameters.theory = function(params_file_path){
     Kss = with(p, (koff3 + keDM3 + kshedM3)/kon3)
     Kd = with(p, koff3 / kon3)
     
-    # numerator and denomenator for Mtot3.ss(Mtot3 at steady state)
-    numerator = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedM1+k13DM)*ksynM3)
-    denomenator = with(p, (keDM1+kshedM1+k13DM)*(keDM3+kshedM3+k31DM)-k31DM*k13DM)
-    Mtot3.ss = numerator / denomenator
+    # numerators for M3.0 and Mtot3.ss(Mtot3 at steady state, M3 at initial state)
+    numerator.DM = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedDM1+k13DM)*ksynM3)
+    numerator.M  = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
 
-    # numerator and denomenator for M3.0 (M3 at initial state)
-    numerator = with(p, k13M*(VD1/VD3)*ksynM1+(keM1+kshedM1+k13D)*ksynM3)
-    denomenator = with(p, (keM1+kshedM1+k13D)*(keD3+kshedM3+k31D)-k31D*k13D)
-    M30 = numerator / denomenator
+    denomenator.DM = with(p, (keDM1+kshedDM1+k13DM)*(keDM3+kshedM3+k31DM)-k31DM*k13DM)
+    denomenator.M  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
+    
+    # numerator and denomenator for M3.0 ()
+    Mtot3.ss = numerator.DM / denomenator.DM
+    M30      = numerator.M  / denomenator.M
 
     # Target accumulation in the tumor compartment
     Tacc.tum = Mtot3.ss / M30
@@ -343,16 +358,19 @@ lumped.parameters.theory = function(params_file_path){
 #    CL = with(p, keD1 / VD1)
 #    B = with(p, (k13D*VD1/VD3)/(keD3 + k31D))
     
-    lumped_parameters_theory = c(M30, Mtot3.ss, Tacc.tum)
+    lumped_parameters_theory = data.frame(type = "theory",
+                                          M30=M30, 
+                                          Mtot3.ss=Mtot3.ss, 
+                                          Tacc.tum=Tacc.tum)
 #    lumped_parameters_theory = data.frame(lumped_parameters_theory)
-    names(lumped_parameters_theory) = c("M30", "Mtot3.ss", "Target Accumulation Rate")
+#    names(lumped_parameters_theory) = c("M30", "Mtot3.ss", "Target Accumulation Rate")
     return(lumped_parameters_theory)
 }
 ```
 ## Calculate lumped parameters from theory for Atezolizumab
 ```{r}
 lumped_parameters_theory = lumped.parameters.theory("../data/ModelF_Atezolizumab_Params.xlsx")
-print(lumped_parameters_theory)
+#kable(lumped_parameters_theory)
 ```
 
 ## The function below computes the lumped parameters from simulation
@@ -374,8 +392,11 @@ lumped.parameters.simulation = function(dose.nmol, params_file_path){
 
   Tacc.tum = Mtot3.ss / M30
   
-  lumped_parameters_sim = c(M30, Mtot3.ss, Tacc.tum)
-  names(lumped_parameters_sim) = c("M30", "Mtot3.ss", "Target Accumulation Rate")
+  lumped_parameters_sim = data.frame(type = "simulation",
+                                     M30=M30, 
+                                     Mtot3.ss=Mtot3.ss, 
+                                     Tacc.tum=Tacc.tum)
+  #names(lumped_parameters_sim) = ("M30", "Mtot3.ss", "Target Accumulation Rate")
   return(lumped_parameters_sim)
 }
 ```
@@ -385,11 +406,18 @@ For different dose amount, the function lumped.parameters.simulation should retu
 dose.range = c(80, 800, 8000, 80000)
 for (dose.nmol in dose.range){
   lumped_parameters_sim = lumped.parameters.simulation(dose.nmol,   params_file_path="../data/ModelF_Atezolizumab_Params.xlsx")
-  print(lumped_parameters_sim)
+#  kable(signif(lumped_parameters_sim,3))
 }
 ```
 Okay, for different inital doses, we do get the same simulated lumped parameters. However, M30 seems to be the same as Mtot3.ss
 in the simulation which is kind of weird. Also, M30 calculated from theory and M30 calculated from simulation are off by a lot.
+
+* Andy says: the parameetrs are such that M3tot doesn't accumulate much.  So this makes sense.  We compare the theory and simulation below
+
+``` {r warning=FALSE}
+  comparison = bind_rows(lumped_parameters_sim,lumped_parameters_theory)
+  kable(comparison)
+```
 
 
 

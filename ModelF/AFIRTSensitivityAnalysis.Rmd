@@ -33,10 +33,10 @@ ivsc_4cmtct_shedct = function() {
                 
                 
              ksyn = with(p,c(ksynS1,ksynS3,ksynM1,ksynM3))
-             K    = with(p,matrix(c( keS1+k13S    , -k13S*VS1/VS3       ,  -kshedM1         , 0,
-                                    -k31S*VS3/VS1 ,  keS3 + k31S        ,  0                ,-kshedM3,
-                                    0             ,  0                  , kshedM1+keM1+k13M ,-k31M*VD3/VD1,
-                                    0             ,  0                  , -k13M*VD3/VD1     , kshedM3+keM3+k31M), 
+             K    = with(p,matrix(c( keS1+k13S    , -k31S*VS3/VS1       , -kshedM1           ,  0,
+                                    -k13S*VS1/VS3 ,  keS3+k31S          ,  0                 , -kshedM3,
+                                     0            ,  0                  ,  kshedM1+keM1+k13M , -k31M*VD3/VD1,
+                                     0            ,  0                  , -k13M*VD1/VD3      ,  kshedM3+keM3+k31M), 
                                   nrow = 4, byrow=TRUE))
              x    = solve(K,ksyn)
                 
@@ -304,7 +304,7 @@ print(g)
 # Mtot3 (total free target) against time
 
 ```{r}
-g = ggplot(df, aes(time, Mtot3)) + geom_point()
+g = ggplot(df, aes(time, Mtot3)) + geom_point() + ylim(0, 3)
 print(g)
 ```
 

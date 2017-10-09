@@ -1,32 +1,42 @@
 ---
+title: "Analysis of Model F"
+author: "Hongshan"
+date:  "September 2017"
 output:
-  pdf_document: default
-  html_document: default
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
 ---
-## 
-```{r}
-source("ams_initialize_script.R")
-library(RxODE)
-library(dplyr)
+
+### Analysis on Model F
+
+```{r warning=FALSE}
+suppressMessages(source("ams_initialize_script.R"))
+suppressMessages(library(RxODE))
+suppressMessages(library(dplyr))
 ```
+
 # Model F is defined below
+
 ```{r}
 ivsc_4cmtct_shedct = function() {
   model           = list()
   model$name      = as.character(sys.calls()[[sys.nframe()]])
   
-  #COMPARTMENTS AND INITIAL CONDITIONS
+  #COMPARTMENTS
   model$cmtshort  = c('AmtD0','D1','D2','D3','S1','S3','M3','DS1','DS3','DM3','DM1','M1')
+  #CALCULATE INITIAL CONDITION WITH NO DRUG PRESENT AND ASSUMING STEADY STATE
   model$init      = function(p){
              init = c(AmtD0=0,D1=0,D2=0,D3=0,S1=0,S3=0,M3=0,DS1=0,DS3=0,DM3=0,DM1=0,M1=0)
              p    = p %>% t() %>% as.data.frame()
                 
                 
              ksyn = with(p,c(ksynS1,ksynS3,ksynM1,ksynM3))
-             K    = with(p,matrix(c(keS1+k13S         , -k13S*VS1/VS3       ,  -kshedM1,         0,
-                                    -k31S*VS3/VS1 ,  keS3 + k31S        ,  0       ,  -kshedM3,
-                                    0            ,  0                  , kshedM1+keM1+k13M, -k31M*VD3/VD1,
-                                    0            ,  0                  , -k13M*VD3/VD1,   kshedM3+keM3+k31M), 
+             K    = with(p,matrix(c( keS1+k13S    , -k31S*VS3/VS1       , -kshedM1           ,  0,
+                                    -k13S*VS1/VS3 ,  keS3+k31S          ,  0                 , -kshedM3,
+                                     0            ,  0                  ,  kshedM1+keM1+k13M , -k31M*VD3/VD1,
+                                     0            ,  0                  , -k13M*VD1/VD3      ,  kshedM3+keM3+k31M), 
                                   nrow = 4, byrow=TRUE))
              x    = solve(K,ksyn)
                 
@@ -85,104 +95,23 @@ tau = 14 # dosing interval, unit=day
 compartment = 2 # compartment to which dosing is applied
 
 # Import parameters
-d = xlsx::read.xlsx("../data/ModelF_Atezolizumab_Params.xlsx",1)
+d = readxl::read_excel("../data/ivsc_4cmtct_shedct_param.xlsx",1)
 param.as.double = d$Value
 names(param.as.double) = d$Parameter
 
-# Function for ranges
+# Helper function to make the range of a variable when performing sensitivity analysis
 lseq = function(from, to, length.out){
     sequence = seq(log(from), log(to), length.out=length.out)
     sequence = exp(sequence)
     return(sequence)
 }
 ```
-# The function below calculate AFIRT from theory
+
 ```{r}
-AFIRT_theory = function(dose.nmol){
-    p = as.data.frame(t(param.as.double))
-    Kss = with(p, (koff3 + keDM3 + kshedM3)/kon3)
-    Kd = with(p, koff3 / kon3)
-    
-    # numerator and denomenator for Mtot3.ss(Mtot3 at steady state)
-    numerator = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedM1+k13DM)*ksynM3)
-    denomenator = with(p, (keDM1+kshedM1+k13DM)*(keDM3+kshedM3+k31DM)-k31DM*k13DM)
-    Mtot3.ss = numerator / denomenator
-
-    # numerator and denomenator for M3.0 (M3 at initial state)
-    numerator = with(p, k13M*(VD1/VD3)*ksynM1+(keM1+kshedM1+k13D)*ksynM3)
-    denomenator = with(p, (keM1+kshedM1+k13D)*(keD3+kshedM3+k31D)-k31D*k13D)
-    M3.0 = numerator / denomenator
-
-    # Target accumulation in the tumor compartment
-    Tacc.tum = Mtot3.ss / M3.0
-
-    CL = with(p, keD1 / VD1)
-    B = with(p, (k13D*VD1/VD3)/(keD3 + k31D))
-      
-    AFIRT.theory.Kss = Kss*Tacc.tum*(CL*tau)/(dose.nmol*B)
-    AFIRT.theory.Kd = Kd*Tacc.tum*(CL*tau)/(dose.nmol*B)
-    return(c(AFIRT.theory.Kss, AFIRT.theory.Kd))
-}
-```
-# The function below simulates AFIRT as the average of free target to initial target
-```{r}
-AFIRT_sim = function(dose.nmol){
-  ev = eventTable(amount.units="nmol", time.units="days")
-  sample.points = c(seq(-7, tmax, 0.1), 10^(-3:0)) # sample time, increment by 0.1
-  sample.points = sort(sample.points)
-  sample.points = unique(sample.points)
-  ev$add.sampling(sample.points)
-  ev$add.dosing(dose=dose.nmol, nbr.doses=floor(tmax/tau)+1, dosing.interval=tau,
-                dosing.to=2)
-      
-  init = model$init(param.as.double)
-  out = model$rxode$solve(param.as.double, ev, init)
-  out = model$rxout(out)
-  out = out %>% 
-    mutate(Sfree.pct = S1/init["S1"],
-             Mfree.pct = M3/init["M3"],
-             dose.nmol = dose.nmol)
-    
-  last.two.doses = out %>%
-    filter(time > 2*28 & time < 3*28)
-
-  AFIRT.sim = mean(last.two.doses$Mfree.pct)
-
-  return(AFIRT.sim)
-}
-```
-# The function below performs sensitivity analysis for AFIRT
-```{r}
-sensitivity_analysis_for_AFIRT = function(dose.nmol, variable, range){
-    df = data.frame()
-    for (value in range){
-        param.as.double[variable] = value
-        AFIRT.sim = AFIRT_sim(dose.nmol)
-        AFIRT.theory = AFIRT_theory(dose.nmol)
-        row = append(c(value, AFIRT.sim), AFIRT.theory)
-        df = rbind(df, row)
-    }
-    colnames(df) = c(variable, "AFIRF.sim", "AFIRT.theory.Kss", "AFIRT.theory.Kd")  
-    return(df)
-}
-
-# A function that plots the sensitivity analysis
-plot.AFIRT.sensitivity.analysis = function(data, filename){
-    names = names(data)
-    data = data %>% gather(key, value, -c(get(names[1])))
-    g = ggplot(data, aes(get(names[1]), value, color=key)) +
-        scale.x.log10() +
-        scale.y.log10() +
-        geom_point() +
-        ylab("AFIRT") + 
-        xlab(names[1])
-    ggsave(filename, g)
-    return(g)
-}
-```
-## Simulated output, initial dose = 80nmol, let's see if the model does what it supposes to do
-```{r}
-simulation = function(dose.nmol){
+simulation = function(dose.nmol, params_file_path, tmax){
+  d <- xlsx::read.xlsx(params_file_path, 1)
+  param.as.double = d$Value
+  names(param.as.double) = d$Parameter
   ev = eventTable(amount.units="nmol", time.units="days")
   sample.points = c(seq(-7, tmax, 0.1), 10^(-3:0)) # sample time, increment by 0.1
   sample.points = sort(sample.points)
@@ -201,86 +130,263 @@ simulation = function(dose.nmol){
   return(out)
 }
 
-dose.nmol = 80
-df = simulation(dose.nmol)
 ```
+
 # Here is how the simulated output looks like for time > 0
+
 ```{r}
 dose_applied = df %>%
   filter(time >0)
-print(head(dose_applied, 5))
+dose_applied %>%
+  head(5) %>%
+  signif(2) %>%
+  kable()
 ```
 
-There is something wrong with the model. We can see it by looking at the plot of some columns of the above data frame
 
-# D1 agaist time
+
+```
+
+
+```
+
+# Test the theory and simulation of the lumped parameters: M30, M3tot.ss, B, Davg3 
+
+## The function below takes a dataset and calculate these lumped parameters from theory
 ```{r}
-g = ggplot(df, aes(time, D1)) + geom_point()
+lumped.parameters.theory = function(params_file_path, dose.nmol){
+    d <- xlsx::read.xlsx(params_file_path, 1)
+    param.as.double = d$Value
+    names(param.as.double) = d$Parameter
+    p = as.data.frame(t(param.as.double))
+    Kss = with(p, (koff3 + keDM3 + kshedM3)/kon3)
+    Kd = with(p, koff3 / kon3)
+    
+    # numerators for M3.0 and Mtot3.ss(Mtot3 at steady state, M3 at initial state)
+    numerator.DM   = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedDM1+k13DM)*ksynM3)
+    denomenator.DM = with(p, (keDM1+kshedDM1+k13DM)*(keDM3+kshedM3+k31DM)-k31DM*k13DM)
+    
+    numerator.M    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
+    denomenator.M  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
+    
+    # numerator and denomenator for M3.0 ()
+    Mtot3.ss = numerator.DM / denomenator.DM
+    M30      = numerator.M  / denomenator.M
+
+    # Target accumulation in the tumor compartment
+    Tacc.tum = Mtot3.ss / M30
+
+    # Biodistribution coefficient (reference: ModelF_Appendix)
+    B = with(p, (k13D/(keD3 + k31D) * (VD1/VD3)))
+    
+    # Clearance 
+    CL = with(p, (keD1 / VD1))
+    
+    # Average drug concentration in the central compartment
+    # Cavg1 = with(p, (F * dose.nmol) / (CL * tau))
+    
+    
+    # Average drug concentratio in the tumor compartment (I have no idea how to compute it)
+    
+    
+    # AFIRT computed with Kss 
+    AFIRT.theory.Kss = Kss*Tacc.tum*(CL*tau)/(dose.nmol*B)
+    
+    # AFIRT computed with Kd
+    AFIRT.theory.Kd  = Kd*Tacc.tum*(CL*tau)/(dose.nmol*B)
+  
+    
+    lumped_parameters_theory = data.frame(type = "theory",
+                                          M30=M30, 
+                                          Mtot3.ss=Mtot3.ss, 
+                                          Tacc.tum=Tacc.tum,
+                                          B = B,
+                                          CL = CL,
+                                          AFIRT.Kss = AFIRT.theory.Kss,
+                                          AFIRT.Kd = AFIRT.theory.Kd)
+    
+    
+
+    return(lumped_parameters_theory)
+}
+```
+
+## Calculate lumped parameters from theory for Atezolizumab
+
+```{r}
+lumped_parameters_theory = lumped.parameters.theory("../data/ModelF_Atezolizumab_Params.xlsx", 80)
+print(lumped_parameters_theory)
+```
+
+Okay, for different inital doses, we do get the same simulated lumped parameters. However, M30 seems to be the same as Mtot3.ss
+in the simulation which is kind of weird. Also, M30 calculated from theory and M30 calculated from simulation are off by a lot.
+
+* Andy says: the parameetrs are such that M3tot doesn't accumulate much. So this makes sense. We compare the theory and simulation below.
+
+* kable is not working for lumped_parameters_sim or lumped_parameters_theory.
+
+* Hongshan says: AFIRT.sim and AFIRT.theory still differ by a big margin
+
+
+
+## Sensitivity analysis on lumped parameters calculated from theory with respect to dose.mol
+```{r}
+
+dose.nmol.range = lseq(1, 1000, 10)
+table = data.frame()
+for (dose.nmol in dose.nmol.range){
+  row = lumped.parameters.theory("../data/ModelF_Atezolizumab_Params.xlsx", dose.nmol)
+  table = rbind(table, row)
+}
+print(table)
+```
+
+
+## The function below simulates the lumped parameter
+
+```{r}
+# Change the function <simulation> so that it includes more time points
+
+simulation = function(dose.nmol, params_file_path, tmax){
+  d <- xlsx::read.xlsx(params_file_path, 1)
+  param.as.double = d$Value
+  names(param.as.double) = d$Parameter
+  ev = eventTable(amount.units="nmol", time.units="days")
+  sample.points = c(seq(-7, tmax, 0.1), 10^(-3:0)) # sample time, increment by 0.1
+  sample.points = sort(sample.points)
+  sample.points = unique(sample.points)
+  ev$add.sampling(sample.points)
+  ev$add.dosing(dose=dose.nmol, nbr.doses=floor(tmax/tau)+1, dosing.interval=tau,
+                dosing.to=2)
+      
+  init = model$init(param.as.double)
+  out = model$rxode$solve(param.as.double, ev, init)
+  out = model$rxout(out)
+  out = out %>% 
+    mutate(Sfree.pct = S1/init["S1"],
+             Mfree.pct = M3/init["M3"],
+             dose.nmol = dose.nmol)
+  return(out)
+}
+```
+### Run the simulation longer to make sure the system reaches steady state
+```{r}
+sim = simulation(dose.nmol = 80, params_file_path ="../data/ModelF_Atezolizumab_Params.xlsx", tmax=1000)
+g = ggplot(sim, aes(x=time, y=DM3)) + geom_point()
 print(g)
 ```
+## It is quite visible that the system reaches steady state after time > 500.
 
-# D3 agaist time
+## Simulate lumped parameters during steady state
 ```{r}
-g = ggplot(df, aes(time, D3)) + geom_point()
-print(g)
-```
-# complex against time
-```{r}
-g = ggplot(df, aes(time, DM3)) + geom_point()
-print(g)
-```
-# Free target agaist time
-```{r}
-g = ggplot(df, aes(time, M3)) + geom_point()
-print(g)
-```
+lumped.parameters.simulation = function(params_file_path, dose.nmol, tmax){
+  sim = simulation(dose.nmol=dose.nmol, params_file_path = params_file_path, tmax=tmax)
+  initial_state = sim %>%
+    filter(time==0)
+  M30 = initial_state$M3
+  
+  steady_state = sim %>%
+    filter(time>(tmax/2) & time <tmax)
+  Mtot3.ss = mean(steady_state$Mtot3)
+
+  Tacc.tum = Mtot3.ss / M30
+  
+  # Average drug concentration in central compartment
+  dose_applied = sim %>%
+    filter(time > 0)
+  Cavg1 = mean(dose_applied$D1)
+  
+  
+  # Average drug concentration in tumor compartment
+  Cavg3 = mean(dose_applied$D3)
+  
+  # AFIRT
+  AFIRT.sim = mean(steady_state$Mfree.pct)
+  
 
 
-# Free target to initial target agaist time
-```{r}
-g = ggplot(df, aes(time, Mfree.pct)) + geom_point()
-print(g)
-```
-
-
-## Perform sensitivity analysis for AFIRT on dose.nmol
-```{r}
-sensitivity_analysis_wrt_dose.nmol = function(dose.nmol.range){
-  df = data.frame()
-  for (dose.nmol in dose.nmol.range){
-    AFIRT.sim = AFIRT_sim(dose.nmol=dose.nmol)
-    AFIRT.theory = AFIRT_theory(dose.nmol = dose.nmol) 
-    row = append(c(dose.nmol, AFIRT.sim), AFIRT.theory)
-    df = rbind(df, row)
-  }
-  colnames(df) = c("dose.nmol", "AFIRT.sim", "AFIRT.theory.Kss", "AFIRT.theory.Kd")
-  return(df)
+  lumped_parameters_sim = data.frame(type = "simulation",
+                                     M30=M30, 
+                                     Mtot3.ss=Mtot3.ss, 
+                                     Tacc.tum=Tacc.tum,
+                                     Cavg1 = Cavg1,
+                                     Cavg3 = Cavg3,
+                                     AFIRT.sim = AFIRT.sim)
+  
+  return(lumped_parameters_sim)
 }
 
-dose.nmol.range = lseq(1, 100000, 20)
-df = sensitivity_analysis_wrt_dose.nmol(dose.nmol.range = dose.nmol.range)
-print(df)
+
+lump_sim = lumped.parameters.simulation(params_file_path="../data/ModelF_Atezolizumab_Params.xlsx", dose.nmol=80, tmax=1000)
+lump_sim
 ```
-## Make a plot of the above data frame
+
+## Sensitivity analysis on lumped parameters calculated from simulation with respect to dose.nmol
 ```{r}
-plot.AFIRT.sensitivity.analysis(df, "AFIRTwrtdose.jpg")
+dose.nmol.range = lseq(1, 1000, 10)
+table = data.frame()
+for (dose.nmol in dose.nmol.range){
+  row = lumped.parameters.simulation("../data/ModelF_Atezolizumab_Params.xlsx", dose.nmol, tmax=1000)
+  table = rbind(table, row)
+}
+print(table)
 ```
 
 
 
-
-##  AFIRT sensitivity analysis on kshedM3
-## kshedM3 = 3 in the parameter file
-## set range of kshedM3 to be [1, 10] with 6 folds
 ```{r}
-sen = sensitivity_analysis_for_AFIRT(dose.nmol=80, variable="kshedM3", range = lseq(1, 10 ,6))
-plot.AFIRT.sensitivity.analysis(sen, "AFIRTwrtkshedM3.jpg")
+lumped.parameters.theory("../data/ModelF_Atezolizumab_Params.xlsx", 80)
 ```
 
-## AFIRT sensitivity analysis on VD3 (tumor size)
-## VD3 = 0.1 in the parameter file
-## set range of VD3 to be [0.01, 1] with 6 folds
+## under high dose, AFIRT.thy shoudl agree with AFIRT.sim
+## Make a plot to demonstrate that
+### Make data frames for lumped parameters(thy and sim) at different doses
 ```{r}
-sen = sensitivity_analysis_for_AFIRT(dose.nmol=80, variable="kshedM3", range = lseq(0.01, 1, 6))
-plot.AFIRT.sensitivity.analysis(sen, "AFIRTwrtVD3.jpg")
+dose.nmol.range = lseq(80, 8000, 50)
+
+df_sim = data.frame() # put all simulations for different dose into one data frame
+for (dose.nmol in dose.nmol.range){
+  row = lumped.parameters.simulation("../data/ModelF_Atezolizumab_Params.xlsx", dose.nmol, tmax=100)
+  df_sim = rbind(df_sim, row)
+}
+
+df_thy = data.frame() # put all theoretical calculations of lumped parameters at different dose together
+for (dose.nmol in dose.nmol.range){
+  row = lumped.parameters.theory("../data/ModelF_Atezolizumab_Params.xlsx", dose.nmol)
+  df_thy = rbind(df_thy, row)
+}
 ```
+
+### Get AFIRT from both df_sim and df_thy
+```{r}
+Dose = as.data.frame(dose.nmol.range)
+AFIRT_sim = as.data.frame(df_sim$AFIRT.sim)
+AFIRT_Kd= as.data.frame(df_thy$AFIRT.Kd)
+AFIRT_Kss = as.data.frame(df_thy$AFIRT.Kss)
+
+
+AFIRT = data.frame(Dose, AFIRT_Kd, AFIRT_Kss, AFIRT_sim)
+names(AFIRT)= c("Dose","AFIRT_Kd", "AFIRT_Kss", "AFIRT_sim")
+AFIRT
+```
+Hongshan says: We don't actually need a plot to realize that the theory and simulation differ by a big margin
+But I will make a plot anyway, just to see which one is linear
+
+
+```{r}
+names = names(AFIRT)
+data = AFIRT %>% gather(key, value, -c(get(names[1])))
+g = ggplot(data, aes(Dose, value, color=key)) +
+  scale.x.log10() +
+  scale.y.log10() +
+  geom_point()
+g
+```
+
+Hongshan says: Deeply confused
+
+
+
+
+
+

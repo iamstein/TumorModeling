@@ -1,12 +1,14 @@
 ---
 title: "Analysis of Model F"
 author: "Hongshan"
-date:  "September 2017"
+date: "September 2017"
 output:
+  pdf_document:
+    toc: yes
   html_document:
-    toc: true
-    toc_float: true
     code_folding: hide
+    toc: yes
+    toc_float: yes
 ---
 
 ### Analysis on Model F
@@ -131,25 +133,6 @@ simulation = function(dose.nmol, params_file_path, tmax){
 }
 
 ```
-
-# Here is how the simulated output looks like for time > 0
-
-```{r}
-dose_applied = df %>%
-  filter(time >0)
-dose_applied %>%
-  head(5) %>%
-  signif(2) %>%
-  kable()
-```
-
-
-
-```
-
-
-```
-
 # Test the theory and simulation of the lumped parameters: M30, M3tot.ss, B, Davg3 
 
 ## The function below takes a dataset and calculate these lumped parameters from theory

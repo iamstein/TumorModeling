@@ -297,7 +297,7 @@ Argument: params_file_path: path to the parameters file
 Return:   data frame of lumped parameter calcuated from theory
 
 ```{r}
-lumped.parameters.theory = function(params_file_path){
+lumped.parameters.theory = function(dose.nmol=dose.nmol,params_file_path){
     d <- xlsx::read.xlsx(params_file_path, 1)
     param.as.double = d$Value
     names(param.as.double) = d$Parameter
@@ -332,6 +332,7 @@ lumped.parameters.theory = function(params_file_path){
     AFIRT.Kd  = Kd*Tacc.tum/Davg3
     
     lumped_parameters_theory = data.frame(type = "theory",
+                                          dose.nmol=dose.nmol,
                                           M30=M30, 
                                           Mtot3.ss=Mtot3.ss, 
                                           Tacc.tum=Tacc.tum,
@@ -348,7 +349,8 @@ lumped.parameters.theory = function(params_file_path){
 ## Calculate lumped parameters from theory for Atezolizumab
 
 ```{r}
-lumped_parameters_theory = lumped.parameters.theory("../data/ModelF_Atezolizumab_Params.xlsx")
+dose.nmol = 80000
+lumped_parameters_theory = lumped.parameters.theory(dose.nmol,"../data/ModelF_Atezolizumab_Params.xlsx")
 kable(lumped_parameters_theory)
 ```
 
@@ -361,6 +363,7 @@ Return:
   A data frame of simulated lumped parameters
 
 ```{r}
+dose.nmol = 80000
 lumped.parameters.simulation = function(dose.nmol, params_file_path){
   sim = simulation(dose.nmol=dose.nmol, params_file_path = params_file_path)
   initial_state = sim %>%
@@ -377,6 +380,7 @@ lumped.parameters.simulation = function(dose.nmol, params_file_path){
   Tacc.tum = Mtot3.ss / M30
   
   lumped_parameters_sim = data.frame(type = "simulation",
+                                     dose.nmol = dose.nmol,
                                      M30=M30, 
                                      Mtot3.ss=Mtot3.ss, 
                                      Tacc.tum=Tacc.tum,

@@ -402,27 +402,12 @@ Okay, for different inital doses, we do get the same simulated lumped parameters
 in the simulation which is kind of weird. Also, M30 calculated from theory and M30 calculated from simulation are off by a lot.
 
 * Andy says: the parameetrs are such that M3tot doesn't accumulate much. So this makes sense. We compare the theory and simulation below.
-<<<<<<< HEAD
 
 * kable is not working for lumped_parameters_sim or lumped_parameters_theory.
 
-<<<<<<< HEAD
 ```{r warning=FALSE}
   comparison = bind_rows(lumped_parameters_sim,lumped_parameters_theory)
   kable(comparison)
-=======
-``` {r}
-comparison = bind_rows(lumped_parameters_sim,lumped_parameters_theory)
-kable(comparison)
->>>>>>> bc85dcc4092e9ae76de436df4e0c3fb9738145cf
-=======
-
-* kable is not working for lumped_parameters_sim or lumped_parameters_theory.
-
-``` {r}
-comparison = bind_rows(lumped_parameters_sim,lumped_parameters_theory)
-kable(comparison)
->>>>>>> bc85dcc4092e9ae76de436df4e0c3fb9738145cf
 ```
 
 

@@ -1,0 +1,58 @@
+suppressMessages(source("ams_initialize_script.R"))
+suppressMessages(library(RxODE))
+suppressMessages(library(dplyr))
+suppressMessages(source("AFIRT_calculation.R"))
+suppressMessages(source("ivsc_4cmtct_shedct.R"))
+
+a = lseq(10, 10000, length.out=6)
+print(a)
+
+print("Testing lumped.parameters.theory")
+d = lumped.parameters.theory("../data/ModelF_Atezolizumab_Params.xlsx", 
+    200,14)
+print(d)
+
+
+print("Testing lumped.parameters.simulation")
+d = lumped.parameters.simulation("ivsc_4cmtct_shedct",
+    "../data/ModelF_Atezolizumab_Params.xlsx", 200, 1000, 14, 2)
+print(d)
+
+print("------------------------------")
+print("Testing if simulated AFIRT is linear wrt dosing")
+dose.nmol.range = lseq(80, 8000, 50)
+
+df_sim = data.frame() # put all simulations for different dose into one data frame
+for (dose.nmol in dose.nmol.range){
+  row = lumped.parameters.simulation("ivsc_4cmtct_shedct",
+    "../data/ModelF_Atezolizumab_Params.xlsx", dose.nmol, 200, 1, 2)
+  df_sim = rbind(df_sim, row)
+}
+
+df_thy = data.frame() # put all theoretical calculations of lumped parameters at different dose together
+for (dose.nmol in dose.nmol.range){
+  row = lumped.parameters.theory("../data/ModelF_Atezolizumab_Params.xlsx", dose.nmol, 1)
+  df_thy = rbind(df_thy, row)
+}
+
+Dose = as.data.frame(dose.nmol.range)
+AFIRT_sim = as.data.frame(df_sim$AFIRT.sim)
+AFIRT_Kd= as.data.frame(df_thy$AFIRT.Kd)
+AFIRT_Kss = as.data.frame(df_thy$AFIRT.Kss)
+
+
+AFIRT = data.frame(Dose, AFIRT_Kd, AFIRT_Kss, AFIRT_sim)
+names(AFIRT)= c("Dose","AFIRT_Kd", "AFIRT_Kss", "AFIRT_sim")
+
+names = names(AFIRT)
+data = AFIRT %>% gather(key, value, -c(get(names[1])))
+g = ggplot(data, aes(Dose, value, color=key)) +
+  scale.x.log10() +
+  scale.y.log10() +
+  geom_point()
+
+print(g)
+
+
+
+

@@ -7,7 +7,7 @@
      d/dt(S1)     = ksynS1+kshedM1*M1 - k13S *S1 +  k31S*VS3/VS1*S3  - keS1 *S1  - kon1*D1*S1      + koff1*DS1;
      d/dt(S3)     = ksynS3 +kshedM3*M3   + k13S *VS1/VS3*S1 - k31S*S3  - keS3 *S3  - kon3*D3*S3  + koff3*DS3;
      d/dt(M3)     = ksynM3 -kshedM3*M3  -k31M*M3+k13M*VD1/VD3*M1  - keM3 *M3  - kon3*D3*M3 + koff3*DM3;
-     d/dt(DS1)    = kshedDM1*DM1 - k13DS*DS1 + k31DS*VDS3/VDS1*DS3 - keDS1*DS1 + kon1*D1*S1 - koff1*DS1;
+     d/dt(DS1)    = kshedM1*DM1 - k13DS*DS1 + k31DS*VDS3/VDS1*DS3 - keDS1*DS1 + kon1*D1*S1 - koff1*DS1;
      d/dt(DS3)    = kshedDM3*DM3 + k13DS*VDS1/VDS3*DS1 - k31DS*DS3 - keDS3*DS3 + kon3*D3*S3  - koff3*DS3;
      d/dt(DM3)    = -kshedDM3*DM3  - keDM3*DM3 + kon3*D3*M3 - koff3*DM3-k31DM*DM3+k13DM*(VD1/VD3)*DM1;
      d/dt(DM1)    = -keDM1*DM1 -kshedDM1*DM1 +kon1*D1*M1 -koff1*DM1-k13DM*DM1+k31DM*(VD3/VD1)*DM3;

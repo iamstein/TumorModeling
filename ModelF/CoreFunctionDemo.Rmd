@@ -18,10 +18,10 @@ suppressMessages(library(dplyr))
 suppressMessages(source("AFIRT_calculation.R"))
 suppressMessages(source("ivsc_4cmtct_shedct.R"))
 
-dose.nmol.range = lseq(1, 1e5, 5)
-#dose.nmol.range = 100000
+dose.nmol.range = lseq(1, 1e5, 6)
 
 d <- read_excel("../data/ivsc_4cmtct_shedct_param.xlsx", 1)
+#d <- read_excel("../data/ModelF_Atezolizumab_Params.xlsx", 1)
 param.as.double = d$Value
 names(param.as.double) = d$Parameter
 

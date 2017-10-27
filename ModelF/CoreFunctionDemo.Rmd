@@ -8,8 +8,6 @@ output:
     toc_float: true
     code_folding: hide
 ---
-### Run AFIRT sensitivity analysis WRT dose.nmol on the parameter file
-#### ivsc_4cmtct_shedct_param.xlsx
 
 ```{r}
 suppressMessages(source("ams_initialize_script.R"))
@@ -17,13 +15,18 @@ suppressMessages(library(RxODE))
 suppressMessages(library(dplyr))
 suppressMessages(source("AFIRT_calculation.R"))
 suppressMessages(source("ivsc_4cmtct_shedct.R"))
+```
 
-dose.nmol.range = lseq(1, 1e5, 6)
+### Run AFIRT sensitivity analysis WRT dose.nmol on a parameter file
+#### Specific parameter file is changed just below
 
+```{r}
 d <- read_excel("../data/ivsc_4cmtct_shedct_param.xlsx", 1)
 #d <- read_excel("../data/ModelF_Atezolizumab_Params.xlsx", 1)
 param.as.double = d$Value
 names(param.as.double) = d$Parameter
+
+dose.nmol.range = lseq(1, 1e5, 6)
 
 model = ivsc_4cmtct_shedct()
 

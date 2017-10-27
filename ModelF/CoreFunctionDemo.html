@@ -218,10 +218,6 @@ div.tocify {
 </div>
 
 
-<div id="run-afirt-sensitivity-analysis-wrt-dose.nmol-on-the-parameter-file" class="section level3">
-<h3>Run AFIRT sensitivity analysis WRT dose.nmol on the parameter file</h3>
-<div id="ivsc_4cmtct_shedct_param.xlsx" class="section level4">
-<h4>ivsc_4cmtct_shedct_param.xlsx</h4>
 <pre class="r"><code>suppressMessages(source(&quot;ams_initialize_script.R&quot;))</code></pre>
 <pre><code>## Warning: package 'ggplot2' was built under R version 3.2.5</code></pre>
 <pre><code>## Warning: package 'dplyr' was built under R version 3.2.5</code></pre>
@@ -229,14 +225,17 @@ div.tocify {
 <pre class="r"><code>suppressMessages(library(RxODE))
 suppressMessages(library(dplyr))
 suppressMessages(source(&quot;AFIRT_calculation.R&quot;))
-suppressMessages(source(&quot;ivsc_4cmtct_shedct.R&quot;))
-
-dose.nmol.range = lseq(1, 1e5, 6)
-
-d &lt;- read_excel(&quot;../data/ivsc_4cmtct_shedct_param.xlsx&quot;, 1)
+suppressMessages(source(&quot;ivsc_4cmtct_shedct.R&quot;))</code></pre>
+<div id="run-afirt-sensitivity-analysis-wrt-dose.nmol-on-a-parameter-file" class="section level3">
+<h3>Run AFIRT sensitivity analysis WRT dose.nmol on a parameter file</h3>
+<div id="specific-parameter-file-is-changed-just-below" class="section level4">
+<h4>Specific parameter file is changed just below</h4>
+<pre class="r"><code>d &lt;- read_excel(&quot;../data/ivsc_4cmtct_shedct_param.xlsx&quot;, 1)
 #d &lt;- read_excel(&quot;../data/ModelF_Atezolizumab_Params.xlsx&quot;, 1)
 param.as.double = d$Value
 names(param.as.double) = d$Parameter
+
+dose.nmol.range = lseq(1, 1e5, 6)
 
 model = ivsc_4cmtct_shedct()
 

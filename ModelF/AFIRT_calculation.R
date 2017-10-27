@@ -17,7 +17,9 @@ lseq = function(from, to, length.out){
 
 # Function computing lumped parameters from theory
 
-lumped.parameters.theory = function(param.as.double, dose.nmol, tau){
+lumped.parameters.theory = function(param.as.double=param.as.double, 
+                                    dose.nmol=dose.nmol, 
+                                    tau=tau){
     # Arguments:
     #   params_file_path: full path of the parameters file.
     #   dose.nmol: dosing amout in nmol
@@ -54,11 +56,9 @@ lumped.parameters.theory = function(param.as.double, dose.nmol, tau){
     CL = with(p, (keD1*VD1))
     
     # Average drug concentration in the central compartment
-    Cavg1 = with(p, (dose.nmol) / (CL * tau))
-    
+    Cavg1 = dose.nmol/(p$CL*tau)
     
     # Average drug concentratio in the tumor compartment (I have no idea how to compute it)
-    
     
     # AFIRT computed with Kss 
     AFIRT.theory.Kss = Kss*Tacc.tum*(CL*tau)/(dose.nmol*B)
@@ -169,7 +169,6 @@ simulation = function(model=model, param.as.double=param.as.double,
   ev$add.dosing(dose=dose.nmol, nbr.doses=floor(tmax/tau)+1, dosing.interval=tau,
                 dosing.to=2)
   
-  model = do.call(model, list())    
   init = model$init(param.as.double)
   out = model$rxode$solve(param.as.double, ev, init)
   out = model$rxout(out)

@@ -122,14 +122,15 @@ Atezolizumab is dosed at 1200 mg or `r 1200*scale.mg2nmol` nmol.  Andy doesn't c
 d <- read_excel("../data/ModelF_Atezolizumab_Params.xlsx", 1)
 param.as.double = d$Value
 names(param.as.double) = d$Parameter
+p0 = param.as.double
 
 pdb.atezo = param.as.double
 p.atezo = as.data.frame(t(param.as.double))
 p.atezo$drug = "atezo"
 
-
+p = p0
 df_compare = compare.theory.sim(model = model,
-                                param.as.double = param.as.double,
+                                param.as.double = p,
                                 dose.nmol.range = dose.nmol.range,
                                 tmax = tmax,
                                 tau  = tau,
@@ -137,17 +138,35 @@ df_compare = compare.theory.sim(model = model,
 #kable(df_compare)
 ```
 
+#### consider case where there is no distribution of DM between compartments
+k13DM = k31DM = 0
+
+```{r}
+  p = p0
+  p[c("k13DM","k31DM")] = 0
+
+df_compare = compare.theory.sim(model = model,
+                                param.as.double = p,
+                                dose.nmol.range = dose.nmol.range,
+                                tmax = tmax,
+                                tau  = tau,
+                                compartment = compartment)   
+  
+```
+
+
 #### koff = 30/d and kon scaled to keep Kd the same
 
 Here, agreement between the simulation and theory is better
 
 ```{r warning=FALSE}
 
-param.as.double[c("koff1","koff3")] = 30
-param.as.double[c("kon1","kon3")] = 12
+p = p0
+p[c("koff1","koff3")] = 30
+p[c("kon1","kon3")] = 12
 
 df_compare = compare.theory.sim(model = model,
-                                param.as.double = param.as.double,
+                                param.as.double = p,
                                 dose.nmol.range = dose.nmol.range,
                                 tmax = tmax,
                                 tau  = tau,

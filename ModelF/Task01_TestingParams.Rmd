@@ -1,0 +1,154 @@
+---
+title: "Test the core functions"
+author: "IMA tumor modeling team"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+output:
+  html_document:
+    toc: true
+    toc_float: true
+    code_folding: hide
+---
+
+```{r}
+suppressMessages(source("ams_initialize_script.R"))
+suppressMessages(library(RxODE))
+suppressMessages(library(dplyr))
+suppressMessages(source("AFIRT_calculation.R"))
+suppressMessages(source("ivsc_4cmtct_shedct.R"))
+```
+
+### Run AFIRT sensitivity analysis WRT dose.nmol on a parameter file
+
+```{r}
+dose.nmol.range = lseq(1, 1e5, 6)
+
+model = ivsc_4cmtct_shedct()
+
+tmax = 200
+tau  = 1
+compartment = 2
+
+compare.theory.sim = function(model=model, param.as.double=param.as.double,
+                          dose.nmol.range = dose.nmol.range,
+                          tmax=tmax,tau=tau,dt=dt,compartment=compartment) {
+
+  df_sim = data.frame() # put all simulations for different dose into one data frame
+  for (dose.nmol in dose.nmol.range){
+    row = lumped.parameters.simulation(model,
+      param.as.double, dose.nmol, tmax, tau, compartment)
+    df_sim = rbind(df_sim, row)
+  }
+  df_sim$Dose = dose.nmol.range
+  
+  df_thy = data.frame() # put all theoretical calculations of lumped parameters at different dose together
+  for (dose.nmol in dose.nmol.range){
+    row = lumped.parameters.theory(param.as.double, dose.nmol, tau)
+    df_thy = rbind(df_thy, row)
+  }
+  df_thy = df_thy %>%
+    mutate(Dose = dose.nmol.range,
+           AFIRT = AFIRT.Kss)
+  
+  df_compare = bind_rows(df_thy,df_sim)
+  df_compare = df_compare %>%
+    arrange(Dose,type) %>%
+    mutate_if(is.numeric,signif,2)
+    
+
+  #plot theory vs simulation
+  df_plot = df_compare %>%
+    select(-AFIRT.Kss,-AFIRT.Kd) %>%
+    gather(param,value,-c(type,Dose))
+  
+  
+  g = ggplot(df_plot, aes(Dose, value, group=type, color=type,linetype=type))
+  g = g + scale.x.log10()
+  g = g + scale.y.log10()
+  g = g + geom_line()
+  g = g + geom_point()
+  g = g + facet_wrap(~param,scales = "free_y")
+  print(g)
+
+  return(df_compare)
+}
+```
+
+### Compare with ivsc_4cmtct_shedct_param.xlsx
+```{r, warning=FALSE}
+d <- read_excel("../data/ivsc_4cmtct_shedct_param.xlsx", 1)
+param.as.double = d$Value
+names(param.as.double) = d$Parameter
+
+param.as.double["keDM3"] = .5
+
+df_compare = compare.theory.sim(model = model,
+                                param.as.double = param.as.double,
+                                dose.nmol.range = dose.nmol.range,
+                                tmax = tmax,
+                                tau  = tau,
+                                compartment = compartment)
+#kable(df_compare)
+
+
+```
+
+### Compare with Herceptin
+Because the receptor density of Herceptin is high, it make sense you need much higher doses to get good agreement
+
+```{r, warning=FALSE}
+d <- read_excel("../data/ModelF_Herceptin_Params.xlsx", 1)
+param.as.double = d$Value
+names(param.as.double) = d$Parameter
+
+#param.as.double["keS3"]  = 1
+#param.as.double["keDS3"] = 1
+
+param.as.double["keDM3"] = .1
+
+p.herceptin = as.data.frame(t(param.as.double))
+p.herceptin$drug = "Herceptin"
+
+
+df_compare = compare.theory.sim(model = model,
+                                param.as.double = param.as.double,
+                                dose.nmol.range = dose.nmol.range,
+                                tmax = tmax,
+                                tau  = tau,
+                                compartment = compartment)
+#kable(df_compare)
+
+```
+
+### Compare with Atezolizumab
+```{r, warning=FALSE}
+d <- read_excel("../data/ModelF_Atezolizumab_Params.xlsx", 1)
+param.as.double = d$Value
+names(param.as.double) = d$Parameter
+
+#param.as.double["ksynM1"] = 0
+#param.as.double["ksynM3"] = 0
+
+#param.as.double[c("k13M","k31M","k13DM","k31DM")] = 0
+
+
+p.atezo = as.data.frame(t(param.as.double))
+p.atezo$drug = "atezo"
+
+
+df_compare = compare.theory.sim(model = model,
+                                param.as.double = param.as.double,
+                                dose.nmol.range = dose.nmol.range,
+                                tmax = tmax,
+                                tau  = tau,
+                                compartment = compartment) 
+#kable(df_compare)
+
+p.compare = bind_rows(p.atezo,p.herceptin) 
+drug      = p.compare$drug
+p.compare = t(p.compare)
+colnames(p.compare) = drug
+kable(p.compare)
+
+```
+
+

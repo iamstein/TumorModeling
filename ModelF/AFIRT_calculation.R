@@ -17,7 +17,9 @@ lseq = function(from, to, length.out){
 
 # Function computing lumped parameters from theory
 
-lumped.parameters.theory = function(params_file_path, dose.nmol, tau){
+lumped.parameters.theory = function(param.as.double=param.as.double, 
+                                    dose.nmol=dose.nmol, 
+                                    tau=tau){
     # Arguments:
     #   params_file_path: full path of the parameters file.
     #   dose.nmol: dosing amout in nmol
@@ -26,9 +28,9 @@ lumped.parameters.theory = function(params_file_path, dose.nmol, tau){
     #   A data frame of lumped parameters calculated from theory
 
 
-    d <- xlsx::read.xlsx(params_file_path, 1)
-    param.as.double = d$Value
-    names(param.as.double) = d$Parameter
+    #d <- xlsx::read.xlsx(params_file_path, 1)
+    #param.as.double = d$Value
+    #names(param.as.double) = d$Parameter
     p = as.data.frame(t(param.as.double))
     Kss = with(p, (koff3 + keDM3 + kshedM3)/kon3)
     Kd = with(p, koff3 / kon3)
@@ -54,11 +56,9 @@ lumped.parameters.theory = function(params_file_path, dose.nmol, tau){
     CL = with(p, (keD1*VD1))
     
     # Average drug concentration in the central compartment
-    # Cavg1 = with(p, (F * dose.nmol) / (CL * tau))
-    
+    Cavg1 = dose.nmol/(p$CL*tau)
     
     # Average drug concentratio in the tumor compartment (I have no idea how to compute it)
-    
     
     # AFIRT computed with Kss 
     AFIRT.theory.Kss = Kss*Tacc.tum*(CL*tau)/(dose.nmol*B)
@@ -72,20 +72,18 @@ lumped.parameters.theory = function(params_file_path, dose.nmol, tau){
                                           Mtot3.ss=Mtot3.ss, 
                                           Tacc.tum=Tacc.tum,
                                           B = B,
-                                          CL = CL,
-                                          AFIRT.Kss = AFIRT.theory.Kss,
+                                          Cavg1 = Cavg1,
+                                          Cavg3 = B*Cavg1,
+                                          AFIRT.Kss= AFIRT.theory.Kss, #use Kss as default
                                           AFIRT.Kd = AFIRT.theory.Kd)
-    
-    
-
     return(lumped_parameters_theory) 
  }
 
 
 # Function simulates the lumped parameters
 
-lumped.parameters.simulation = function(model_name,
-    params_file_path, dose.nmol, tmax, tau, compartment){
+lumped.parameters.simulation = function(model=model, param.as.double=param.as.double, 
+                                        dose.nmol=dose.nmol, tmax=tmax, tau=tau, compartment){
     
     # Arguments:
     #   model_name: name of the model
@@ -99,9 +97,9 @@ lumped.parameters.simulation = function(model_name,
     #   A data frame of lumped parameters calculated from simulation
 
     # Run simulation
-    d <- xlsx::read.xlsx(params_file_path, 1)
-    param.as.double = d$Value
-    names(param.as.double) = d$Parameter
+    #d <- xlsx::read.xlsx(params_file_path, 1)
+    #param.as.double = d$Value
+    #names(param.as.double) = d$Parameter
     ev = eventTable(amount.units="nmol", time.units="days")
     sample.points = c(seq(-7, tmax, 0.1), 10^(-3:0)) # sample time, increment by 0.1
     sample.points = sort(sample.points)
@@ -110,7 +108,7 @@ lumped.parameters.simulation = function(model_name,
     ev$add.dosing(dose=dose.nmol, nbr.doses=floor(tmax/tau)+1, dosing.interval=tau,
                 dosing.to=compartment)
   
-    model = do.call(model_name, list()) # model file can contain only one model
+    #model = do.call(model_name, list()) # model file can contain only one model
     init = model$init(param.as.double)
     out = model$rxode$solve(param.as.double, ev, init)
     out = model$rxout(out)
@@ -141,7 +139,7 @@ lumped.parameters.simulation = function(model_name,
     Cavg3 = mean(dose_applied$D3)
   
     # AFIRT
-    AFIRT.sim = mean(steady_state$Mfree.pct)
+    AFIRT = mean(steady_state$Mfree.pct)
   
 
 
@@ -151,16 +149,18 @@ lumped.parameters.simulation = function(model_name,
                                      Tacc.tum=Tacc.tum,
                                      Cavg1 = Cavg1,
                                      Cavg3 = Cavg3,
-                                     AFIRT.sim = AFIRT.sim)
+                                     B     = Cavg3/Cavg1,
+                                     AFIRT = AFIRT)
   
     return(lumped_parameters_sim)
 }    
 
 
-simulation = function(model_name, params_file_path, dose.nmol, tmax, tau){
-  d <- xlsx::read.xlsx(params_file_path, 1)
-  param.as.double = d$Value
-  names(param.as.double) = d$Parameter
+simulation = function(model=model, param.as.double=param.as.double, 
+                      dose.nmol=dose.nmol, tmax=tmax, tau=tau){
+  #d <- xlsx::read.xlsx(params_file_path, 1)
+  #param.as.double = d$Value
+  #names(param.as.double) = d$Parameter
   ev = eventTable(amount.units="nmol", time.units="days")
   sample.points = c(seq(-7, tmax, 0.1), 10^(-3:0)) # sample time, increment by 0.1
   sample.points = sort(sample.points)
@@ -169,7 +169,6 @@ simulation = function(model_name, params_file_path, dose.nmol, tmax, tau){
   ev$add.dosing(dose=dose.nmol, nbr.doses=floor(tmax/tau)+1, dosing.interval=tau,
                 dosing.to=2)
   
-  model = do.call(model_name, list())    
   init = model$init(param.as.double)
   out = model$rxode$solve(param.as.double, ev, init)
   out = model$rxout(out)

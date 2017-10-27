@@ -56,7 +56,7 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     CL = with(p, (keD1*VD1))
     
     # Average drug concentration in the central compartment
-    Cavg1 = dose.nmol/(p$CL*tau)
+    Cavg1 = dose.nmol/(CL*tau)
     
     # Average drug concentratio in the tumor compartment (I have no idea how to compute it)
     

@@ -21,6 +21,7 @@ suppressMessages(library(dplyr))
 
 ```{r}
 source("ivsc_4cmtct_shedct.R")
+source("AFIRT_calculation.R")
 ```
 ```{r}
 # Global Variables
@@ -413,6 +414,10 @@ in the simulation which is kind of weird. Also, M30 calculated from theory and M
   comparison = bind_rows(lumped_parameters_sim,lumped_parameters_theory)
   kable(comparison)
 ```
+#### Check initial values
+The initial values (S10, M10, M30) from the simulation should agree with the the ones provided
+from the dataset 
+```{r}
 
 
 

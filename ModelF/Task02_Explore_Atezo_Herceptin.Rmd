@@ -11,8 +11,6 @@ output:
 
 ```{r, warning=FALSE}
 suppressMessages(source("ams_initialize_script.R"))
-suppressMessages(library(RxODE))
-suppressMessages(library(dplyr))
 suppressMessages(source("AFIRT_calculation.R"))
 suppressMessages(source("ivsc_4cmtct_shedct.R"))
 ```
@@ -95,9 +93,7 @@ What I believe is happening then is all the drug in the tumor (Cavg3) is getting
 It would mkae sense to check this against other Herceptin modeling papers to see if they agree that there isn't saturation around 6 mg/kg.  Could check in with Greg Thurber at some point.
 
 ```{r, warning=FALSE}
-d <- read_excel("../data/ModelF_Herceptin_Params.xlsx", 1)
-param.as.double = d$Value
-names(param.as.double) = d$Parameter
+param.as.double =  read.param.file("../data/ModelF_Herceptin_Params.xlsx")
 
 pdb.herceptin = param.as.double
 p.herceptin = as.data.frame(t(param.as.double))
@@ -119,9 +115,7 @@ Atezolizumab is dosed at 1200 mg or `r 1200*scale.mg2nmol` nmol.  Andy doesn't c
 #### koff = 3/d
 ```{r, warning=FALSE}
 
-d <- read_excel("../data/ModelF_Atezolizumab_Params.xlsx", 1)
-param.as.double = d$Value
-names(param.as.double) = d$Parameter
+param.as.double = read.param.file("../data/ModelF_Atezolizumab_Params.xlsx")
 p0 = param.as.double
 
 pdb.atezo = param.as.double

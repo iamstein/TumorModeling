@@ -1,6 +1,13 @@
 # Helper function that returns a range of variable when performing 
 # sensitvity analysis
 
+read.param.file = function(filename) {
+  d = read_excel(filename, 1)
+  param.as.double        = d$Value
+  names(param.as.double) = d$Parameter
+  param.as.double        = param.as.double[model$pin] #keep only parameters used in ODE
+}
+
 lseq = function(from, to, length.out){
     # Arguments:
     #   from : initial value of the variable

@@ -26,11 +26,12 @@ ivsc_4cmtct_shedct = function() {
   }
   
   #PARAMEETRS IN MODEL
-  model$pin       = c('F','ka','VD1','VD2','VD3','VS1','VS3','VDS1','VDS3',
-                      'k12D','k21D','k13D','k31D','k13S','k31S','k13DS','k31DS',
-                      'ksynS1','ksynS3','ksynM3','keD1','keD3','keS1','keS3','keDS1','keDS3','keM3','keDM3',
+  model$pin       = c('F','ka','VD1','VD2','VD3','VS1','VS3','VDS1','VDS3','VM1','VM3','VDM1','VDM3',
+                      'k12D','k21D','k13D','k31D','k13S','k31S','k13DS','k31DS','k13M','k31M','k13DM','k31DM',
+                      'ksynS1','ksynS3','ksynM1','ksynM3',
+                      'keD1','keD3','keS1','keS3','keDS1','keDS3','keM1','keM3','keDM1','keDM3',
                       'kon1','koff1','kon3','koff3',
-                      'kshedM3','kshedDM3','ksynM1','kshedM1','kshedDM1','keM1','keDM1','k13M','k31M','k13DM','k31DM'); #input parameters
+                      'kshedM3','kshedDM3','kshedM1','kshedDM1'); #input parameters
   model$pode      = model$pin
   
   #INPUT/SYNTHESIS/SHED   DISTRIBUTION (CENTRAL/TUMOR)      BINDING                                DISTRIBUTION (CENTRAL/PERIPH)

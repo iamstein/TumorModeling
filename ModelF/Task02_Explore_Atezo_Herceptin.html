@@ -213,14 +213,12 @@ div.tocify {
 
 <h1 class="title">Explore more realistic dosing scenarios</h1>
 <h4 class="author"><em>Andy Stein</em></h4>
-<h4 class="date"><em>27 October, 2017</em></h4>
+<h4 class="date"><em>28 October, 2017</em></h4>
 
 </div>
 
 
 <pre class="r"><code>suppressMessages(source(&quot;ams_initialize_script.R&quot;))
-suppressMessages(library(RxODE))
-suppressMessages(library(dplyr))
 suppressMessages(source(&quot;AFIRT_calculation.R&quot;))
 suppressMessages(source(&quot;ivsc_4cmtct_shedct.R&quot;))</code></pre>
 <div id="set-initial-parameters-and-functions" class="section level3">
@@ -296,9 +294,7 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
 <p>Because the receptor density of Herceptin is high, it make sense you need much higher doses to get good agreement. In the clinic, Herceptin is dosed at only 6 mg/kg or 2800 nmol.</p>
 <p>What I believe is happening then is all the drug in the tumor (Cavg3) is getting sucked into the tumor and thus intratumoral concentrations are lower than the theory predicts.</p>
 <p>It would mkae sense to check this against other Herceptin modeling papers to see if they agree that there isn’t saturation around 6 mg/kg. Could check in with Greg Thurber at some point.</p>
-<pre class="r"><code>d &lt;- read_excel(&quot;../data/ModelF_Herceptin_Params.xlsx&quot;, 1)
-param.as.double = d$Value
-names(param.as.double) = d$Parameter
+<pre class="r"><code>param.as.double =  read.param.file(&quot;../data/ModelF_Herceptin_Params.xlsx&quot;)
 
 pdb.herceptin = param.as.double
 p.herceptin = as.data.frame(t(param.as.double))
@@ -318,9 +314,7 @@ df_compare = compare.theory.sim(model = model,
 <p>Atezolizumab is dosed at 1200 mg or 8000 nmol. Andy doesn’t currently know the kon and koff rates for atezolizumab. He guessed koff = 3/d, but it could be 10 faster.</p>
 <div id="koff-3d" class="section level4">
 <h4>koff = 3/d</h4>
-<pre class="r"><code>d &lt;- read_excel(&quot;../data/ModelF_Atezolizumab_Params.xlsx&quot;, 1)
-param.as.double = d$Value
-names(param.as.double) = d$Parameter
+<pre class="r"><code>param.as.double = read.param.file(&quot;../data/ModelF_Atezolizumab_Params.xlsx&quot;)
 p0 = param.as.double
 
 pdb.atezo = param.as.double

@@ -213,14 +213,12 @@ div.tocify {
 
 <h1 class="title">Explore agreement between theory and experiment</h1>
 <h4 class="author"><em>Andy Stein</em></h4>
-<h4 class="date"><em>27 October, 2017</em></h4>
+<h4 class="date"><em>28 October, 2017</em></h4>
 
 </div>
 
 
 <pre class="r"><code>suppressMessages(source(&quot;ams_initialize_script.R&quot;))
-suppressMessages(library(RxODE))
-suppressMessages(library(dplyr))
 suppressMessages(source(&quot;AFIRT_calculation.R&quot;))
 suppressMessages(source(&quot;ivsc_4cmtct_shedct.R&quot;))</code></pre>
 <div id="set-initial-parameters-and-functions" class="section level3">
@@ -292,10 +290,7 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
 </div>
 <div id="compare-with-ivsc_4cmtct_shedct_param.xlsx" class="section level3">
 <h3>Compare with ivsc_4cmtct_shedct_param.xlsx</h3>
-<pre class="r"><code>d &lt;- read_excel(&quot;../data/ivsc_4cmtct_shedct_param.xlsx&quot;, 1)
-param.as.double = d$Value
-names(param.as.double) = d$Parameter
-
+<pre class="r"><code>param.as.double =  read.param.file(&quot;../data/ivsc_4cmtct_shedct_param.xlsx&quot;)
 param.as.double[&quot;keDM3&quot;] = .5 #setting this value so it will accumulate
 
 df_compare = compare.theory.sim(model = model,
@@ -310,13 +305,8 @@ df_compare = compare.theory.sim(model = model,
 <div id="compare-with-herceptin" class="section level3">
 <h3>Compare with Herceptin</h3>
 <p>Because the receptor density of Herceptin is high, it make sense you need much higher doses to get good agreement</p>
-<pre class="r"><code>d &lt;- read_excel(&quot;../data/ModelF_Herceptin_Params.xlsx&quot;, 1)
-param.as.double = d$Value
-names(param.as.double) = d$Parameter
-
-#param.as.double[&quot;keS3&quot;]  = 1
-#param.as.double[&quot;keDS3&quot;] = 1
-
+<pre class="r"><code>param.as.double = 
+param.as.double = read.param.file(&quot;../data/ModelF_Herceptin_Params.xlsx&quot;)
 param.as.double[&quot;keDM3&quot;] = .1 #setting this value to get accumulation
 
 pdb.herceptin = param.as.double
@@ -336,19 +326,11 @@ df_compare = compare.theory.sim(model = model,
 <div id="compare-with-atezolizumab" class="section level3">
 <h3>Compare with Atezolizumab</h3>
 <p>Currently, the drug concentration prediction is poor</p>
-<pre class="r"><code>d &lt;- read_excel(&quot;../data/ModelF_Atezolizumab_Params.xlsx&quot;, 1)
-param.as.double = d$Value
-names(param.as.double) = d$Parameter
-
-#param.as.double[&quot;ksynM1&quot;] = 0
-#param.as.double[&quot;ksynM3&quot;] = 0
-
-#param.as.double[c(&quot;k13M&quot;,&quot;k31M&quot;,&quot;k13DM&quot;,&quot;k31DM&quot;)] = 0
+<pre class="r"><code>param.as.double = read.param.file(&quot;../data/ModelF_Atezolizumab_Params.xlsx&quot;)
 
 pdb.atezo = param.as.double
 p.atezo = as.data.frame(t(param.as.double))
 p.atezo$drug = &quot;atezo&quot;
-
 
 df_compare = compare.theory.sim(model = model,
                                 param.as.double = param.as.double,
@@ -399,10 +381,34 @@ kable(p.compare[rownames(p.compare) %in% vars.atezo,])</code></pre>
 </thead>
 <tbody>
 <tr class="odd">
-<td align="left">Kd</td>
-<td align="left">0.4</td>
-<td align="left">0.4</td>
-<td align="left">0.5</td>
+<td align="left">k13M</td>
+<td align="left">0.2</td>
+<td align="left">0.2</td>
+<td align="left">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">k31M</td>
+<td align="left">6.56</td>
+<td align="left">6.56</td>
+<td align="left">0.00</td>
+</tr>
+<tr class="odd">
+<td align="left">k13DM</td>
+<td align="left">0.2</td>
+<td align="left">0.2</td>
+<td align="left">0.0</td>
+</tr>
+<tr class="even">
+<td align="left">k31DM</td>
+<td align="left">6.56</td>
+<td align="left">6.56</td>
+<td align="left">0.00</td>
+</tr>
+<tr class="odd">
+<td align="left">kon1</td>
+<td align="left">1.20</td>
+<td align="left">1.20</td>
+<td align="left">60.48</td>
 </tr>
 <tr class="even">
 <td align="left">koff1</td>
@@ -411,46 +417,22 @@ kable(p.compare[rownames(p.compare) %in% vars.atezo,])</code></pre>
 <td align="left">30.24</td>
 </tr>
 <tr class="odd">
-<td align="left">koff3</td>
-<td align="left">3.00</td>
-<td align="left">3.00</td>
-<td align="left">30.24</td>
-</tr>
-<tr class="even">
-<td align="left">kon1</td>
-<td align="left">1.20</td>
-<td align="left">1.20</td>
-<td align="left">60.48</td>
-</tr>
-<tr class="odd">
 <td align="left">kon3</td>
 <td align="left">1.20</td>
 <td align="left">1.20</td>
 <td align="left">60.48</td>
 </tr>
 <tr class="even">
-<td align="left">k13M</td>
-<td align="left">0.2</td>
-<td align="left">0.2</td>
-<td align="left">0.0</td>
+<td align="left">koff3</td>
+<td align="left">3.00</td>
+<td align="left">3.00</td>
+<td align="left">30.24</td>
 </tr>
 <tr class="odd">
-<td align="left">k31M</td>
-<td align="left">6.56</td>
-<td align="left">6.56</td>
-<td align="left">0.00</td>
-</tr>
-<tr class="even">
-<td align="left">k13DM</td>
-<td align="left">0.2</td>
-<td align="left">0.2</td>
-<td align="left">0.0</td>
-</tr>
-<tr class="odd">
-<td align="left">k31DM</td>
-<td align="left">6.56</td>
-<td align="left">6.56</td>
-<td align="left">0.00</td>
+<td align="left">Kd</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
+<td align="left">NA</td>
 </tr>
 </tbody>
 </table>

@@ -3,7 +3,7 @@
 
 read.param.file = function(filename) {
   d = read_excel(filename, 1)
-  param.as.double        = d$Value
+  param.as.double        = as.numeric(d$Value)
   names(param.as.double) = d$Parameter
   param.as.double        = param.as.double[model$pin] #keep only parameters used in ODE
 }

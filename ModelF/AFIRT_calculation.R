@@ -38,9 +38,10 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     #d <- xlsx::read.xlsx(params_file_path, 1)
     #param.as.double = d$Value
     #names(param.as.double) = d$Parameter
-    p = as.data.frame(t(param.as.double))
-    Kss = with(p, (koff3 + keDM3 + kshedM3)/kon3)
-    Kd = with(p, koff3 / kon3)
+    p    = as.data.frame(t(param.as.double))
+    Kssd = with(p, (koff3 + keDM3 + kshedDM3 + k31DM)/kon3)
+    Kss  = with(p, (koff3 + keDM3 + kshedDM3)        /kon3)
+    Kd   = with(p,  koff3                            /kon3)
     
     # numerators for M3.0 and Mtot3.ss(Mtot3 at steady state, M3 at initial state)
     numerator.DM   = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedDM1+k13DM)*ksynM3)
@@ -67,11 +68,10 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     
     # Average drug concentratio in the tumor compartment (I have no idea how to compute it)
     
-    # AFIRT computed with Kss 
-    AFIRT.theory.Kss = Kss*Tacc.tum*(CL*tau)/(dose.nmol*B)
-    
-    # AFIRT computed with Kd
-    AFIRT.theory.Kd  = Kd*Tacc.tum*(CL*tau)/(dose.nmol*B)
+    # Compute various AFIRTs
+    AFIRT.Kssd = Kssd*Tacc.tum/(B*Cavg1)
+    AFIRT.Kss  = Kss *Tacc.tum/(B*Cavg1)
+    AFIRT.Kd   = Kd  *Tacc.tum/(B*Cavg1)
   
     
     lumped_parameters_theory = data.frame(type = "theory",
@@ -81,8 +81,9 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
                                           B = B,
                                           Cavg1 = Cavg1,
                                           Cavg3 = B*Cavg1,
-                                          AFIRT.Kss= AFIRT.theory.Kss, #use Kss as default
-                                          AFIRT.Kd = AFIRT.theory.Kd)
+                                          AFIRT.Kssd = AFIRT.Kssd,
+                                          AFIRT.Kss  = AFIRT.Kss, 
+                                          AFIRT.Kd   = AFIRT.Kd)
     return(lumped_parameters_theory) 
  }
 
@@ -147,8 +148,6 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
   
     # AFIRT
     AFIRT = mean(steady_state$Mfree.pct)
-  
-
 
     lumped_parameters_sim = data.frame(type = "simulation",
                                      M30=M30, 
@@ -157,7 +156,8 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
                                      Cavg1 = Cavg1,
                                      Cavg3 = Cavg3,
                                      B     = Cavg3/Cavg1,
-                                     AFIRT = AFIRT)
+                                     AFIRT = AFIRT,
+                                     AFIRT.sim = AFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
   
     return(lumped_parameters_sim)
 }    

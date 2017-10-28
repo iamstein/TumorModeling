@@ -48,7 +48,7 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   }
   df_thy = df_thy %>%
     mutate(Dose = dose.nmol.range,
-           AFIRT = AFIRT.Kss)
+           AFIRT = AFIRT.Kssd)
   
   df_compare = bind_rows(df_thy,df_sim)
   df_compare = df_compare %>%
@@ -69,7 +69,7 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   
   #plot theory vs simulation
   df_plot = df_compare %>%
-    select(-AFIRT.Kss,-AFIRT.Kd) %>%
+    select(-contains("AFIRT"),AFIRT) %>%
     gather(param,value,-c(type,Dose))
   
   

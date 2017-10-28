@@ -11,8 +11,6 @@ output:
 
 ```{r, warning=FALSE}
 suppressMessages(source("ams_initialize_script.R"))
-suppressMessages(source("AFIRT_calculation.R"))
-suppressMessages(source("ivsc_4cmtct_shedct.R"))
 ```
 
 ### Set initial parameters and functions

@@ -6,7 +6,7 @@
   
 #add key packages
   library(ggplot2)
-  library(MASS)  
+  #library(MASS)  
   library(rmarkdown)
   library(knitr)
   library(foreign)
@@ -15,11 +15,12 @@
   library(gridExtra)
   library(reshape2)
   library(stringr)
-  library(GGally)
+  #library(GGally)
   library(tidyr)
   library(dplyr)
   library(ggrepel)
   library(readxl)
+  library(RxODE)
   
   mapvalues = plyr::mapvalues #only need this one function from plyr
   

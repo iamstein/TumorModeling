@@ -27,6 +27,7 @@ tmax = 26*7 #days
 tau  = 21   #days
 compartment = 2
 
+
 compare.theory.sim = function(model=model, param.as.double=param.as.double,
                           dose.nmol.range = dose.nmol.range,
                           tmax=tmax,tau=tau,dt=dt,compartment=compartment) {
@@ -84,7 +85,6 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   return(df_compare)
 }
 ```
-
 ### Herceptin
 Because the receptor density of Herceptin is high, it make sense you need much higher doses to get good agreement.  In the clinic, Herceptin is dosed at only 6 mg/kg or `r 6*scale.mpk2nmol` nmol.  
 

@@ -1,0 +1,103 @@
+\documentclass{article}
+\usepackage{mathpkgs}
+\title{Soluble Target at Initial State and Steady State}
+\renewcommand{\vector}[2]{
+\left[\begin{array}{c}
+    {#1} \\
+    {#2}
+    \end{array}\right]
+}
+\renewcommand{\matrix}[4]{
+\left[\begin{array}{cc}
+    {#1} & {#2} \\
+    {#3} & {#4}
+    \end{array}\right]
+}
+\begin{document}
+\maketitle
+\section{Some formulas}
+We will use the notations from \emph{Model F Appendix} in our google drive shared folder.\newline 
+\textbf{At initial state}, we have
+\begin{align*}
+    \frac{dS_1}{dt} & = 0 \\
+    \frac{dS_3}{dt} & = 0 \\
+                M_1 & = M_{10} \\
+                M_3 & = M_{30} \\
+                D_1 & = 0 \\
+                D_3 & = 0 \\
+               DS_1 & = 0 \\
+               DS_3 & = 0 
+\end{align*}
+So ODE 13 and 14 give us the following linear system
+\[
+    \matrix{-(k_{13S} + k_{eS1})}{\frac{V_T}{V_C}k_{31S}}{\frac{V_C}{V_T}k_{13S}}{-(k_{31S} + k_{eS3})}
+        \cdot \vector{S_1}{S_3}_0 = \vector{-k_{synS1} - k_{shedM1}M_{10}}{-k_{synS3} - k_{shedM3}M_{30}}
+\]
+So the initial soluble target concentration in the central and tumor compartment is
+\begin{align}
+    S_{10} & = \frac{(k_{31S} + k_{eS3})\cdot(k_{synS1} + k_{shedM1}M_{10})
+                    + \frac{V_T}{V_C}k_{31S}(k_{synS3} + k_{shedM3}M_{30})}
+                {(k_{13S} + k_{eS1})(k_{31S} + k_{eS3}) - k_{13S}k_{31S}} \\
+    S_{30} & = \frac{\frac{V_C}{V_T}\cdot k_{13S}\cdot(k_{synS1} + k_{shedM1}M_{10})
+                    + (k_{13S} + k_{eS1})(k_{synS3} + k_{shedM3}M_{30})}
+            {(k_{13S} + k_{eS1})(k_{31S} + k_{eS3}) - k_{13S}k_{31S}}
+\end{align}
+\newpage
+\textbf{At steady state}, we assume that all soluble target are in the form of bounded complex.
+By the symmetry of our model, we have
+\begin{align*}
+    S_{1tot,ss} & = \frac{(k_{31DS} + k_{eDS3})\cdot(k_{synS1} + k_{shedDM1}M_{1tot,ss})
+                    + \frac{V_T}{V_C}k_{31DS}(k_{synS3} + k_{shedDM3}M_{3tot,ss})}
+                {(k_{13DS} + k_{eDS1})(k_{31DS} + k_{eDS3}) - k_{13DS}k_{31DS}} \\
+    S_{3tot,ss} & = \frac{\frac{V_C}{V_T} k_{13DS}\cdot(k_{synS1} + k_{shedDM1}M_{1tot,ss})
+                    + (k_{13DS} + k_{eDS1})(k_{synS3} + k_{shedDM3}M_{3tot3,ss})}
+            {(k_{13DS} + k_{eDS1})(k_{31DS} + k_{eDS3}) - k_{13DS}k_{31DS}}
+\end{align*}
+
+Formulas for computing membrane target at initial and steady state can be found in 
+\emph{Model F Appendix}, for convenience, I will include them below
+
+\newcommand{\Det}{(k_{shedM1} + k_{13M} + k_{eM1})(k_{shedM3} + k_{31M} + k_{eM3}) - k_{13M}k_{31M}}
+
+\newcommand{\DetSS}{(k_{shedDM1} + k_{13DM} + k_{eDM1})(k_{shedDM3} + k_{31DM} + k_{eDM3})
+- k_{13DM}k_{31DM}}
+\begin{align*}
+    M_{10} & = \frac{(k_{shedM3} + k_{31M} + k_{eM3})k_{synM1} + \frac{V_T}{V_C}k_{31M}k_{synM3}}
+                    {\Det} \\
+    M_{30} & = \frac{\frac{V_C}{V_T}k_{13M}k_{synM1} + (k_{shedM1} + k_{13M} + k_{eM1})k_{synM1}}
+                    {\Det} \\
+    M_{1tot,ss} & = \frac{(k_{shedDM3} + k_{31DM} + k_{eDM3})k_{synM1} + 
+                            \frac{V_T}{V_C}k_{31DM}k_{synM3}}
+                    {\DetSS} \\
+    M_{3tot,ss} & = \frac{\frac{V_C}{V_T}k_{13DM}k_{synM1} + 
+                            (k_{shedDM1} + k_{13DM} + k_{eDM1})k_{synM1}}
+                    {\DetSS}
+\end{align*}
+
+\newpage
+\section{Pseudo-Code for extending the core functions}
+The formulas to compute various AFIRTS for soluble targets in the tumor compartment are 
+\begin{align}
+    \text{AFIRTS.Kssd} & = \text{Kssd.S}\times \frac{\text{Tacc.tum.S}}{\text{B}\times C_{avg1}} \\
+    \text{AFIRTS.Kss}  & = \text{Kss.S}\times \frac{\text{Tacc.tum.S}}{\text{B}\times C_{avg1}} \\
+    \text{AFIRTS.Kd}   & = \text{Kd.S}\times \frac{\text{Tacc.tum.S}}{\text{B}\times C_{avg1}} \\
+\end{align}
+Where $\text{Kssd.S}$, $\text{Kss.S}$ and $\text{Kd.S}$
+\begin{align}
+    \text{Kssd.S} & = \frac{k_{shedDS3} + k_{31DS} + k_{eDS} + k_{off3}}{k_{on3}} \\
+    \text{Kss.S}  & = \frac{k_{shedDS3} + k_{eDS} + k_{off3}}{k_{on3}} \\
+    \text{Kd.S}   & = \frac{k_{off3}}{k_{on3}} \\
+\end{align}
+See Andy's section in Minutes for the derivation. Finally,
+\begin{align}
+    \text{Tacc.tum.S} = \text{S3tot.ss} / \text{S30}
+\end{align}
+
+
+To compute AFIRT for soluable target from simulation, do
+\begin{enumerate}
+\item compute $\text{Sfree.pct}:=\frac{S_3}{S_{30}}$
+\item take the average of Sfree.pct in the steady steady state
+\item return the result from step 2
+\end{enumerate}
+\end{document}

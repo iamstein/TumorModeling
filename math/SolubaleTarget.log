@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.7.12)  29 OCT 2017 15:34
+This is pdfTeX, Version 3.14159265-2.6-1.40.18 (TeX Live 2017) (preloaded format=pdflatex 2017.7.12)  3 NOV 2017 14:45
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -610,22 +610,15 @@ Package atveryend Info: Empty hook `AfterLastShipout' on input line 103.
  (./SolubaleTarget.aux)
 Package atveryend Info: Executing hook `AtVeryEndDocument' on input line 103.
 Package atveryend Info: Executing hook `AtEndAfterFileList' on input line 103.
-
-
-Package rerunfilecheck Warning: File `SolubaleTarget.out' has changed.
-(rerunfilecheck)                Rerun to get outlines right
-(rerunfilecheck)                or use package `bookmark'.
-
-Package rerunfilecheck Info: Checksums for `SolubaleTarget.out':
-(rerunfilecheck)             Before: A0F14EEA0AD1FBE54FC6F01CC4C42614;79
-(rerunfilecheck)             After:  A9A96BEFC07E3D2AEB3DDF17679271E4;127.
+Package rerunfilecheck Info: File `SolubaleTarget.out' has not changed.
+(rerunfilecheck)             Checksum: A9A96BEFC07E3D2AEB3DDF17679271E4;127.
 Package atveryend Info: Empty hook `AtVeryVeryEnd' on input line 103.
  ) 
 Here is how much of TeX's memory you used:
- 14510 strings out of 492990
- 265751 string characters out of 6127056
- 325272 words of memory out of 5000000
- 17915 multiletter control sequences out of 15000+600000
+ 14511 strings out of 492990
+ 265762 string characters out of 6127056
+ 325273 words of memory out of 5000000
+ 17916 multiletter control sequences out of 15000+600000
  550280 words of font info for 69 fonts, out of 8000000 for 9000
  1141 hyphenation exceptions out of 8191
  49i,11n,28p,10444b,323s stack positions out of 5000i,500n,10000p,200000b,80000s
@@ -643,10 +636,10 @@ kgs/linux-rh7/texlive-2017/texmf-dist/fonts/type1/public/amsfonts/cm/cmr10.pfb>
 cmr5.pfb></export/pkgs/linux-rh7/texlive-2017/texmf-dist/fonts/type1/public/ams
 fonts/cm/cmr7.pfb></export/pkgs/linux-rh7/texlive-2017/texmf-dist/fonts/type1/p
 ublic/amsfonts/cm/cmsy10.pfb>
-Output written on SolubaleTarget.pdf (3 pages, 106614 bytes).
+Output written on SolubaleTarget.pdf (3 pages, 106770 bytes).
 PDF statistics:
- 90 PDF objects out of 1000 (max. 8388607)
- 73 compressed objects within 1 object stream
+ 93 PDF objects out of 1000 (max. 8388607)
+ 76 compressed objects within 1 object stream
  20 named destinations out of 1000 (max. 500000)
- 9 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 17 words of extra memory for PDF output out of 10000 (max. 10000000)
 

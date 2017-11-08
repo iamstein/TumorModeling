@@ -38,7 +38,10 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
       param.as.double, dose.nmol, tmax, tau, compartment)
     df_sim = rbind(df_sim, row)
   }
-  df_sim$Dose = dose.nmol.range
+  df_sim %>%
+    mutate(Dose=dose.nmol.range,
+           AFIRT.M = AFIRT.M.sim,
+           AFIRT.S = AFIRT.S.sim)
   
   df_thy = data.frame() # put all theoretical calculations of lumped parameters at different dose together
   for (dose.nmol in dose.nmol.range){
@@ -49,7 +52,9 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   }
   df_thy = df_thy %>%
     mutate(Dose = dose.nmol.range,
-           AFIRT = AFIRT.Kssd)
+           AFIRT.M = AFIRT.M.Kssd,
+           AFIRT.S = AFIRT.S.Kssd)
+  print(df_thy)
   
   df_compare = bind_rows(df_thy,df_sim)
   df_compare = df_compare %>%
@@ -70,8 +75,14 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   
   #plot theory vs simulation
   df_plot = df_compare %>%
-    select(-contains("AFIRT"),AFIRT) %>%
+    select(-contains("AFIRT.M"),AFIRT.M) %>%
     gather(param,value,-c(type,Dose))
+  
+  df_compare[, colSums(is.na(df_compare)) != nrow(df_compare)]
+  print(df_compare)
+  df_plot = df_compare %>%
+    gather(param, value, -c(type, Dose))
+  print(df_plot)
   
   
   g = ggplot(df_plot, aes(Dose, value, group=type, color=type,linetype=type))
@@ -93,7 +104,8 @@ What I believe is happening then is all the drug in the tumor (Cavg3) is getting
 It would mkae sense to check this against other Herceptin modeling papers to see if they agree that there isn't saturation around 6 mg/kg.  Could check in with Greg Thurber at some point.
 
 ```{r, warning=FALSE}
-param.as.double =  read.param.file("../data/ModelF_Herceptin_Params.xlsx")
+model = ivsc_4cmtct_shedct()
+param.as.double =  read.param.file("../data/ModelF_Herceptin_Params.xlsx", model=model)
 
 pdb.herceptin = param.as.double
 p.herceptin = as.data.frame(t(param.as.double))

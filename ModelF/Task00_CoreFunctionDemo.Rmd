@@ -43,6 +43,8 @@ for (dose.nmol in dose.nmol.range){
   df_sim = rbind(df_sim, row)
 }
 df_sim$Dose = dose.nmol.range
+df_sim %>%
+  mutate(AFIRT = AFIRT.M.sim)
 
 df_thy = data.frame() # put all theoretical calculations of lumped parameters at different dose together
 for (dose.nmol in dose.nmol.range){
@@ -51,7 +53,7 @@ for (dose.nmol in dose.nmol.range){
 }
 df_thy = df_thy %>%
   mutate(Dose = dose.nmol.range,
-         AFIRT = AFIRT.Kss)
+         AFIRT = AFIRT.M.Kss)
 
 #Dose = as.data.frame(dose.nmol.range)
 #AFIRT_sim = as.data.frame(df_sim$AFIRT)
@@ -79,6 +81,7 @@ g = ggplot(df_compare, aes(Dose, AFIRT, group=type, color=type)) +
   geom_line() +
   geom_point()
 print(g)
+
 ```
 
 ```{r}
@@ -90,7 +93,7 @@ knit_exit() #this stops the Rmarkdown early
 
 ```{r}
 
-d <- read_excel("../data/ModelF_Atezolizumab_Params.xlsx", 1)
+d <- read_excel("../data/ModelF_Herceptin_Params.xlsx", 1)
 param.as.double = d$Value
 names(param.as.double) = d$Parameter
 
@@ -111,16 +114,39 @@ for (dose.nmol in dose.nmol.range){
 }
 
 Dose = as.data.frame(dose.nmol.range)
-AFIRT_sim = as.data.frame(df_sim$AFIRT)
-AFIRT_Kd= as.data.frame(df_thy$AFIRT.Kd)
-AFIRT_Kss = as.data.frame(df_thy$AFIRT)
+AFIRT_sim = as.data.frame(df_sim$AFIRT.M.sim)
+AFIRT_Kssd= as.data.frame(df_thy$AFIRT.M.Kssd)
+AFIRT = data.frame(Dose, AFIRT_Kssd, AFIRT_sim)
+names(AFIRT)= c("Dose","AFIRT_Kssd", "AFIRT_sim")
+kable(AFIRT)
+
+names = names(AFIRT)
+data = AFIRT %>% gather(key, value, -c(get(names[1])))
+g = ggplot(data, aes(Dose, value, color=key)) +
+  scale.x.log10() +
+  scale.y.log10() +
+  geom_line() +
+  geom_point()
+print(g)
+
+
 
 ```
 #### Print out the data frame
 ```{r}
-AFIRT = data.frame(Dose, AFIRT_Kd, AFIRT_Kss, AFIRT_sim)
-names(AFIRT)= c("Dose","AFIRT_Kd", "AFIRT_Kss", "AFIRT_sim")
+AFIRT = data.frame(Dose, AFIRT_Kssd, AFIRT_sim)
+names(AFIRT)= c("Dose","AFIRT_Kssd", "AFIRT_sim")
 kable(AFIRT)
+
+names = names(AFIRT)
+data = AFIRT %>% gather(key, value, -c(get(names[1])))
+g = ggplot(data, aes(Dose, value, color=key)) +
+  scale.x.log10() +
+  scale.y.log10() +
+  geom_line() +
+  geom_point()
+print(g)
+
 ```
 
 #### Make the plot
@@ -134,5 +160,118 @@ g = ggplot(data, aes(Dose, value, color=key)) +
   geom_point()
 print(g)
 ```
+```{r}
 
+model = ivsc_4cmtct_shedct()
+param.as.double =  read.param.file("../data/ModelF_Herceptin_Params.xlsx", model=model)
+
+pdb.herceptin = param.as.double
+p.herceptin = as.data.frame(t(param.as.double))
+p.herceptin$drug = "Herceptin"
+
+df_compare = compare.theory.sim(model = model,
+                                param.as.double = param.as.double,
+                                dose.nmol.range = dose.nmol.range,
+                                tmax = tmax,
+                                tau  = tau,
+                                compartment = compartment)
+```
+```{r}
+model
+```
+
+```{r}
+compare.theory.sim = function(model=model, param.as.double=param.as.double,
+                          dose.nmol.range = dose.nmol.range,
+                          tmax=tmax,tau=tau,dt=dt,compartment=compartment) {
+
+  df_sim = data.frame() # put all simulations for different dose into one data frame
+  for (dose.nmol in dose.nmol.range){
+    row = lumped.parameters.simulation(model,
+      param.as.double, dose.nmol, tmax, tau, compartment)
+    df_sim = rbind(df_sim, row)
+  }
+  df_sim %>%
+    mutate(Dose=dose.nmol.range,
+           AFIRT.M = AFIRT.M.sim,
+           AFIRT.S = AFIRT.S.sim)
+  
+  df_thy = data.frame() # put all theoretical calculations of lumped parameters at different dose together
+  for (dose.nmol in dose.nmol.range){
+    row = lumped.parameters.theory(param.as.double=param.as.double, 
+                                   dose.nmol=dose.nmol, 
+                                   tau=tau)
+    df_thy = rbind(df_thy, row)
+  }
+  df_thy = df_thy %>%
+    mutate(Dose = dose.nmol.range,
+           AFIRT.M = AFIRT.M.Kssd,
+           AFIRT.S = AFIRT.S.Kssd)
+  
+  df_compare = bind_rows(df_thy,df_sim)
+  df_compare = df_compare %>%
+    arrange(Dose,type) %>%
+    mutate_if(is.numeric,signif,2)
+    
+
+  #do a single simulation to make sure model is at steady state
+  out = simulation(model=model, param.as.double=param.as.double, 
+        dose.nmol=max(dose.nmol.range), tmax=tmax, tau=tau) %>%
+    select(time,D1,D3,M3,DM3,Mfree.pct) %>%
+    gather(cmt,value,-c(time))
+  
+  g = ggplot(out,aes(x=time,y=value,group=cmt,color=cmt))
+  g = g + geom_line()
+  g = g + scale.y.log10()
+  print(g)
+  
+  #plot theory vs simulation
+  df_plot = df_compare %>%
+    select(-contains("AFIRT.M"),AFIRT.M) %>%
+    gather(param,value,-c(type,Dose))
+  
+  
+  g = ggplot(df_plot, aes(Dose, value, group=type, color=type,linetype=type))
+  g = g + scale.x.log10()
+  g = g + scale.y.log10()
+  g = g + geom_line()
+  g = g + geom_point()
+  g = g + facet_wrap(~param,scales = "free_y")
+  print(g)
+
+  return(df_compare)
+}
+model = ivsc_4cmtct_shedct()
+param.as.double =  read.param.file("../data/ModelF_Bevacizumab_Params.xlsx", model=model)
+
+pdb.herceptin = param.as.double
+p.herceptin = as.data.frame(t(param.as.double))
+p.herceptin$drug = "Herceptin"
+dose.nmol = dose.nmol.range[1]
+
+row_thy = lumped.parameters.theory(param.as.double=param.as.double, 
+                                   dose.nmol=dose.nmol, 
+                                   tau=tau)
+
+p = as.data.frame(t(param.as.double))
+Kssd.M = with(p, (koff3 + keDM3 + kshedDM3 + k31DM)/kon3)
+Kss.M  = with(p, (koff3 + keDM3 + kshedDM3)        /kon3)
+Kd.M   = with(p,  koff3                            /kon3)
+    
+
+print(row_thy)
+
+```
+
+
+```{r}
+df_compare = compare.theory.sim(model = model,
+                                param.as.double = param.as.double,
+                                dose.nmol.range = dose.nmol.range,
+                                tmax = tmax,
+                                tau  = tau,
+                                compartment = compartment)
+
+
+```
 

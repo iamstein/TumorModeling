@@ -1,9 +1,10 @@
 # Helper function that returns a range of variable when performing 
 # sensitvity analysis
 
-read.param.file = function(filename) {
+read.param.file = function(filename, model) {
   d = read_excel(filename, 1)
   param.as.double        = d$Value
+  param.as.double        = as.numeric(param.as.double) # to make sure the parameter type is double instead of integer
   names(param.as.double) = d$Parameter
   param.as.double        = param.as.double[model$pin] #keep only parameters used in ODE
 }
@@ -124,8 +125,11 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     
     lumped_parameters_theory = data.frame(type = "theory",
                                           M30=M30, 
-                                          Mtot3.ss=Mtot3.ss, 
-                                          Tacc.tum=Tacc.tum,
+                                          Mtot3.ss=Mtot3.ss,
+                                          S30 = S30,
+                                          Stot3.ss = Stot3.ss,
+                                          Tacc.tum.M=Tacc.tum.M,
+                                          Tacc.tum.S=Tacc.tum.S,
                                           B = B,
                                           Cavg1 = Cavg1,
                                           Cavg3 = B*Cavg1,
@@ -221,10 +225,8 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
                                      Cavg1 = Cavg1,
                                      Cavg3 = Cavg3,
                                      B     = Cavg3/Cavg1,
-                                     AFIRT.M = AFIRT.M,
-                                     AFIRT.S = AFIRT.S,
-                                     AFIRT.M.sim = AFIRT.M, #having one named sim will be helpful later on in Task01, Task02, etc.
-                                     AFIRT.S.sim = AFIRT.S)
+                                     AFIRT.M= AFIRT.M,  #having one named sim will be helpful later on in Task01, Task02, etc.
+                                     AFIRT.S = AFIRT.S)
     return(lumped_parameters_sim)
 }    
 
@@ -255,7 +257,7 @@ simulation = function(model=model, param.as.double=param.as.double,
 
 compare.theory.sim = function(model=model, param.as.double=param.as.double,
                           dose.nmol.range = dose.nmol.range,
-                          tmax=tmax,tau=tau,dt=dt,compartment=compartment) {
+                          tmax=tmax,tau=tau, compartment=compartment) {
 
   df_sim = data.frame() # put all simulations for different dose into one data frame
   for (dose.nmol in dose.nmol.range){
@@ -263,7 +265,13 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
       param.as.double, dose.nmol, tmax, tau, compartment)
     df_sim = rbind(df_sim, row)
   }
-  df_sim$Dose = dose.nmol.range
+  df_sim  = df_sim %>%
+    mutate(Dose=dose.nmol.range)
+  
+  df_sim = df_sim %>%
+    select(type, Dose, M30, Mtot3.ss, S30, Stot3.ss, Tacc.tum.M, Tacc.tum.S, Cavg1, Cavg3, B, AFIRT.M, AFIRT.S)
+
+    print(df_sim)
   
   df_thy = data.frame() # put all theoretical calculations of lumped parameters at different dose together
   for (dose.nmol in dose.nmol.range){
@@ -274,9 +282,18 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   }
   df_thy = df_thy %>%
     mutate(Dose = dose.nmol.range,
-           AFIRT = AFIRT.M.Kssd)
+           AFIRT.M = AFIRT.M.Kssd,
+           AFIRT.S = AFIRT.S.Kssd)
+  
+  df_thy = df_thy %>%
+    select(type, Dose, M30, Mtot3.ss, S30, Stot3.ss, Tacc.tum.M, Tacc.tum.S, Cavg1, Cavg3, B, AFIRT.M, AFIRT.S)
   
   df_compare = bind_rows(df_thy,df_sim)
+  df_bad     = sapply(df_compare, function(x) all(is.nan(x)))
+  df_compare = df_compare[,!df_bad]
+
+  print(df_compare)
+
   df_compare = df_compare %>%
     arrange(Dose,type) %>%
     mutate_if(is.numeric,signif,2)
@@ -295,8 +312,9 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   
   #plot theory vs simulation
   df_plot = df_compare %>%
-    select(-contains("AFIRT"),AFIRT) %>%
     gather(param,value,-c(type,Dose))
+  print(df_plot)
+  
   
   
   g = ggplot(df_plot, aes(Dose, value, group=type, color=type,linetype=type))

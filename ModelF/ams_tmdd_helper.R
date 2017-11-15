@@ -114,33 +114,3 @@ multi.solve = function(model,p0,event,explore,explore2=NA){
   
   return(OUT)
 }
-
-#Import parameters from csv file
-#file of format name, value, type (and could also contain units)
-param.import = function(filename) {
-  pin      = read.csv(filename,stringsAsFactors = FALSE)
-
-  #replace Kd with Keq
-  pin$variable[pin$variable=="Kd"] = "Keq"
-  
-  p        = pin$value
-  names(p) = pin$variable
-  
-  #add a dummy F and ka, just in case it's not included or is NA
-  #this is so that for iv models, we can still use the same model code
-  #requiring minimal changes
-  if (!is.element("F" ,pin$name)) {
-    p = c(p,F=1)
-    warning("adding dummy F=1") }
-  if (!is.element("ka",pin$name)) {
-    p = c(p,ka=.01)
-    warning("adding dummy ka=.01") }
-  if (is.na(p["F"])) {
-    p["F"] = 1
-    warning("adding dummy F=1") }
-  if (is.na(p["ka"])) {
-    p["ka"] = 0.01
-    warning("adding dummy ka=.01") }
-  
-  return(p)
-}

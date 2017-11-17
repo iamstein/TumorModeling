@@ -1,2 +1,2 @@
-PKG_CPPFLAGS=-I/home/hongshan/R/x86_64-pc-linux-gnu-library/3.4/RxODE/include
-PKG_LIBS=-L/home/hongshan/R/x86_64-pc-linux-gnu-library/3.4/RxODE/libs/ -lodeaux $(BLAS_LIBS) $(LAPACK_LIBS) $(FLIBS)
+PKG_CPPFLAGS=-I/export/users/li108/R/x86_64-redhat-linux-gnu-library/3.4/RxODE/include
+PKG_LIBS=-L/export/users/li108/R/x86_64-redhat-linux-gnu-library/3.4/RxODE/libs/ -lodeaux $(BLAS_LIBS) $(LAPACK_LIBS) $(FLIBS)

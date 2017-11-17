@@ -1,7 +1,7 @@
 # Helper function that returns a range of variable when performing 
 # sensitvity analysis
 
-read.param.file = function(filename, model) {
+read.param.file = function(filename, model=model) {
   d = read_excel(filename, 1)
   param.as.double        = d$Value
   param.as.double        = as.numeric(param.as.double) # to make sure the parameter type is double instead of integer
@@ -47,8 +47,8 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     Kd.M   = with(p,  koff3                            /kon3)
 
     # transmission coefficients for soluble targets
-    Kssd.S = with(p, (koff3 + keDS3 + kshedDM3 + k31DS)/kon3)
-    Kss.S  = with(p, (koff3 + keDS3 + kshedDM3)        /kon3)
+    Kssd.S = with(p, (koff3 + keDS3 + k31DS)/kon3)
+    Kss.S  = with(p, (koff3 + keDS3)        /kon3)
     Kd.S   = with(p,  koff3                            /kon3)
     
     # numerators and denominator for membrane target at intial state and steady state

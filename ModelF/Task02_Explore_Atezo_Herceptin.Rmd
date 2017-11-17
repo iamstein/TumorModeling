@@ -27,7 +27,6 @@ tmax = 26*7 #days
 tau  = 21   #days
 compartment = 2
 
-
 compare.theory.sim = function(model=model, param.as.double=param.as.double,
                           dose.nmol.range = dose.nmol.range,
                           tmax=tmax,tau=tau,dt=dt,compartment=compartment) {
@@ -38,10 +37,7 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
       param.as.double, dose.nmol, tmax, tau, compartment)
     df_sim = rbind(df_sim, row)
   }
-  df_sim %>%
-    mutate(Dose=dose.nmol.range,
-           AFIRT.M = AFIRT.M.sim,
-           AFIRT.S = AFIRT.S.sim)
+  df_sim$Dose = dose.nmol.range
   
   df_thy = data.frame() # put all theoretical calculations of lumped parameters at different dose together
   for (dose.nmol in dose.nmol.range){
@@ -52,9 +48,7 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   }
   df_thy = df_thy %>%
     mutate(Dose = dose.nmol.range,
-           AFIRT.M = AFIRT.M.Kssd,
-           AFIRT.S = AFIRT.S.Kssd)
-  print(df_thy)
+           AFIRT = AFIRT.Kssd)
   
   df_compare = bind_rows(df_thy,df_sim)
   df_compare = df_compare %>%
@@ -75,14 +69,8 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   
   #plot theory vs simulation
   df_plot = df_compare %>%
-    select(-contains("AFIRT.M"),AFIRT.M) %>%
+    select(-contains("AFIRT"),AFIRT) %>%
     gather(param,value,-c(type,Dose))
-  
-  df_compare[, colSums(is.na(df_compare)) != nrow(df_compare)]
-  print(df_compare)
-  df_plot = df_compare %>%
-    gather(param, value, -c(type, Dose))
-  print(df_plot)
   
   
   g = ggplot(df_plot, aes(Dose, value, group=type, color=type,linetype=type))
@@ -96,6 +84,7 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   return(df_compare)
 }
 ```
+
 ### Herceptin
 Because the receptor density of Herceptin is high, it make sense you need much higher doses to get good agreement.  In the clinic, Herceptin is dosed at only 6 mg/kg or `r 6*scale.mpk2nmol` nmol.  
 
@@ -104,8 +93,7 @@ What I believe is happening then is all the drug in the tumor (Cavg3) is getting
 It would mkae sense to check this against other Herceptin modeling papers to see if they agree that there isn't saturation around 6 mg/kg.  Could check in with Greg Thurber at some point.
 
 ```{r, warning=FALSE}
-model = ivsc_4cmtct_shedct()
-param.as.double =  read.param.file("../data/ModelF_Herceptin_Params.xlsx", model=model)
+param.as.double =  read.param.file("../data/ModelF_Herceptin_Params.xlsx")
 
 pdb.herceptin = param.as.double
 p.herceptin = as.data.frame(t(param.as.double))

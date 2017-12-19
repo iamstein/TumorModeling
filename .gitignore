@@ -5,6 +5,9 @@
 *.c
 *.c
 *.o
+*.aux
+*.log
+*.synctex.gz
 pgm_TumorModel_R/ivsc_2cmtc_keq.d/*
 data/~$*
 pgm_TumorModel_R/ivsc_3cmtct_full.d/*

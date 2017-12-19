@@ -1,0 +1,97 @@
+
+\documentclass{article}
+\usepackage{amstext,amssymb,amsmath,amsbsy}
+\usepackage[utf8]{inputenc}
+
+\usepackage{graphicx}
+\usepackage{subfigure}
+\usepackage{calc}
+\usepackage{color}
+
+\input{_TMDD_Tex_Commands.tex}
+
+
+\renewcommand{\vector}[2]{
+\left[\begin{array}{c}
+    {#1} \\
+    {#2}
+    \end{array}\right]
+}
+\renewcommand{\matrix}[4]{
+\left[\begin{array}{cc}
+    {#1} & {#2} \\
+    {#3} & {#4}
+    \end{array}\right]
+}
+
+\date{}
+
+\begin{document}
+{\Large{\bf AFIRT: A Dimensionless Potency Metric for Characterizing the Activity of Monoclonal Antibodies in Target Tissue}} 
+~
+\\
+\\
+Abstract Word Count: XYZ
+\\
+Body Word Count (including figure captions): XYZ
+\\
+Number of Figures: XYZ 
+\\
+Number of Tables: XYZ
+\\
+Keywords: monoclonal antibody $|$ target mediated drug disposition $|$ pharmacokinetics and pharmacodynamics $|$ pharmacometrics
+
+\bigskip
+
+\def\thefootnote{\arabic{footnote}}
+\begin{center}
+    Andrew M. Stein\footnote{Novartis Institute for BioMedical Research, 45 Sidney St, Cambridge MA, 02140 USA, andrew.stein@novartis.com},
+    Sameed Ahmed\footnote{Departments of Mathematics, University of South Carolina, ahmed3@math.sc.edu},
+    Miandra Ellis\footnote{School of Mathematical and Statistical Sciences, Arizona State University, mellis5@asu.edu},
+    Ngartelbaye Guerngar\footnote{Department of Mathematics and Statistics, Auburn University, nzg0017@auburn.edu},
+    Hongshan Li\footnote{Department of Mathematics, Purdue University, li108@purdue.edu},
+    Luca Pallucchini\footnote{Department of Mathematics, Temple University,  luca.pallucchini@temple.edu}
+\end{center}
+
+\newpage
+
+\section*{Abstract}
+XYZ
+\\
+\\
+Figure are in a separate file (06-Figures.tex).  And 
+
+\input{01_Introduction.tex}
+\input{02_Theory.tex}
+\input{03_Methods_Results.tex}
+\input{05_Discussion_Conclusion.tex}
+\input{07_Appendix.tex}
+\input{08_Figures.tex}
+
+
+\section*{Study Highlights}
+%150 word limit, 30 words of questions, so 180 word limit
+\textbf{What is the current knowledge on the topic?}
+XYZ
+\\ \\
+\textbf{What question did this study address?}
+XYZ
+\\ \\
+\textbf{What this study adds to our knowledge?}
+XYZ
+\\ \\
+\textbf{How might this change drug discovery, development and/or therapeutics?}
+XYZ
+
+\section*{Acknowledgements}
+The authors would like to thank XYZ for many helpful discussions.
+
+\section*{Conflict of Interest}
+Andrew Stein is employed by Novartis Institute for BioMedical Research
+
+\section*{Author Contributions}
+XYZ analyzed the data, XYZ performed the research, XYZ wrote the manuscript.
+
+\bibliography{_Biologics_Refs.bib} 
+\bibliographystyle{ieeetr}
+\end{document}

@@ -1,0 +1,258 @@
+---
+title: "scrap"
+author: "Sameed Ahmed"
+output: html_document
+---
+
+# Preliminary stuff
+
+```{r, warning=FALSE}
+# Need this to get rxode working. I don't know why I keep having to run this.
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:/RBuildTools/3.4/bin/",
+            "C:/RBuildTools/3.4/mingw_64/bin", sep = ";"))
+Sys.setenv(BINPREF = "C:/RBuildTools/3.4/mingw_64/bin/")
+
+# To be called at the top of every Rmd file. Initialization code and some useful constants.
+suppressMessages(source("ams_initialize_script.R"))
+```
+
+# Setup
+
+```{r, include=FALSE}
+# Load model. 
+model = ivsc_4cmtct_shedct()
+# Load parameters.
+param.as.double =  read.param.file("../data/ModelF_Atezolizumab_Params.xlsx")
+p.pembro        =  as.data.frame(t(param.as.double))
+
+# Set range for parameters of interest in SA.
+dose.nmol.range = lseq(.1,10,7)*scale.mpk2nmol
+ksynM3.range    = lseq(p.pembro$ksynM3*.1,   p.pembro$ksynM3*10,   7)
+kshedDM3.range  = lseq(p.pembro$kshedDM3*.1, p.pembro$kshedDM3*10, 7)
+
+# Dose time and compartment
+tmax = 26*7 #days
+tau  = 21   #days
+compartment = 2
+```
+
+# ----------------------------------------------------
+# Sensitivty analysis on dose
+# ----------------------------------------------------
+
+```{r}
+# Put all simulations for different dose into one data frame.
+df_sim = data.frame()
+
+# Iterate through values
+for (dose.nmol in dose.nmol.range){
+  row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment)
+  df_sim = rbind(df_sim, row)
+}
+df_sim$Dose = dose.nmol.range
+
+# Put all theoretical calculations for different dose into one data frame.
+df_thy = data.frame()
+
+# Iterate through values
+for (dose.nmol in dose.nmol.range){
+  row = lumped.parameters.theory(param.as.double, dose.nmol, tau)
+  df_thy = rbind(df_thy, row)
+}
+df_thy = df_thy %>%
+  mutate(Dose = dose.nmol.range)
+
+df_compare = bind_rows(df_thy,df_sim)
+df_compare = df_compare %>%
+  arrange(Dose,type) %>%
+  mutate_if(is.numeric,signif,2)
+```
+
+# Plot results
+
+```{r}
+# Arrange data in a way suitable for plotting.
+Dose  = as.data.frame(dose.nmol.range/median(dose.nmol.range))
+AFIRT = data.frame(AFIRT.sim  = df_sim$AFIRT.sim, 
+                   AFIRT.Kssd = df_thy$AFIRT.Kssd, 
+                   AFIRT.Kss  = df_thy$AFIRT.Kss, 
+                   AFIRT.Kd   = df_thy$AFIRT.Kd)
+Data  = data.frame(Dose, AFIRT)
+names = names(Data)
+Data  = Data %>% gather(key, AFIRT.value, -c(get(names[1])))
+
+# Plot all AFIRT's on same axes.
+ggplot(Data, aes(Dose, AFIRT.value, color=key)) +
+  scale.x.log10() +
+  scale.y.log10() +
+  geom_line()     +
+  geom_point()
+```
+
+# ----------------------------------------------------
+# Sensitivty analysis on parameter
+# ----------------------------------------------------
+
+```{r}
+dose.nmol = 10*scale.mpk2nmol
+# # this is to check typo
+# param.as.double['k31DM'] = 0
+
+# Put all simulations for different dose into one data frame.
+df_sim = data.frame()
+
+# Iterate through values
+for (ksynM3.value in ksynM3.range){
+  param.as.double['ksynM3'] = ksynM3.value
+  row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment)
+  df_sim = rbind(df_sim, row)
+}
+df_sim$ksynM3 = ksynM3.range
+
+# Put all theoretical calculations for different dose into one data frame.
+df_thy = data.frame()
+
+# Iterate through values
+for (ksynM3.value in ksynM3.range){
+  param.as.double['ksynM3'] = ksynM3.value
+  row = lumped.parameters.theory(param.as.double, dose.nmol, tau)
+  df_thy = rbind(df_thy, row)
+}
+df_thy = df_thy %>%
+  mutate(ksynM3 = ksynM3.range)
+```
+
+# Plot results
+
+```{r}
+# Arrange data in a way suitable for plotting.
+ksynM3 = as.data.frame(ksynM3.range/p.pembro$ksynM3)
+AFIRT  = data.frame(AFIRT.sim  = df_sim$AFIRT.sim, 
+                    AFIRT.Kssd = df_thy$AFIRT.Kssd, 
+                    AFIRT.Kss  = df_thy$AFIRT.Kss, 
+                    AFIRT.Kd   = df_thy$AFIRT.Kd)
+Data   = data.frame(ksynM3, AFIRT)
+names  = names(Data)
+Data   = Data %>% gather(key, AFIRT.value, -c(get(names[1])))
+
+# Plot all AFIRT's on same axes.
+ggplot(Data, aes(ksynM3, AFIRT.value, color=key)) +
+  scale.x.log10() +
+  scale.y.log10() +
+  geom_line()     +
+  geom_point()
+```
+
+
+
+
+
+
+
+
+
+
+
+# ANDY FUNCTION. MODIFY THIS.
+
+```{r}
+
+# This function does the sensitivity analysis on the user inputted parameter and compares the theoretical result to the simulated result.
+
+# Input: 
+# model - model system of ODE's solved with RxODE. In this project, it is 'ivsc_4cmtct_shedct'.
+# param.as.double - read parameters from Excel file. read.param.file("file directory").
+# dose.nmol.range - range of dose in nmol. We will always do SA on dose.
+# tmax - time of treatment in days
+# tau - frequency of administering dose in days
+# compartment - compartment where drug is administered
+# param.to.change - parameter on which to do SA
+
+# Output:
+# Plot of theoretical and simulated AFIRT vs fold change in parameter
+# Data frame of AFIRT vs parameter value
+
+compare.thy.sim = function(model = model, 
+                           param.as.double = param.as.double,
+                           dose.nmol.range = dose.nmol.range,
+                           tmax = tmax,
+                           tau = tau,
+                           compartment = compartment,
+                           param.to.change = param.to.change) {
+  
+  # Set range for parameters of interest in SA.
+  param.to.change.range = lseq(p.pembro$param.to.change*.1,   p.pembro$param.to.change*10,   7)
+  
+  # Put all simulations for different dose into one data frame.
+  df_sim = data.frame()
+  
+  # Iterate through values
+  for (dose.nmol in dose.nmol.range){
+    row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment)
+    df_sim = rbind(df_sim, row)
+  }
+  df_sim$Dose = dose.nmol.range
+  
+  # Put all theoretical calculations for different dose into one data frame.
+  df_thy = data.frame()
+  
+  # Iterate through values
+  for (dose.nmol in dose.nmol.range){
+    row = lumped.parameters.theory(param.as.double, dose.nmol, tau)
+    df_thy = rbind(df_thy, row)
+  }
+  df_thy = df_thy %>% mutate(Dose = dose.nmol.range)
+  
+  df_compare = bind_rows(df_thy,df_sim)
+  df_compare = df_compare %>%
+    arrange(Dose,type) %>%
+    mutate_if(is.numeric,signif,2)
+    
+
+  #do a single simulation to make sure model is at steady state
+  out = simulation(model=model, param.as.double=param.as.double, 
+        dose.nmol=max(dose.nmol.range), tmax=tmax, tau=tau) %>%
+    select(time,D1,D3,M3,DM3,Mfree.pct) %>%
+    gather(cmt,value,-c(time))
+  
+  g = ggplot(out,aes(x=time,y=value,group=cmt,color=cmt))
+  g = g + geom_line()
+  g = g + scale.y.log10()
+  g = xscale("w27",increment = 3)
+  print(g)
+  
+  #plot theory vs simulation
+  df_plot = df_compare %>%
+    select(-contains("AFIRT"),AFIRT) %>%
+    gather(param,value,-c(type,Dose))
+  
+  
+  g = ggplot(df_plot, aes(Dose, value, group=type, color=type,linetype=type))
+  g = g + scale.x.log10()
+  g = g + scale.y.log10()
+  g = g + geom_line()
+  g = g + geom_point()
+  g = g + facet_wrap(~param,scales = "free_y")
+  print(g)
+
+  return(df_compare)
+}
+
+```
+
+# Example of calling this function
+
+```{r, warning=FALSE}
+param.as.double =  read.param.file("../data/ModelF_Herceptin_Params.xlsx")
+p.herceptin     =  as.data.frame(t(param.as.double))
+df_compare = compare.theory.sim(model = model,
+                                param.as.double = param.as.double,
+                                dose.nmol.range = dose.nmol.range,
+                                tmax = tmax,
+                                tau  = tau,
+                                compartment = compartment)
+```
+
+
+
+

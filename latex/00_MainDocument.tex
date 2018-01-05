@@ -7,6 +7,7 @@
 \usepackage{subfigure}
 \usepackage{calc}
 \usepackage{color}
+\usepackage{float}
 
 \input{_TMDD_Tex_Commands.tex}
 
@@ -54,7 +55,11 @@ Keywords: monoclonal antibody $|$ target mediated drug disposition $|$ pharmacok
 \end{center}
 
 \newpage
+
+\tableofcontents
+
 Figure are in a separate file at the end of this document.  They'll images themselves will need to be removed for CPT:PSP (06-Figures.tex). 
+
 \section*{Abstract}
 XYZ
 \\
@@ -64,8 +69,7 @@ XYZ
 \input{03_Methods_Results.tex}
 \input{05_Discussion_Conclusion.tex}
 \input{07_Appendix.tex}
-\input{08_Figures.tex}
-
+\input{09_Appendix_SimilarityTransform.tex}
 
 \section*{Study Highlights}
 %150 word limit, 30 words of questions, so 180 word limit
@@ -93,6 +97,6 @@ XYZ analyzed the data, XYZ performed the research, XYZ wrote the manuscript.
 \bibliography{_Biologics_Refs.bib} 
 \bibliographystyle{ieeetr}
 
-
+\input{08_Figures.tex}
 
 \end{document}

@@ -1,5 +1,6 @@
-\section*{Theory}
+\section{Theory}
 
+\subsection{Model Equations}
 The drug and target dynamics are modeled with the following system of ordinary differential equations.  The model is shown in Figure~\ref{fig:model}.  THOUGH THIS FIGURE PROBABLY NEEDS TO BE UPDATED.
 \begin{align}
 \frac{dD_1}{dt} &= \frac{1}{V_C}\text{Dose}_{iv}(t) - k_{12D}D_1 + \frac{V_{D_2}}{V_{D_1}}k_{21D}D_2 - k_{13D}D_1 \nonumber 
@@ -18,6 +19,11 @@ The drug and target dynamics are modeled with the following system of ordinary d
 
 This model is considering three compartments like Model C but it is taking into account the possibility for the target to shad, i.e. the target in the previous models is always membrane-bound but in reality it can shad into the blood and into the tumor. We are also adding the lymphocyte trafficking ($k_{13M}$ and $k_{31M}$).
 The analysis we are carrying out on this model is similar to the one done for model C with the required modification. For the first time we are calculating the AFIRT using an alternative approximations to the quasi-equilibrium (QE), the quasi-steady state (QSS) and the quasi-steady state xxxxxxx (QSSD). The quasi-steady state approximation assumed that $-k_{\text{shed}DM_3}DM_3 - k_{eDM3}DM_3+k_{\text{on}3}D_3 \cdot M_3 - k_{\text{off}3}(DM_3) = 0 $, similarly as before for $k_d$ we define $k_{ss}=\frac{k_{\text{shed}DM_3} + k_{eDM3}+ k_{\text{off}3}}{k_{\text{on}3}}$. 
+
+\subsection{AFIRT derivation}
+
+\subsubsection{Membrane-bound Target}
+
 The quasi-steady state xxxxxxx approximation assumed that $-k_{\text{shed}DM_3}DM_3-k_{31DM}(DM_3) - k_{eDM3}DM_3+k_{\text{on}3}D_3 \cdot M_3 - k_{\text{off}3}(DM_3) = 0 $, we define $k_{ssd}=\frac{k_{\text{shed}DM_3} +k_{31DM}+ k_{eDM3}+ k_{\text{off}3}}{k_{\text{on}3}}$. 
 These approximations are obtained from equation (16) at steady state, i.e. $\frac{d(DM_3)}{dt}=0$, and assuming the terms $ \frac{V_{DM_1}}{V_{DM_3}}k_{13DM}(DM_1)$ and $ k_{31DM}(DM_3) $ are negligible for the QSS. We assume that only $\frac{V_{DM_1}}{V_{DM_3}}k_{13DM}(DM_1)$ is negligible for the QSSD. 
 
@@ -38,8 +44,7 @@ We can notice from the picture below that the approximation obtained using the (
 % ---------------------------------------------------------------
 % Soluble Target 
 % ---------------------------------------------------------------
-\section{Soluble target at Initial State and Steady State}
-\subsection{Some formulas}
+\subsubsection{Soluble target at Initial State and Steady State}
 With the same notations as in the sections above.\newline 
 \textbf{At initial state}, we have
 \begin{align*}
@@ -99,7 +104,6 @@ Formulas for computing membrane target at initial and steady state can be found 
 \end{align*}
 
 
-\subsection{Pseudo-Code for extending the core functions}
 The formulas to compute various AFIRTS for soluble targets in the tumor compartment are 
 \begin{align}
     \text{AFIRTS.Kssd} & = \text{Kssd.S}\times \frac{\text{Tacc.tum.S}}{\text{B}\times C_{avg1}} \\
@@ -124,153 +128,3 @@ To compute AFIRT for soluable target from simulation, do
 \item take the average of Sfree.pct in the steady steady state
 \item return the result from step 2
 \end{enumerate}
-
-
-
-% ---------------------------------------------------------------
-% Similarity Transform
-% ---------------------------------------------------------------
-
-\section{Similarity Transform}
-
-We consider the model in Figure 1. A drug $(D)$ binds to its target $(M)$ to form a complex $(DM)$. It has three compartments, central, tissue, and peripheral.
-
-The drug and target dynamics are modeled with the following system of ordinary differential equations
-\begin{align}
-\frac{dD_1}{dt} &= \frac{1}{V_1}\text{Dose}_{iv}(t) - k_{12D}D_1 + \frac{V_3}{V_1}k_{21D}D_2 - k_{13D}D_1 \nonumber \\
-&+ \frac{V_2}{V_1}k_{31D}D_3 - k_{\text{on}1}D_1 \cdot M_1 + k_{\text{off}1}(DM_1) - k_{eD1}D_1 \\
-\frac{dD_2}{dt} &= k_{12D}\frac{V_1}{V_3}D_1 - k_{21D}D_2 \\
-\frac{dD_3}{dt} &= \frac{V_1}{V_2}k_{13D}D_1 - k_{31D}D_3 - k_{\text{on}3}D_3 \cdot M_3 + k_{\text{off}3}(DM_3) - k_{eD3}D_3 \\
-\frac{dM_1}{dt} &= k_{\text{syn}1} - k_{13M}M_1 + \frac{V_2}{V_1}k_{31M}M_3 - k_{\text{on}1}D_1 \cdot M_1 + k_{\text{off}1}(DM_1) \nonumber \\ 
-&- k_{eM1}M_1 \\
-\frac{dM_3}{dt} &= k_{\text{syn}3} + \frac{V_1}{V_2}k_{13M}M_1 - k_{31M}M_3 - k_{\text{on}3}D_3 \cdot M_3 + k_{\text{off}3}(DM_3) \nonumber \\ 
-&- k_{eM3}M_3 \\
-\frac{d(DM_1)}{dt} &= - k_{13DM}(DM_1) + \frac{V_2}{V_1}k_{31DM}(DM_3) + k_{\text{on}1}D_1 \cdot M_1 - k_{\text{off}1}(DM_1) \nonumber \\ 
-&- k_{eDM1}(DM_1) \\
-\frac{d(DM_3)}{dt} &= \frac{V_1}{V_2}k_{13DM}(DM_1) - k_{31DM}(DM_3) + k_{\text{on}3}D_3 \cdot M_3 - k_{\text{off}3}(DM_3) \nonumber \\ 
-&- k_{eDM3}(DM_3) \\
-\end{align}
-
-We will calculate $D_{\text{tot,avg}3}$, which is the average drug concentration at steady state in the tissue. We have $D_{\text{tot,avg}3} = B \cdot D_{\text{tot,avg}1}$, where $D_{\text{tot,avg}1}$ is the average drug concentration at steady state in the central, and $B$ is the antibody biodistribution coefficient. Assume that drug elimination only occurs in the central compartment, i.e., $k_{eD3} = 0$. Then for drugs dosed with linear PK at regular intervals and concentration much larger than target concentration, we have $D_{\text{tot,avg}1} = \text{Dose}/(CL \cdot \tau)$, where $CL = k_{eD1} \cdot V_1$ is the drug clearance [CITE REFERENCE 25 FROM AFIR ARTICLE]. \\
-
-For the model with drug elimination in both the central and tissue compartments, we will derive an alternative model with $k_{eD3} = 0$ that is indistinguishable from the existing model by using the similarity transform technique [CITE GODFREY 1989]. We consider drug concentration large enough that target binding does not affect drug distribution. Then the model equations for the drug can be written as 
-\begin{align}
-\frac{d\mathbf{D}}{dt} = A \cdot \mathbf{D}(t) + B \cdot Dose_{iv}(t), \label{model matrix}
-\end{align}
-with measurement
-\begin{align}
-\mathbf{m}(t) = C \cdot \mathbf{D}(t), \label{measurement matrix}
-\end{align}
-where
-\begin{align}
-\mathbf{D} = \begin{pmatrix}
-D_1 \\
-D_2 \\
-D_3
-\end{pmatrix},
-\end{align}
-\begin{align}
-A = \begin{pmatrix}
--(k_{13D} + k_{12D} + k_{eD1}) & \dfrac{V_3}{V_1}k_{21D} & \dfrac{V_2}{V_1}k_{31D} \\
-\dfrac{V_1}{V_3}k_{12D}        & -k_{21D}                & 0 \\
-\dfrac{V_1}{V_2}k_{13D}        & 0                       & -(k_{31D} + k_{eD3})
-\end{pmatrix},
-\end{align}
-\begin{align}
-B = \begin{pmatrix}
-\dfrac{1}{V_1} \\
-0 \\
-0
-\end{pmatrix},
-\end{align}
-\begin{align}
-C = \begin{pmatrix}
-1 & 0 & 0 \\
-0 & 0 & 1 
-\end{pmatrix}.
-\end{align}
-
-We transform this model into an indistinguishable model with coefficient matrices $A'$, $B'$, and $C'$ such that $k'_{eD3} = 0$. This is accomplished with the similarity transform
-\begin{align}
-A' := TAT^{-1} && B' := TB && C' := CT^{-1}, \label{similarity transform}
-\end{align}
-for some transformation matrix
-\begin{align}
-T = \begin{pmatrix}
-t_{11} & t_{12} & t_{13} \\
-t_{21} & t_{22} & t_{23} \\
-t_{31} & t_{32} & t_{33} 
-\end{pmatrix} &&
-T^{-1} = \begin{pmatrix}
-\hat{t}_{11} & \hat{t}_{12} & \hat{t}_{13} \\
-\hat{t}_{21} & \hat{t}_{22} & \hat{t}_{23} \\
-\hat{t}_{31} & \hat{t}_{32} & \hat{t}_{33} 
-\end{pmatrix}.
-\end{align}
-Alternatively, one can get this similarity transform with the change of variables $\mathbf{D} = T^{-1}\mathbf{D'}$. Then from (\ref{model matrix}) and (\ref{measurement matrix}) we have
-\begin{align}
-\frac{d(T^{-1}\mathbf{D'})}{dt} = A \cdot (T^{-1}\mathbf{D'})(t) + B \cdot Dose_{iv}(t), \qquad \mathbf{m}(t) = C \cdot (T^{-1}\mathbf{D'})(t). \label{change of variables}
-\end{align}
-Multiplying the first equation in (\ref{change of variables}) on the left by $T$ yields
-\begin{align}
-\frac{d\mathbf{D'}}{dt} = TAT^{-1} \cdot \mathbf{D'}(t) + TB \cdot Dose_{iv}(t).
-\end{align}
-Then we have the new model equation and measurement
-\begin{align}
-\frac{d\mathbf{D'}}{dt} = A' \cdot \mathbf{D'}(t) + B' \cdot Dose_{iv}(t), \qquad \mathbf{m}(t) = C' \cdot \mathbf{D'}(t),
-\end{align}
-where $A'$, $B'$, and $C'$ are given by (\ref{similarity transform}).
-
-Regardless of model formulation, the same dose is given to $D_1$, that is,
-\begin{align}
-B' = B.
-\end{align}
-From this and (\ref{similarity transform}) we get $t_{11} = 1$, $t_{21} = 0$, and $t_{31} = 0$. Regardless of model formulation, we measure $D_1$ and $D_3$, that is,
-\begin{align}
-C' = C.
-\end{align}
-From this and (\ref{similarity transform}) we get $\hat{t}_{11} = 1$, $\hat{t}_{12} = 0$, $\hat{t}_{13} = 0$, $\hat{t}_{31} = 0$, $\hat{t}_{32} = 0$, and $\hat{t}_{33} = 1$. For a $3 \times 3$ matrix, the inverse is given by
-\begin{align}
-T^{-1} = \dfrac{1}{\det{T}}\begin{pmatrix}
-t_{22}t_{33} - t_{23}t_{32} & t_{13}t_{32} - t_{12}t_{33} & t_{12}t_{23} - t_{13}t_{22} \\
-t_{23}t_{31} - t_{21}t_{33} & t_{11}t_{33} - t_{13}t_{31} & t_{13}t_{21} - t_{11}t_{23} \\
-t_{21}t_{32} - t_{22}t_{31} & t_{12}t_{31} - t_{11}t_{32} & t_{11}t_{22} - t_{12}t_{21} 
-\end{pmatrix},
-\end{align}
-with the determinant given by 
-\begin{align}
-\det{T} = t_{11}(t_{22}t_{33} - t_{23}t_{32}) - t_{12}(t_{21}t_{33} - t_{23}t_{31}) + t_{13}(t_{21}t_{32} - t_{22}t_{31}).
-\end{align}
-Putting the above findings into $T^{-1}$ yields $t_{12} = 0$, $t_{13} = 0$, $t_{32} = 0$, and $t_{33} = 1$. From $TT^{-1} = I$, we get $t_{22} = 1$. Then we have
-\begin{align}
-T = \begin{pmatrix}
-1 & 0 & 0 \\
-0 & 1 & t_{23} \\
-0 & 0 &  1
-\end{pmatrix} &&
-T^{-1} = \begin{pmatrix}
-1 & 0 & 0 \\
-0 & 1 & -t_{23} \\
-0 & 0 &  1
-\end{pmatrix}.
-\end{align}
-Putting this into (\ref{similarity transform}) yields
-\begin{align}
-A' = \begin{pmatrix}
--(k_{13D} + k_{12D} + k_{eD1})                           & \dfrac{V_3}{V_1}k_{21D} & -\dfrac{V_3}{V_1}k_{21D}t_{23} + \dfrac{V_2}{V_1}k_{31D} \\
-\dfrac{V_1}{V_3}k_{12D} + \dfrac{V_1}{V_2}k_{13D}t_{23}  & -k_{21D}                & (k_{21D} - k_{31D} - k_{eD3})t_{23}                      \\
-\dfrac{V_1}{V_2}k_{13D}                                  & 0                       & -(k_{31D} + k_{eD3})
-\end{pmatrix}.
-\end{align}
-Now we impose 
-\begin{align}
-k'_{eD3} := -a'_{33} - \dfrac{V_1}{V_2}a'_{13} = 0,
-\end{align}
-from which we get $t_{23} = -(V_2/V_3)(k_{eD3}/k_{21D})$. After putting this last piece into $A'$, we get $k'_{eD1}$ from
-\begin{align}
-k'_{eD1} &= -a'_{11} - \dfrac{V_3}{V_1}a'_{21} - \dfrac{V_2}{V_1}a'_{31} \nonumber \\ 
-&= k_{eD1} - \dfrac{k_{13D} \cdot k_{eD3}}{k_{21D}}. \label{new k'_{eD1}}
-\end{align}
-Thus $CL' = k'_{eD1} \cdot V_1$, with $k'_{eD1}$ given by (\ref{new k'_{eD1}}). And finally we get $D_{\text{tot,avg}1} = \text{Dose}/(CL' \cdot \tau)$, and $D_{\text{tot,avg}3} = B \cdot D_{\text{tot,avg}1}$. \\
-
-\textit{Remark}: In the similarity transform, we measure $D_1$ and $D_3$, which is indicated by $C$. As a result of imposing $C' = C$, the original model and the transformed model output the same values for these variables. $D'_2$, however, differs from $D_2$.

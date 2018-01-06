@@ -1,7 +1,18 @@
 \section{Theory}
+In this section, an expression for the average free target to initial target ratio in tissue (AFIRT) is derived for the model in Figure~\ref{fig:model}.
 
-\subsection{Model Equations}
-The drug and target dynamics are modeled with the following system of ordinary differential equations.  The model is shown in Figure~\ref{fig:model}.  THOUGH THIS FIGURE PROBABLY NEEDS TO BE UPDATED.
+\subsection{Model Description}
+The model in Figure~\ref{fig:model} is based on the standard TMDD model \cite{mager01, stein17}, where a drug ($D$) binds its target, but it has been extended to include the following processes:
+\begin{itemize}
+\item Shedding of the membrane bound target ($M$) into soluble target ($S$).  
+\item The drug can bind both the soluble target and the membrane-bound target to form complexes $DS$ and $DM$ respectively.
+\item Both the soluble and membrane-bound target are present in both the central compartment (1) and a tissue compartment (3).
+\item Soluble target is able to distribute between the central and tissue compartment (e.g. passive diffusion of target molecules)
+\item Membrane-bound target is able to  distribute between central and tissue compartment (e.g. active trafficking of immune cells expressing the membrane-bound target).
+\end{itemize}
+As with the standard TMDD model, the peripheral compartment (2) contains the drug only; it is included so that the two-compartment pharmacokinetics of the drug can be described.  This model is more complex that most physiological models in the literature.  Often, trafficking of the membrane-bound target is ignored and often, either the soluble or membrane-bound target is modeled but not both.  In this paper, an analysis of this complete model is performed.  The simpler scenarios can easily be represented using this model and setting the appropriate parameters to zero.  
+
+The ordinary differential equations for describing this system are summarized below.
 \begin{align}
 \frac{dD_1}{dt} &= \frac{1}{V_C}\text{Dose}_{iv}(t) - k_{12D}D_1 + \frac{V_{D_2}}{V_{D_1}}k_{21D}D_2 - k_{13D}D_1 \nonumber 
 + \frac{V_{D_3}}{V_{D_1}}k_{31D}D_3\\& - k_{eD1}D_1 - k_{\text{on}1}D_1 \cdot S_1 + k_{\text{off}1}(DS_1)- k_{\text{on}1}D_1 \cdot M_1 + k_{\text{off}1}(DM_1)  \\
@@ -17,10 +28,41 @@ The drug and target dynamics are modeled with the following system of ordinary d
 \frac{d(DS_3)}{dt} &=-k_{\text{shed}DM_3}DS_3  - k_{31DS}DS_3 + \frac{V_{DS_1}}{V_{DS_3}}k_{13DS}DS_1 - k_{eDS3}(DS_3)  \nonumber\\ &+ k_{\text{on}3}D_1 \cdot S_3 - k_{\text{off}1}(DS_3)  
 \end{align}
 
-This model is considering three compartments like Model C but it is taking into account the possibility for the target to shad, i.e. the target in the previous models is always membrane-bound but in reality it can shad into the blood and into the tumor. We are also adding the lymphocyte trafficking ($k_{13M}$ and $k_{31M}$).
-The analysis we are carrying out on this model is similar to the one done for model C with the required modification. For the first time we are calculating the AFIRT using an alternative approximations to the quasi-equilibrium (QE), the quasi-steady state (QSS) and the quasi-steady state xxxxxxx (QSSD). The quasi-steady state approximation assumed that $-k_{\text{shed}DM_3}DM_3 - k_{eDM3}DM_3+k_{\text{on}3}D_3 \cdot M_3 - k_{\text{off}3}(DM_3) = 0 $, similarly as before for $k_d$ we define $k_{ss}=\frac{k_{\text{shed}DM_3} + k_{eDM3}+ k_{\text{off}3}}{k_{\text{on}3}}$. 
+For the first time we are calculating the AFIRT using an alternative approximations to the quasi-equilibrium (QE), the quasi-steady state (QSS) and the quasi-steady state xxxxxxx (QSSD). The quasi-steady state approximation assumed that $-k_{\text{shed}DM_3}DM_3 - k_{eDM3}DM_3+k_{\text{on}3}D_3 \cdot M_3 - k_{\text{off}3}(DM_3) = 0 $, similarly as before for $k_d$ we define $k_{ss}=\frac{k_{\text{shed}DM_3} + k_{eDM3}+ k_{\text{off}3}}{k_{\text{on}3}}$. 
+
+DESCRIBE THE INITIAL CONDITIONS OF THE MODEL
 
 \subsection{AFIRT derivation}
+I PROPOSE THAT THIS SECTION START WITH A HIGH LEVEL OVERVIEW OF THE STEPS TO CALCULATE AFIRT.  THEN, THESE STEPS CAN EITHER BE REPRODUCED IN THE MAIN BODY OR IN THE APPENDIX.  
+
+KEY STEPS
+\begin{itemize}
+\item Focus on steady state for a constant infusion.
+\item Assume the drug concentration is very large
+\item Calculate drug concentration in tissue at steady state $D_\text{tot,avg3,ss} = C_\text{avg3,ss} = B\cdot C_\text{avg1,ss} = D_\text{tot,avg1,ss}.$
+	\begin{itemize}
+		\item  For large drug concentration, target kinetics can be ignored. 
+		\item Use the similarity transform to remove $k_\text{eD3}$.
+		\item This gives us a simple expression for $C_\text{avg1} = D_\text{tot,avg1}$ as a function of $\CL$.
+		\item This also gives us an expression for $B$ such that $C_\text{avg3} = D_\text{tot,avg3} = B\cdot C_\text{avg1}$.
+	\end{itemize}
+\item Calculate target concentration in tissue at steady state.
+	\begin{itemize}
+		\item For large drug concentration, drug kinetics can be ignored.
+		\item Do the small matrix algebra inversion to calculate $M_{30}$ and $M_{3tot,ss}$.
+		\item Calculate accumulation factor
+	\end{itemize}
+\item Calculate the free fraction by assuming various processes are slow/fast.
+	\begin{itemize}
+		\item $\Kd$
+		\item $\Kss$
+		\item $\Kssd$
+	\end{itemize}	
+\item Putting this all together gives $AFIRT_M$.  
+\item A similar process can be followed for $AFIRT_S$.	
+\end{itemize}
+
+
 
 \subsubsection{Membrane-bound Target}
 
@@ -41,9 +83,6 @@ M_{3,0}&=\frac{k_{13M}(V_C/V_T)k_{\text{syn}M1}+(k_{eM1}+k_{\text{shed}M_1}+k_{1
 \end{align*}
 We can notice from the picture below that the approximation obtained using the (QSS) hypothesis gives better results than the one using (QE).
 
-% ---------------------------------------------------------------
-% Soluble Target 
-% ---------------------------------------------------------------
 \subsubsection{Soluble target at Initial State and Steady State}
 With the same notations as in the sections above.\newline 
 \textbf{At initial state}, we have

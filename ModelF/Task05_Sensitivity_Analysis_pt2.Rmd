@@ -68,7 +68,8 @@ compare.thy.sim = function(model = model,
     df_sim = rbind(df_sim, row)
   }
   
-  df_sim = df_sim %>% mutate(param.to.change = param.to.change.range)
+  df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
+                             fold.change = param.to.change.range/median(param.to.change.range))
   
   ### Theoretical
   # Put all theoretical calculations for different dose into one data frame.
@@ -80,7 +81,8 @@ compare.thy.sim = function(model = model,
     df_thy = rbind(df_thy, row)
   }
   
-  df_thy = df_thy %>% mutate(param.to.change = param.to.change.range)
+  df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
+                             fold.change = param.to.change.range/median(param.to.change.range))
   
   # Arrange theory and simulation in single data frame.
   df_compare = bind_rows(df_thy,df_sim)
@@ -128,9 +130,7 @@ createPlot = function(compare, range){
                      AFIRT.Kssd = df$theory$AFIRT.Kssd,
                      AFIRT.Kss  = df$theory$AFIRT.Kss,
                      AFIRT.Kd   = df$theory$AFIRT.Kd)
-  names = names(Data)
-  Data  = Data %>% gather(key, AFIRT.value, -c(get(names[1]))) %>% mutate(param = compare$param[1])
-  print(Data)
+  Data  = Data %>% gather(key, AFIRT.value, -c(get(names[1])))
 
   # Plot all AFIRT's on same axes.
   g = ggplot(Data, aes(Param, AFIRT.value, color=key)) +
@@ -177,7 +177,7 @@ df_compare_1 = compare.thy.sim(model = model,
                              param.to.change = 'ksynM3',
                              param.to.change.range = ksynM3.range)
 fold.change = ksynM3.range/median(ksynM3.range)
-createPlot(df_compare_1, fold.change)
+# createPlot(df_compare_1, fold.change)
 
 df_compare_2 = compare.thy.sim(model = model,
                              param.as.double = param.as.double,
@@ -189,7 +189,17 @@ df_compare_2 = compare.thy.sim(model = model,
                              param.to.change.range = k13D.range)
 
 joined = rbind(df_compare_1, df_compare_2)
-createPlot(df_compare_2, fold.change)
+joined = joined[c("fold.change","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param")]
+joined = joined %>% gather(key, AFIRT.value, -param, -fold.change) %>% 
+                    filter(!is.na(AFIRT.value))
 
-createPlot(joined, fold.change)
+g = ggplot(joined, aes(fold.change, AFIRT.value, color=key)) +
+      scale.x.log10() +
+      scale.y.log10() +
+      geom_line() +
+      geom_point() + 
+      facet_grid(. ~ param)
+      # theme(strip.text.x = element_blank())
+      #labs(x = df$theory$param)
+print(g)
 ```

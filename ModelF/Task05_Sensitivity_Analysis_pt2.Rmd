@@ -68,7 +68,7 @@ compare.thy.sim = function(model = model,
     df_sim = rbind(df_sim, row)
   }
   
-  df_sim = df_sim %>% mutate(param = param.to.change, param.to.change = param.to.change.range)
+  df_sim = df_sim %>% mutate(param.to.change = param.to.change.range)
   
   ### Theoretical
   # Put all theoretical calculations for different dose into one data frame.
@@ -80,12 +80,14 @@ compare.thy.sim = function(model = model,
     df_thy = rbind(df_thy, row)
   }
   
-  df_thy = df_thy %>% mutate(param = param.to.change, param.to.change = param.to.change.range)
+  df_thy = df_thy %>% mutate(param.to.change = param.to.change.range)
   
   # Arrange theory and simulation in single data frame.
   df_compare = bind_rows(df_thy,df_sim)
+  param.to.change.test = param.to.change
+  print(param.to.change.test)
   df_compare = df_compare %>%
-    mutate(param = param.to.change) %>%
+    mutate(param = param.to.change.test) %>%
     arrange(param.to.change,type) %>%
     mutate_if(is.numeric,signif,2)
   print(df_compare)
@@ -122,7 +124,7 @@ compare.thy.sim = function(model = model,
 # Load model.
 model = ivsc_4cmtct_shedct()
 # Load parameters.
-param.as.double     =  read.param.file("../data/ModelF_Herceptin_Params.xlsx")
+param.as.double     =  read.param.file("../data/ModelF_Atezolizumab_Params.xlsx")
 df_param =  as.data.frame(t(param.as.double))
 
 # Set range for parameters of interest in SA.

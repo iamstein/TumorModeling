@@ -45,7 +45,7 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     
     # numerators for M3.0 and Mtot3.ss(Mtot3 at steady state, M3 at initial state)
     numerator.DM   = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedDM1+k13DM)*ksynM3)
-    denomenator.DM = with(p, (keDM1+kshedDM1+k13DM)*(keDM3+kshedM3+k31DM)-k31DM*k13DM)
+    denomenator.DM = with(p, (keDM1+kshedDM1+k13DM)*(keDM3+kshedDM3+k31DM)-k31DM*k13DM)
     
     numerator.M    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
     denomenator.M  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)

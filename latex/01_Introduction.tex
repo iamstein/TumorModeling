@@ -1,0 +1,39 @@
+\section{Rough outline}
+
+In this paper we will:
+\begin{itemize}
+\item derive AFIRT
+	\begin{itemize}
+		\item new result = AFIRT formula
+		\item new result = Kssd
+	\end{itemize}
+\item use sensitivity analysis to confirm AFIRT formula and show when it fails
+	\begin{itemize}
+		\item large receptor concentration (herceptin = trastuzumab)
+	\end{itemize}
+\item specific practical results from AFIRT and sensitivity analysis
+	\begin{itemize}
+		\item demonstrate the importance of understanding tissue-accumulation (bevacizumab)
+		\item explore how fast shed rate needs to be to limit inhibition
+	\end{itemize}
+\item discussion
+	\begin{itemize}
+		\item practical value - don't need every microconstant, just a few lumped parameter estimes
+		\item don't need a complex physiological model, the simple formula can work well
+		\item essentially, Kssd should have been used for atezo instead of Kd
+	\end{itemize}
+\end{itemize}
+
+
+\section{Introduction}
+In the development of biologics, understanding target engagement at the site of action plays a critical role in dose regimen selection \cite{wang16}.  As measurements at the site of action are often impossible to obtain, model based predictions of target engagement at the site of action are often used to help justify the dose regimen selection.  For the PD-1 inhibitor pembrolizumab, a physiologically based model for antibody distribution and target engagement was developed to predict the dose needed to achieve target engagement and tumor suppression \cite{lindauer17}.  For the PD-L1 inhibitor atezolizumab, a much simpler approach was taken to help justify the dose regimen, where a particular tumor biodistribution coefficient ($B$) and in vivo binding affinity ($\Kd$) was assumed, the steady state trough concentration ($\Cmin$) was estimated from clinical observations, and then the receptor occupancy ($RO$) formula in Equation~\ref{eq:ro} was used to identify the dosing regimen that would provide the drug concentration needed to achieve 95\% target occupancy.
+\begin{equation}
+RO = B\cdot\Cmin/(B\cdot\Cmin+\Kd)
+\label{eq:ro}
+\end{equation}
+
+The advantage of using the complex, mechanistic model as done for pembrolizumab is that ideally, it captures all essential underlying physiology processes in making the dose regimen prediction.  The disadvantage of this approach is that physiological models can be complex, making them difficult time consuming to develop, difficult to accurately estimate all model parameters, and difficult to explain to collaborators.  The advantage using the simple $RO$ formula as done for atezolizumab is that it is fast, easy to implement, and easy to explain to collaborators.  The disadvantage is that it is not immediately obvious that Equation~\ref{eq:ro} is the appropriate equation to use to describe the clinical scenario as this equation was derived for the in vitro setting \cite{boeynaems80} where the was no drug distribution, target distribution, receptor synthesis, or receptor shedding.
+
+In this paper, a mathematical analysis of the target mediated drug distribution system is performed with the goal of deriving a simple expression for target engagement in the clinical scenario.  This work provides a simple expression for target engagement in the tissue of interest, extending previous work characterizing the Average Free target to Initial target Ratio (AFIR) at steady state in circulation \cite{stein17}.
+
+PROVIDE AN OUTLINE OF THE PAPER HERE

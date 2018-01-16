@@ -2,9 +2,16 @@
 .Rhistory
 .RData
 .Ruserdata
+*.Rproj
 *.c
 *.c
 *.o
+*.aux
+*.log
+*.synctex.gz
+*.bbl
+*.blg
+*.toc
 pgm_TumorModel_R/ivsc_2cmtc_keq.d/*
 data/~$*
 pgm_TumorModel_R/ivsc_3cmtct_full.d/*

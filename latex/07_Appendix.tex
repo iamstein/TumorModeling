@@ -1,0 +1,135 @@
+\section{Appendix}
+
+\subsection{Predicting drug concentration in tissue ($D_{\text{tot,avg}3}$)}
+Ignoring target, then at steady state
+\begin{eqnarray*}
+-\left(\begin{array}{c}
+k_{\text{inf}}\\
+0\\
+0
+\end{array}\right)=\frac{d}{dt}\left(\begin{array}{c}
+D_{1}\\
+D_{2}\\
+D_{3}
+\end{array}\right) & = & \left(\begin{array}{ccc}
+-(k_{\e D1}+k_{12D}+k_{13D}) & (V_{P}/V_{C})k_{21D} & (V_{T}/V_{C})k_{31D}\\
+(V_{C}/V_{P})k_{12D} & -k_{21D} & 0\\
+(V_{C}/V_{T})k_{13D} & 0 & -(k_{\e D3}+k_{31D})
+\end{array}\right)\cdot\left(\begin{array}{c}
+D_{1}\\
+D_{2}\\
+D_{3}
+\end{array}\right)\\
+ & = & A\cdot\left(\begin{array}{c}
+D_{1}\\
+D_{2}\\
+D_{3}
+\end{array}\right)
+\end{eqnarray*}
+B is given by the ratio of $D_{3,ss}/D_{1,ss}$ at steady state. 
+
+\[
+\left(\begin{array}{c}
+D_{1}\\
+D_{2}\\
+D_{3}
+\end{array}\right)_{ss}=A^{-1}\cdot\left(\begin{array}{c}
+-k_{\text{inf}}\\
+0\\
+0
+\end{array}\right)
+\]
+
+
+\[
+\left(\begin{array}{c}
+D_{1}\\
+D_{2}\\
+D_{3}
+\end{array}\right)_{ss}=\frac{-k_{\text{inf}}}{\det A}\left(\begin{array}{c}
+a_{22}a_{33}-a_{23}a_{32}\\
+a_{23}a_{31}-a_{21}a_{33}\\
+a_{21}a_{32}-a_{22}a_{31}
+\end{array}\right)=\left(\begin{array}{c}
+k_{21D}(k_{\e D3}+k_{31D})\\
+k_{21D}(V_{P}/V_{C})(k_{eD3}+k_{31D})\\
+k_{21D}(V_{C}/V_{T})k_{13D}
+\end{array}\right)
+\]
+And finally, the biodistribution coefficient for tissue 3 is given
+by:
+
+\[
+B=\left(\frac{D_{3}}{D_{1}}\right)_{ss}=\frac{k_{21D}(V_{C}/V_{T})k_{13D}}{k_{21D}(k_{\e D3}+k_{31D})}=\frac{V_{C}}{V_{T}}\cdot\frac{k_{13D}}{(k_{\e D3}+k_{31D})}
+\]
+
+Thus in the limits prescribed above, where target expression does
+not effect drug distribution, we have:
+\[
+D_{\tot,\avg3}=B\cdot D_{\tot,\avg1}
+\]
+
+\subsection{Predicting Target accumulation in Target Tissue ($M_{\acc3}$)}
+
+Before the drug is given, the initial steady state target levels can
+be computed by solving the system below:
+
+\begin{eqnarray*}
+\left(\begin{array}{c}
+0\\
+0
+\end{array}\right)=\frac{d}{dt}\left(\begin{array}{c}
+M_{1}\\
+M_{3}
+\end{array}\right) & = & \left(\begin{array}{cc}
+-(k_{\e M1}+k_{13M}+k_{\text{shed}M_1}) & (V_{T}/V_{C})k_{31M}\\
+(V_{C}/V_{T})k_{13T} & -(k_{\e M3}+k_{31M}+k_{\text{shed}M_3})
+\end{array}\right)\left(\begin{array}{c}
+M_{1}\\
+M_{3}
+\end{array}\right)_{0}+\left(\begin{array}{c}
+k_{\syn1}\\
+k_{\syn3}
+\end{array}\right)\\
+\left(\begin{array}{c}
+k_{\syn1}\\
+k_{\syn3}
+\end{array}\right) & = & \left(\begin{array}{cc}
+(k_{\e M1}+k_{13M}+k_{\text{shed}M_1}) & -(V_{T}/V_{C})k_{31M}\\
+-(V_{C}/V_{T})k_{13M} & (k_{\e M3}+k_{31M}+k_{\text{shed}M_3})
+\end{array}\right)\left(\begin{array}{c}
+M_{1}\\
+M_{3}
+\end{array}\right)_{0}
+\end{eqnarray*}
+Then, using the formula for inverting a 2d matrix gives
+
+\begin{eqnarray*}
+\left(\begin{array}{c}
+M_{1}\\
+M_{3}
+\end{array}\right)_{0} & = & \frac{1}{\left( (k_{\e M3}+k_{31M}+k_{\text{shed}M_3})(k_{\e M1}+k_{13M}+k_{\text{shed}M_1}) -k_{13T}k_{31T}\right)}\times\\ & & \left(\begin{array}{cc}
+(k_{\e M3}+k_{31M}+k_{\text{shed}M_3}) & (V_{T}/V_{C})k_{31M}\\
+(V_{C}/V_{T})k_{13M}  &(k_{\e M1}+k_{13M}+k_{\text{shed}M_1}) 
+\end{array}\right)\left(\begin{array}{c}
+k_{\syn1}\\
+k_{\syn3}
+\end{array}\right)
+\end{eqnarray*}
+The key parameter of interest is the target expression in the tissue
+of interest: 
+\[
+M_{3,0}=\frac{k_{13M}(V_C/V_T)k_{\text{syn}M1}+(k_{eM1}+k_{\text{shed}M_1}+k_{13M})k_{\text{syn}3}}{(k_{eM1}+k_{\text{shed}M_1}+k_{13M})(k_{eM3}+k_{\text{shed}M_3}+k_{31M})-k_{31M}k_{13M}}
+\]
+If we assume that the drug is in vast excess to the amount of target
+and that almost all the target is present as bound to drug, then the
+total target kinetics can be described by the same set of equations
+above, but replacing all $M$ terms with $DM$ terms, giving
+\[
+M_{3\text{tot,ss}}=\frac{k_{13DM}(V_C/V_T)k_{\text{syn}M1}+(k_{eDM1}+k_{\text{shed}DM_1}+k_{13DM})k_{\text{syn}3}}{(k_{eDM1}+k_{\text{shed}DM_1}+k_{13DM})(k_{eDM3}+k_{\text{shed}DM_3}+k_{31DM})-k_{31DM}k_{13DM}}
+\]
+Then, to compute $M_{\acc3}$ just take the ratio of $M_{\tot3}/M_{03}$
+\begin{align*}
+M_{\acc3}=\frac{M_{\tot3}}{M_{03}}=&\frac{k_{13DM}(V_C/V_T)k_{\text{syn}M1}+(k_{eDM1}+k_{\text{shed}DM_1}+k_{13DM})k_{\text{syn}3}}{(k_{eDM1}+k_{\text{shed}DM_1}+k_{13DM})(k_{eDM3}+k_{\text{shed}DM_3}+k_{31DM})-k_{31DM}k_{13DM}}\times\\
+&\frac{(k_{eM1}+k_{\text{shed}M_1}+k_{13M})(k_{eM3}+k_{\text{shed}M_3}+k_{31M})-k_{31M}k_{13M}}{k_{13M}(V_C/V_T)k_{\text{syn}M1}+(k_{eM1}+k_{\text{shed}M_1}+k_{13M})k_{\text{syn}3}}
+\end{align*}

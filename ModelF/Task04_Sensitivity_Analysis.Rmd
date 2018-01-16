@@ -31,7 +31,7 @@ suppressMessages(source("ams_initialize_script.R"))
 # Input: 
 # model - model system of ODE's solved with RxODE. In this project, it is 'ivsc_4cmtct_shedct'.
 # param.as.double - read parameters from Excel file. read.param.file("file directory").
-# dose.nmol.range - range of dose in nmol. We will always do SA on dose.
+# dose.nmol.range - range of dose in nmol. This must be a vector of odd length.
 # tmax - time of treatment in days
 # tau - frequency of administering dose in days
 # compartment - compartment where drug is administered
@@ -104,8 +104,8 @@ compare.thy.sim = function(model = model,
   #     geom_point()
   # print(g)
   
-    # Iterate through values
-  dose.nmol = 10*scale.mpk2nmol
+    # Iterate through values in simulation.
+  dose.nmol = median(dose.nmol.range)
   for (param.iter in param.to.change.range){
     param.as.double[param.to.change] = param.iter
     row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment)
@@ -116,7 +116,7 @@ compare.thy.sim = function(model = model,
   # Put all theoretical calculations for different dose into one data frame.
   df_thy = data.frame()
   
-  # Iterate through values
+  # Iterate through values in theory.
   for (param.iter in param.to.change.range){
     param.as.double[param.to.change] = param.iter
     row = lumped.parameters.theory(param.as.double, dose.nmol, tau)
@@ -124,7 +124,7 @@ compare.thy.sim = function(model = model,
   }
   df_thy = df_thy %>% mutate(param.to.change = param.to.change.range)
   
-  # Arrange theory and simulation in single data frame.
+  # Arrange theory and simulation into single data frame.
   df_compare = bind_rows(df_thy,df_sim)
   df_compare = df_compare %>%
     arrange(param.to.change,type) %>%
@@ -159,19 +159,18 @@ compare.thy.sim = function(model = model,
 # Example of calling this function
 
 ```{r}
-# Load model.
-model = ivsc_4cmtct_shedct()
-# Load parameters.
-param.as.double     =  read.param.file("../data/ModelF_Atezolizumab_Params.xlsx")
-df_param =  as.data.frame(t(param.as.double))
+# Load model and parameters.
+model           = ivsc_4cmtct_shedct()
+param.as.double = read.param.file("../data/ModelF_Herceptin_Params.xlsx")
+df_param        = as.data.frame(t(param.as.double))
 
 # Set range for parameters of interest in SA.
 dose.nmol.range = lseq(.1,10,7)*scale.mpk2nmol
-ksynM3.range    = lseq(df_param$ksynM3*.1,   df_param$ksynM3*10,   7)
+ksynM3.range    = lseq(df_param$ksynM3  *.1, df_param$ksynM3  *10, 7)
 kshedDM3.range  = lseq(df_param$kshedDM3*.1, df_param$kshedDM3*10, 7)
-k13D.range      = lseq(df_param$k13D*.1,     df_param$k13D*10,     7)
-k13DM.range     = lseq(df_param$k13DM*.1,    df_param$k13DM*10,    7)
-k31DM.range     = lseq(df_param$k31DM*.1,    df_param$k31DM*10,    7)
+k13D.range      = lseq(df_param$k13D    *.1, df_param$k13D    *10, 7)
+k13DM.range     = lseq(df_param$k13DM   *.1, df_param$k13DM   *10, 7)
+k31DM.range     = lseq(df_param$k31DM   *.1, df_param$k31DM   *10, 7)
 
 # Dose time, frequency, and compartment
 tmax = 26*7 #days

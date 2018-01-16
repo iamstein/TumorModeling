@@ -7,6 +7,7 @@
 \usepackage{subfigure}
 \usepackage{calc}
 \usepackage{color}
+\usepackage{float}
 
 \input{_TMDD_Tex_Commands.tex}
 
@@ -27,7 +28,7 @@
 \date{}
 
 \begin{document}
-{\Large{\bf AFIRT: A Dimensionless Potency Metric for Characterizing the Activity of Monoclonal Antibodies in Target Tissue}} 
+{\Large{\bf AFIRT: A Dimensionless Potency Metric of Target Inhibition in the Tissue of Interest for Guiding Dose Regimen Selection of Biologics.}} 
 ~
 \\
 \\
@@ -48,26 +49,26 @@ Keywords: monoclonal antibody $|$ target mediated drug disposition $|$ pharmacok
     Andrew M. Stein\footnote{Novartis Institute for BioMedical Research, 45 Sidney St, Cambridge MA, 02140 USA, andrew.stein@novartis.com},
     Sameed Ahmed\footnote{Departments of Mathematics, University of South Carolina, ahmed3@math.sc.edu},
     Miandra Ellis\footnote{School of Mathematical and Statistical Sciences, Arizona State University, mellis5@asu.edu},
-    Ngartelbaye Guerngar\footnote{Department of Mathematics and Statistics, Auburn University, nzg0017@auburn.edu},
     Hongshan Li\footnote{Department of Mathematics, Purdue University, li108@purdue.edu},
     Luca Pallucchini\footnote{Department of Mathematics, Temple University,  luca.pallucchini@temple.edu}
 \end{center}
 
-\newpage
+\tableofcontents
+
+Figure are in a separate file at the end of this document.  They'll images themselves will need to be removed for CPT:PSP (06-Figures.tex). 
 
 \section*{Abstract}
 XYZ
 \\
 \\
-Figure are in a separate file (06-Figures.tex).  And 
 
+\newpage
 \input{01_Introduction.tex}
 \input{02_Theory.tex}
 \input{03_Methods_Results.tex}
 \input{05_Discussion_Conclusion.tex}
 \input{07_Appendix.tex}
-\input{08_Figures.tex}
-
+\input{09_Appendix_SimilarityTransform.tex}
 
 \section*{Study Highlights}
 %150 word limit, 30 words of questions, so 180 word limit
@@ -84,7 +85,7 @@ XYZ
 XYZ
 
 \section*{Acknowledgements}
-The authors would like to thank XYZ for many helpful discussions.
+The authors would like to thank the IMA as the Math-to-Industry bootcamp was where this work began.  We'd also like to thank Ngartelbaye Guerngar who was also a member of the bootcamp team.  Finally, we'd like to thank Eduardo Sontag and Greg Thurber for many helpful discussions.
 
 \section*{Conflict of Interest}
 Andrew Stein is employed by Novartis Institute for BioMedical Research
@@ -95,6 +96,6 @@ XYZ analyzed the data, XYZ performed the research, XYZ wrote the manuscript.
 \bibliography{_Biologics_Refs.bib} 
 \bibliographystyle{ieeetr}
 
-
+\input{08_Figures.tex}
 
 \end{document}

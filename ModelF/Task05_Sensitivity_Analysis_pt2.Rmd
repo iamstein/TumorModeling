@@ -1,5 +1,5 @@
 ---
-title: "Task04_Sensitivity_Analysis"
+title: "Task05_Sensitivity_Analysis_pt2"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
 output: html_document
 # output:
@@ -8,7 +8,9 @@ output: html_document
 #     toc_float: true
 #     code_folding: hide
 ---
+
 # Preliminary stuff
+
 ```{r, warning=FALSE}
 # Need this to get rxode working. I don't know why I keep having to run this.
 Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:/RBuildTools/3.4/bin/",
@@ -27,57 +29,64 @@ suppressMessages(source("ams_initialize_script.R"))
 # Input: 
 # model - model system of ODE's solved with RxODE. In this project, it is 'ivsc_4cmtct_shedct'.
 # param.as.double - read parameters from Excel file. read.param.file("file directory").
-# dose.nmol.range - range of dose in nmol. We will always do SA on dose. <- Is this true?
+# dose.nmol - dose in nmol.
 # tmax - time of treatment in days
 # tau - frequency of administering dose in days
 # compartment - compartment where drug is administered
 # param.to.change - parameter on which to do SA. This must be a string.
-# param.to.change.range - range of parameter on which to do SA. This must be a vector of odd length.
+# param.to.change.range - range of parameter on which to do SA. The range must be symmetric in fold change. This must be a vector of odd length.
 
 # Output:
-# Plot of theoretical and simulated AFIRT vs fold change in parameter
 # Data frame of AFIRT vs parameter value
 
 compare.thy.sim = function(model = model, 
                            param.as.double = param.as.double,
-                           dose.nmol.range = dose.nmol.range,
+                           dose.nmol = dose.nmol,
                            tmax = tmax,
                            tau = tau,
                            compartment = compartment,
                            param.to.change = param.to.change,
                            param.to.change.range = param.to.change.range) {
-
-    
-  # Initialize ------------------------------------------------------------------------------------------
-  ##### This is currently passed as function parameter. The next line may be unnecessary.
-  # Set range for parameters of interest in SA.
-  # param.to.change.range = lseq(param.nominal$param.to.change*.1, param.nominal$param.to.change*10, 7)
   
-  # Evaluate model --------------------------------------------------------------------------------------
-  #### Simulation.
+  #### Simulation
   df_sim = data.frame()
-  # Iterate through values in range. 
-  dose.nmol = 10*scale.mpk2nmol
-  for (param.iter in param.to.change.range){
-    param.as.double[param.to.change] = param.iter
-    row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment)
-    df_sim = rbind(df_sim, row)
+  # Iterate through values in range.
+  if (param.to.change == 'dose'){
+    for (param.iter in param.to.change.range){
+      row = lumped.parameters.simulation(model, param.as.double, param.iter, tmax, tau, compartment)
+      df_sim = rbind(df_sim, row)
+    }  
+  } else {
+    for (param.iter in param.to.change.range){
+      param.as.double[param.to.change] = param.iter
+      row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment)
+      df_sim = rbind(df_sim, row)
+    }
   }
   
   df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
                              fold.change = param.to.change.range/median(param.to.change.range))
-  ### Theoretical
+  
+  ### Theory
   df_thy = data.frame()
   # Iterate through values in range.
-  for (param.iter in param.to.change.range){
-    param.as.double[param.to.change] = param.iter
-    row = lumped.parameters.theory(param.as.double, dose.nmol, tau)
+  if (param.to.change == 'dose'){
+    for (param.iter in param.to.change.range){
+      row = lumped.parameters.theory(param.as.double, param.iter, tau)
+      df_thy = rbind(df_thy, row)
+    }
+  } else{
+    for (param.iter in param.to.change.range){
+     param.as.double[param.to.change] = param.iter
+     row = lumped.parameters.theory(param.as.double, dose.nmol, tau)
     df_thy = rbind(df_thy, row)
+    }
   }
   
   df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
                              fold.change = param.to.change.range/median(param.to.change.range))
-  # Arrange theory and simulation in single data frame.
+  
+  ### Arrange theory and simulation in single data frame.
   df_compare = bind_rows(df_thy,df_sim)
   param = param.to.change
   df_compare = df_compare %>%
@@ -88,7 +97,9 @@ compare.thy.sim = function(model = model,
 }
 ```
 
-```{r}
+# Create data frame for multiple drugs and parameters.
+
+```{r, include=FALSE}
 # Load model.
 model = ivsc_4cmtct_shedct()
 
@@ -102,10 +113,11 @@ for (i in 1:length(drugs)) {
   paths[i] = paste0("../data/ModelF_", drugs[i],"_Params.xlsx")
 }
 
-# Dose time, frequency, and compartment
+# Dose time, frequency, compartment, nominal dose
 tmax = 26*7 #days
 tau  = 21   #days
 compartment = 2
+dose.nmol = scale.mpk2nmol
 joined = NULL
 
 # Iterate over all the drugs.
@@ -143,7 +155,7 @@ for (i in 1:length(drugs)){
   for (j in 1:ncol(params.to.iterate)){
     dfs[[j]] = compare.thy.sim(model = model,
                                param.as.double = param.as.double,
-                               dose.nmol.range = dose.nmol.range,
+                               dose.nmol = dose.nmol,
                                tmax = tmax,
                                tau  = tau,
                                compartment = compartment,
@@ -156,6 +168,7 @@ for (i in 1:length(drugs)){
 ```
 
 # Plot the output.
+
 ```{r}
 # I only wanted a subset of the parameters for gather.
 joined = joined[c("fold.change","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug")]
@@ -172,3 +185,30 @@ g = ggplot(plot.df, aes(fold.change, AFIRT.value, color=key)) +
       facet_grid(drug ~ param)
 print(g)
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

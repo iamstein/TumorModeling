@@ -1,5 +1,17 @@
 \section{Discussion}
 
+The key insight from this work is that under many clinically relevant scenarios, AFIRT can be estimated using four parameters: a binding constant ($\Keq$), the target accumulation ratio ($\Tacc$), the average drug concentration in circulation ($\Cavg$) and the biodistribution coefficient for the drug to the tissue of interest ($B$)
+\begin{equation}
+	\AFIRT = \frac{\Keq \cdot \Tacc}{B \cdot \Cavg}
+\end{equation}
+The binding constant ($\Keq$) above depends on the nature of the target of interest.
+\begin{itemize}
+	\item For soluble targets, a surface plasmon resonance estimate for $\Kd$ may be sufficient.  It should be noted that that there have been scenarios where the estimate for the in vitro and in vivo $\Kd$ differed by 1000-fold (e.g. TNF-$\alpha$ \cite[Figure 8]{meno05}).
+	\item For membrane-bound targets on cells where trafficking between tissue and circulation is negligible, $\Kss$ can be estimated by a cell-based assay.
+	\item For membrane-bound targets on cells where trafficking between tissue and circulation is rapid, $\Kssd$ may be needed.  As it is not clear how to directly estimate this parameter, one solution is to adjust a cell-based estimate for $\Kss$ by a "safety factor."
+\end{itemize}
+
+
 \begin{itemize}
 \item Key Insight = AFIRT
 	\begin{itemize}

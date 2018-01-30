@@ -71,9 +71,9 @@ These approximations are obtained from equation (16) at steady state, i.e. $\fra
 
 We obtain the following approximations 
 \begin{align*}
-\text{AFIRT} \approx k_{ssd}\frac{M_{3\text{tot,ss}}}{M_{3,0}}\frac{\text{CL}\times\tau}{\text{B}\times\text{Dose}},\\
-\text{AFIRT} \approx k_{ss}\frac{M_{3\text{tot,ss}}}{M_{3,0}}\frac{\text{CL}\times\tau}{\text{B}\times\text{Dose}},\\
-\text{AFIRT} \approx k_{d}\frac{M_{3\text{tot,ss}}}{M_{3,0}}\frac{\text{CL}\times\tau}{\text{B}\times\text{Dose}},
+\text{AFIRT} \approx k_{ssd}\frac{M_{3\text{tot,ss}}}{M_{3,0}}\frac{\text{CL}\cdot\tau}{\text{B}\cdot\text{Dose}},\\
+\text{AFIRT} \approx k_{ss}\frac{M_{3\text{tot,ss}}}{M_{3,0}}\frac{\text{CL}\cdot\tau}{\text{B}\cdot\text{Dose}},\\
+\text{AFIRT} \approx k_{d}\frac{M_{3\text{tot,ss}}}{M_{3,0}}\frac{\text{CL}\cdot\tau}{\text{B}\cdot\text{Dose}},
 \end{align*}  
 where 
 \begin{align*}
@@ -145,9 +145,9 @@ Formulas for computing membrane target at initial and steady state can be found 
 
 The formulas to compute various AFIRTS for soluble targets in the tumor compartment are 
 \begin{align}
-    \text{AFIRTS.Kssd} & = \text{Kssd.S}\times \frac{\text{Tacc.tum.S}}{\text{B}\times C_{avg1}} \\
-    \text{AFIRTS.Kss}  & = \text{Kss.S}\times \frac{\text{Tacc.tum.S}}{\text{B}\times C_{avg1}} \\
-    \text{AFIRTS.Kd}   & = \text{Kd.S}\times \frac{\text{Tacc.tum.S}}{\text{B}\times C_{avg1}} \\
+    \text{AFIRTS.Kssd} & = \text{Kssd.S}\cdot \frac{\text{Tacc.tum.S}}{\text{B}\cdot C_{avg1}} \\
+    \text{AFIRTS.Kss}  & = \text{Kss.S}\cdot \frac{\text{Tacc.tum.S}}{\text{B}\cdot C_{avg1}} \\
+    \text{AFIRTS.Kd}   & = \text{Kd.S}\cdot \frac{\text{Tacc.tum.S}}{\text{B}\cdot C_{avg1}} \\
 \end{align}
 Where $\text{Kssd.S}$, $\text{Kss.S}$ and $\text{Kd.S}$
 \begin{align}

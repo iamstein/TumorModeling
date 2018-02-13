@@ -62,13 +62,13 @@ compare.thy.sim = function(model = model,
   # Iterate through values in range.
   if (param.to.change == 'dose'){
     for (param.iter in param.to.change.range){
-      row = lumped.parameters.simulation(model, param.as.double, param.iter, tmax, tau, compartment)
+      row = lumped.parameters.simulation(model, param.as.double, param.iter, tmax, tau, compartment, soluble)
       df_sim = rbind(df_sim, row)
     }  
   } else {
     for (param.iter in param.to.change.range){
       param.as.double[param.to.change] = param.iter
-      row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment)
+      row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment, soluble)
       df_sim = rbind(df_sim, row)
     }
   }

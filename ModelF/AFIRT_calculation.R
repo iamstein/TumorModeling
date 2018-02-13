@@ -123,7 +123,7 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
 # Function simulates the lumped parameters
 
 lumped.parameters.simulation = function(model=model, param.as.double=param.as.double,
-                                        dose.nmol=dose.nmol, tmax=tmax, tau=tau, compartment){
+                                        dose.nmol=dose.nmol, tmax=tmax, tau=tau, compartment, soluble = FALSE){
 
     # Arguments:
     #   model_name: name of the model
@@ -133,6 +133,7 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
     #   tau: dosing interval in days
     #   compartment: compartment to which dosing is applied
     #   (in model F case, compartment=2)
+    #   soluble: flag saying whether or not drug is soluble. Default to FALSE.
     # Return:
     #   A data frame of lumped parameters calculated from simulation
 
@@ -153,7 +154,7 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
     out = model$rxode$solve(param.as.double, ev, init)
     out = model$rxout(out)
     out = out %>%
-        mutate(Sfree.pct = S1/init["S1"],
+        mutate(Sfree.pct = S3/init["S3"],
              Mfree.pct = M3/init["M3"],
              dose.nmol = dose.nmol)
 
@@ -164,7 +165,7 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
 
     ## Assume the system reaches steady state during the last dosing period
     steady_state = out %>%
-    filter(time > (floor(tmax/tau)-1)*tau & time <tmax)
+      filter(time > (floor(tmax/tau)-1)*tau & time <tmax)
     Mtot3.ss = mean(steady_state$Mtot3)
 
     Tacc.tum = Mtot3.ss / M30
@@ -180,6 +181,12 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
 
     # AFIRT
     AFIRT = mean(steady_state$Mfree.pct)
+
+    # Soluble case
+    if (soluble) {
+      AFIRT = mean(steady_state$Sfree.pct)
+      Tacc.tum = mean(steady_state$Stot3)/initial_state$S3
+    }
 
     lumped_parameters_sim = data.frame(type = "simulation",
                                      M30=M30,

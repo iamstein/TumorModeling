@@ -46,8 +46,6 @@ compare.thy.sim = function(model = model,
                            tau = tau,
                            compartment = compartment,
                            param.to.change = param.to.change,
-                           param.to.change.range = param.to.change.range) {
-=======
                            param.to.change.range = param.to.change.range,
                            soluble = FALSE) {
 
@@ -55,7 +53,6 @@ compare.thy.sim = function(model = model,
   ##### This is currently passed as function parameter. The next line may be unnecessary.
   # Set range for parameters of interest in SA.
   # param.to.change.range = lseq(param.nominal$param.to.change*.1, param.nominal$param.to.change*10, 7)
->>>>>>> Updated Lumped Parameters Theory to include flag for using the soluble equations. Set up Task05 calls to this function to use this new flag.
   
   #### Simulation
   df_sim = data.frame()
@@ -172,7 +169,7 @@ for (i in 1:length(drugs)){
                                param.to.change = names(params.to.iterate)[j],
                                param.to.change.range = params.to.iterate[[j]],
                                soluble = isSoluble)
-    dfs[[j]] = dfs[[j]] %>% mutate(drug = drugs[i])
+    dfs[[j]] = dfs[[j]] %>% mutate(drug = drugs[i], isSol = isSoluble)
   }
   joined = bind_rows(joined,dfs)
 }
@@ -182,16 +179,14 @@ for (i in 1:length(drugs)){
 
 ```{r}
 # I only wanted a subset of the parameters for gather.
-joined = joined[c("fold.change","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug")]
-
-# Change all ksynS3 & ksynM3 to one label.
-joined = joined %>% mutate(param = replace(param, param == "ksynS3" | param == "ksynM3", "ksynM3/ksynS3"))
+joined = joined[c("fold.change","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug", "isSol")]
 
 # Use gather to make the long data frame for ggplot.
-plot.df = joined %>% gather(key, AFIRT.value, -param, -fold.change,-drug) %>% 
-                    filter(!is.na(AFIRT.value))
-
-g = ggplot(plot.df, aes(fold.change, AFIRT.value, color=key)) +
+plots = joined %>% gather(key, AFIRT.value, -param, -fold.change,-drug, -isSol) %>%
+  filter(!is.na(AFIRT.value)) %>%
+  # Group by isSoluble to create to separate plots.
+  group_by(isSol)%>%
+  do(plot = ggplot(., aes(fold.change, AFIRT.value, color=key)) +
       scale.x.log10() +
       scale.y.log10() +
       geom_line() +
@@ -226,3 +221,8 @@ print(g)
 
 
 
+=======
+  )
+plots$plot
+```
+>>>>>>> Updated plotting section to split into separate plots according to solubility of drug target.

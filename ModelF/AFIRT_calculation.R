@@ -89,8 +89,6 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
       Tacc.tum = Stot3.ss / S30
     }
 
-
-
     # Biodistribution coefficient (reference: ModelF_Appendix)
     B = with(p, (k13D/(keD3 + k31D) * (VD1/VD3)))
 
@@ -99,7 +97,6 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
 
     # Average drug concentration in the central compartment
     Cavg1 = dose.nmol/(CL*tau)
-
 
     # Compute various AFIRTs
     AFIRT.Kssd = Kssd*Tacc.tum/(B*Cavg1)
@@ -155,8 +152,8 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
     out = model$rxout(out)
     out = out %>%
         mutate(Sfree.pct = S3/init["S3"],
-             Mfree.pct = M3/init["M3"],
-             dose.nmol = dose.nmol)
+               Mfree.pct = M3/init["M3"],
+               dose.nmol = dose.nmol)
 
     # Calculate lumped parameters
     initial_state = out %>%

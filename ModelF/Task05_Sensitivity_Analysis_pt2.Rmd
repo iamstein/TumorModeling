@@ -67,7 +67,6 @@ compare.thy.sim = function(model = model,
       df_sim = rbind(df_sim, row)
     }
   }
-  
   df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
                              fold.change = param.to.change.range/median(param.to.change.range))
   
@@ -118,9 +117,9 @@ names(parameters) = parameters
 soluble = "Bevacizumab"
 # Drugs to explore. 
 # drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
-drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab")
+# drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab")
 # drugs = c("Atezolizumab", "Bevacizumab")
-# drugs = c("Bevacizumab")
+drugs = c("Bevacizumab")
 
 # Create paths to data files for each drug.
 paths = NULL

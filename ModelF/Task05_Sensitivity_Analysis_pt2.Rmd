@@ -85,8 +85,11 @@ compare.thy.sim = function(model = model,
   
   df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
                              fold.change = param.to.change.range/median(param.to.change.range))
-  
-  ### Arrange theory and simulation in single data frame.
+
+  # Arrange theory and simulation in single data frame.
+  # I am tired of that "Unequal factor levels" error. This fixes it.
+  levels(df_thy$type) = c("theory", "simulation")
+  levels(df_sim$type) = c("theory", "simulation")
   df_compare = bind_rows(df_thy,df_sim)
   param = param.to.change
   df_compare = df_compare %>%
@@ -146,13 +149,14 @@ for (i in 1:length(drugs)){
                                    lseq(df_param$ksynM3*.1, df_param$ksynM3*10, 7),
                                    lseq(df_param$k13D*.1, df_param$k13D*10, 7),
                                    lseq(df_param$VD3*.1, df_param$VD3*10, 7)
-                                   )
+    )
     names(params.to.iterate) = parameters[-c(4,5)]
   }
-  #  names(params.to.iterate) = parameters
+  
   dfs = list()
   # Iterate all of the parameters for a single drug.
   for (j in 1:ncol(params.to.iterate)){
+    if (TRUE){
     dfs[[j]] = compare.thy.sim(model = model,
                                param.as.double = param.as.double,
                                dose.nmol = dose.nmol,
@@ -161,9 +165,10 @@ for (i in 1:length(drugs)){
                                compartment = compartment,
                                param.to.change = names(params.to.iterate)[j],
                                param.to.change.range = params.to.iterate[[j]])
+    }
     dfs[[j]] = dfs[[j]] %>% mutate(drug = drugs[i])
   }
-  joined = bind_rows(dfs,joined)
+  joined = bind_rows(joined,dfs)
 }
 ```
 

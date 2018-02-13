@@ -105,9 +105,13 @@ compare.thy.sim = function(model = model,
 ```{r, include=FALSE}
 # Load model.
 model = ivsc_4cmtct_shedct()
-
+# List of parameters of interest.
+# Can't change all M to S because there are no kshedS3/DS3 params...
+parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
+names(parameters) = parameters
+soluble = "Bevacizumab"
 # Drugs to explore. 
-# drugs = c("Herceptin")
+#drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
 drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab")
 
 # Create paths to data files for each drug.
@@ -129,14 +133,15 @@ for (i in 1:length(drugs)){
   param.as.double =  read.param.file(paths[i])
   df_param =  as.data.frame(t(param.as.double))
   
+  # Check if drug is soluble
+  if (drugs[i] %in% soluble) {parameters["ksynM3"] = "ksynS3"}
+
   # Set range for parameters of interest in SA.
-  #----------
-  parameters = c("dose", "ksynM3", "k13D","kshedM3", "kshedDM3", "VD3")
-  
   # This is a bad way of getting around the fact that we have zero values 
-  # for Herceptin. 
+  # for Herceptin in kshedM3 and kshedDM3. 
+   
   if (all(df_param[parameters[2:6]] != 0)){
-    params.to.iterate = data.frame(lseq(.1,10,7)*scale.mpk2nmol,
+    params.to.iterate = data.frame(lseq(scale.mpk2nmol*.1,scale.mpk2nmol*10,7),
                                    lseq(df_param$ksynM3*.1, df_param$ksynM3*10, 7),
                                    lseq(df_param$k13D*.1, df_param$k13D*10, 7),
                                    lseq(df_param$kshedM3*.1, df_param$kshedM3*10, 7),
@@ -145,11 +150,13 @@ for (i in 1:length(drugs)){
                                    )
     names(params.to.iterate) = parameters
   } else {
-    params.to.iterate = data.frame(lseq(.1,10,7)*scale.mpk2nmol,
+    # Herceptin Case
+    params.to.iterate = data.frame(lseq(scale.mpk2nmol*.1,scale.mpk2nmol*10,7),
                                    lseq(df_param$ksynM3*.1, df_param$ksynM3*10, 7),
                                    lseq(df_param$k13D*.1, df_param$k13D*10, 7),
                                    lseq(df_param$VD3*.1, df_param$VD3*10, 7)
     )
+    # Like I said above kshedM3 and kshedDM3 are skipped for Herceptin.
     names(params.to.iterate) = parameters[-c(4,5)]
   }
   

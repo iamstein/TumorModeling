@@ -41,16 +41,21 @@ suppressMessages(source("ams_initialize_script.R"))
 
 compare.thy.sim = function(model = model, 
                            param.as.double = param.as.double,
-<<<<<<< HEAD
-=======
-                           dose.nmol.range = dose.nmol.range,
->>>>>>> Added Sameed's changes.
                            dose.nmol = dose.nmol,
                            tmax = tmax,
                            tau = tau,
                            compartment = compartment,
                            param.to.change = param.to.change,
                            param.to.change.range = param.to.change.range) {
+=======
+                           param.to.change.range = param.to.change.range,
+                           soluble = FALSE) {
+
+  # Initialize ------------------------------------------------------------------------------------------
+  ##### This is currently passed as function parameter. The next line may be unnecessary.
+  # Set range for parameters of interest in SA.
+  # param.to.change.range = lseq(param.nominal$param.to.change*.1, param.nominal$param.to.change*10, 7)
+>>>>>>> Updated Lumped Parameters Theory to include flag for using the soluble equations. Set up Task05 calls to this function to use this new flag.
   
   #### Simulation
   df_sim = data.frame()
@@ -76,13 +81,13 @@ compare.thy.sim = function(model = model,
   # Iterate through values in range.
   if (param.to.change == 'dose'){
     for (param.iter in param.to.change.range){
-      row = lumped.parameters.theory(param.as.double, param.iter, tau)
+      row = lumped.parameters.theory(param.as.double, param.iter, tau, soluble)
       df_thy = rbind(df_thy, row)
     }
   } else{
     for (param.iter in param.to.change.range){
      param.as.double[param.to.change] = param.iter
-     row = lumped.parameters.theory(param.as.double, dose.nmol, tau)
+     row = lumped.parameters.theory(param.as.double, dose.nmol, tau, soluble)
     df_thy = rbind(df_thy, row)
     }
   }
@@ -133,6 +138,7 @@ tau  = 21   #days
 compartment = 2
 dose.nmol = scale.mpk2nmol
 joined = NULL
+isSoluble = FALSE
 
 # Iterate over all the drugs.
 for (i in 1:length(drugs)){
@@ -141,7 +147,10 @@ for (i in 1:length(drugs)){
   df_param =  as.data.frame(t(param.as.double))
   
   # Check if drug is soluble
-  if (drugs[i] %in% soluble) {parameters["ksynM3"] = "ksynS3"}
+  if (drugs[i] %in% soluble) {
+    parameters["ksynM3"] = "ksynS3"
+    isSoluble = TRUE
+  }
 
   # Set range for parameters of interest in SA.
   # This is a bad way of getting around the fact that we have zero values 
@@ -164,7 +173,8 @@ for (i in 1:length(drugs)){
                                tau  = tau,
                                compartment = compartment,
                                param.to.change = names(params.to.iterate)[j],
-                               param.to.change.range = params.to.iterate[[j]])
+                               param.to.change.range = params.to.iterate[[j]],
+                               soluble = isSoluble)
     dfs[[j]] = dfs[[j]] %>% mutate(drug = drugs[i])
   }
   joined = bind_rows(joined,dfs)

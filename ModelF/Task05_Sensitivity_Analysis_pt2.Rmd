@@ -41,6 +41,10 @@ suppressMessages(source("ams_initialize_script.R"))
 
 compare.thy.sim = function(model = model, 
                            param.as.double = param.as.double,
+<<<<<<< HEAD
+=======
+                           dose.nmol.range = dose.nmol.range,
+>>>>>>> Added Sameed's changes.
                            dose.nmol = dose.nmol,
                            tmax = tmax,
                            tau = tau,
@@ -115,8 +119,8 @@ soluble = "Bevacizumab"
 # Drugs to explore. 
 # drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
 drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab")
-# drugs = c("Bevacizumab")
 # drugs = c("Atezolizumab", "Bevacizumab")
+# drugs = c("Bevacizumab")
 
 # Create paths to data files for each drug.
 paths = NULL
@@ -146,7 +150,7 @@ for (i in 1:length(drugs)){
   
   # Way 2 
   # Which parameters are 0
-  nnzero = df_param[parameters[2:2]] != 0
+  nnzero = df_param[parameters[2:6]] != 0
   nnzero = colnames(nnzero)[which(nnzero)]
   params.to.iterate = data.frame(dose = lseq(scale.mpk2nmol*.1,scale.mpk2nmol*10,7),
                                  lapply(df_param[nnzero], function(x) lseq(x*0.1, x*10, 7)))

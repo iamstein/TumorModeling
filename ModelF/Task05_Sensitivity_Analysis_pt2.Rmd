@@ -121,10 +121,7 @@ parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
 names(parameters) = parameters
 soluble = "Bevacizumab"
 # Drugs to explore. 
-# drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
-# drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab")
-# drugs = c("Atezolizumab", "Bevacizumab")
-drugs = c("Bevacizumab")
+drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
 
 # Create paths to data files for each drug.
 paths = NULL
@@ -186,6 +183,9 @@ for (i in 1:length(drugs)){
 ```{r}
 # I only wanted a subset of the parameters for gather.
 joined = joined[c("fold.change","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug")]
+
+# Change all ksynS3 & ksynM3 to one label.
+joined = joined %>% mutate(param = replace(param, param == "ksynS3" | param == "ksynM3", "ksynM3/ksynS3"))
 
 # Use gather to make the long data frame for ggplot.
 plot.df = joined %>% gather(key, AFIRT.value, -param, -fold.change,-drug) %>% 

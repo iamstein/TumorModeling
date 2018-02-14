@@ -146,7 +146,6 @@ for (i in 1:length(drugs)){
                           if (!grepl("shed|dose",x)) {return(gsub("M","S", x))}
                           return(x)
                         })
-    print(parameters)
     isSoluble = TRUE
   }
 

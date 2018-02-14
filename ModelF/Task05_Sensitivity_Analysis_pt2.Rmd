@@ -115,7 +115,7 @@ model = ivsc_4cmtct_shedct()
 drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
 # List of parameters of interest.
 parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
-names(parameters) = parameters
+# names(parameters) = parameters
 soluble = "Bevacizumab"
 
 # Create paths to data files for each drug.
@@ -138,15 +138,21 @@ for (i in 1:length(drugs)){
   param.as.double =  read.param.file(paths[i])
   df_param =  as.data.frame(t(param.as.double))
   
-  # Check if drug is soluble
+  # Check if drug has soluble target.
   if (drugs[i] %in% soluble) {
-    parameters["ksynM3"] = "ksynS3"
+    # Change any non-shed parameters including M to S.
+    parameters = sapply(parameters, 
+                        function(x) {
+                          if (!grepl("shed|dose",x)) {return(gsub("M","S", x))}
+                          return(x)
+                        })
+    print(parameters)
     isSoluble = TRUE
   }
 
   # Set range for parameters of interest in SA.
-  # Check which parameters are nonzero, not including dose which isn't int df_param.
-  nnzero = df_param[names(parameters)[which(parameters != "dose")]] != 0
+  # Check which parameters are nonzero, not including dose which isn't in df_param.
+  nnzero = df_param[parameters[which(parameters != "dose")]] != 0
   nnzero = colnames(nnzero)[which(nnzero)]
   params.to.iterate = data.frame(dose = lseq(scale.mpk2nmol*.1,scale.mpk2nmol*10,7),
                                  lapply(df_param[nnzero], function(x) lseq(x*0.1, x*10, 7)))

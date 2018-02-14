@@ -111,14 +111,12 @@ compare.thy.sim = function(model = model,
 ```{r, include=FALSE}
 # Load model.
 model = ivsc_4cmtct_shedct()
+# Drugs to explore. 
+drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
 # List of parameters of interest.
-# Can't change all M to S because there are no kshedS3/DS3 params...
-# parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
 parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
 names(parameters) = parameters
 soluble = "Bevacizumab"
-# Drugs to explore. 
-drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
 
 # Create paths to data files for each drug.
 paths = NULL
@@ -147,12 +145,8 @@ for (i in 1:length(drugs)){
   }
 
   # Set range for parameters of interest in SA.
-  # This is a bad way of getting around the fact that we have zero values 
-  # for Herceptin in kshedM3 and kshedDM3.
-  
-  # Way 2 
-  # Which parameters are 0
-  nnzero = df_param[parameters[2:6]] != 0
+  # Check which parameters are nonzero, not including dose which isn't int df_param.
+  nnzero = df_param[names(parameters)[which(parameters != "dose")]] != 0
   nnzero = colnames(nnzero)[which(nnzero)]
   params.to.iterate = data.frame(dose = lseq(scale.mpk2nmol*.1,scale.mpk2nmol*10,7),
                                  lapply(df_param[nnzero], function(x) lseq(x*0.1, x*10, 7)))

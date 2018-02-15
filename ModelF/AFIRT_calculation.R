@@ -36,37 +36,20 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     # Return:
     #   A data frame of lumped parameters calculated from theory
 
-
-    #d <- xlsx::read.xlsx(params_file_path, 1)
-    #param.as.double = d$Value
-    #names(param.as.double) = d$Parameter
     p    = as.data.frame(t(param.as.double))
 
-    # numerators for M3.0 and Mtot3.ss(Mtot3 at steady state, M3 at initial state)
+    # Calculate Mtot3.ss
     numerator.DM   = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedDM1+k13DM)*ksynM3)
     denomenator.DM = with(p, (keDM1+kshedDM1+k13DM)*(keDM3+kshedM3+k31DM)-k31DM*k13DM)
+    Mtot3.ss = numerator.DM / denomenator.DM
+
+    # Calculate M30
     numerator.M    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
     denomenator.M  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
-
-    # numerator and denomenator for M3.0 ()
-    Mtot3.ss = numerator.DM / denomenator.DM
     M30      = numerator.M  / denomenator.M
 
     # Target accumulation in the tumor compartment
     Tacc.tum = Mtot3.ss / M30
-
-    # Mtot1.ss needed for S3tot.ss calculation.
-    numerator.DM.S   = with(p, (kshedDM3 + k31DM + keDM3)*ksynM1 + (VD3/VD1)*k31DM*ksynM3)
-    denomenator.DM.S = with(p, (kshedDM1 + k13DM + keDM1)*(kshedDM3 + k31DM + keDM3) - k13DM*k31DM)
-
-    # M10 needed for S30 calculation. TODO
-    numerator.M.S    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
-    denomenator.M.S  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
-
-    Mtot1.ss = numerator.DM.S / denomenator.DM.S
-    M10 = numerator.M.S / denomenator.M.S
-
-    # Average drug concentratio in the tumor compartment (I have no idea how to compute it)
 
     if (!soluble){
       Kssd = with(p, (koff3 + keDM3 + kshedDM3 + k31DM)/kon3)
@@ -77,6 +60,16 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
       Kss  = with(p, (koff3 + keDS3 + kshedDM3)        /kon3)
       Kd   = with(p,  koff3                            /kon3)
 
+      # Mtot1.ss needed for S3tot.ss calculation.
+      numerator.DS   = with(p, (kshedDM3 + k31DM + keDM3)*ksynM1 + (VD3/VD1)*k31DM*ksynM3)
+      denomenator.DS = with(p, (kshedDM1 + k13DM + keDM1)*(kshedDM3 + k31DM + keDM3) - k13DM*k31DM)
+      Mtot1.ss = numerator.DS / denomenator.DS
+
+      # M10 needed for S30 calculation.
+      numerator.S    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
+      denomenator.S  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
+      M10 = numerator.S / denomenator.S
+
       # Calculate S3tot.ss
       numerator   = with(p, k13DS*(VD1/VD3)*(ksynS1 + kshedDM1*Mtot1.ss)+(keDS1+k13DS)*(ksynS3 + kshedDM3*Mtot3.ss))
       denomenator = with(p, (keDS1+k13DS)*(keDS3+k31DS)-k31DS*k13DS)
@@ -86,6 +79,8 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
       numerator    = with(p, k13S*(VD1/VD3)*(ksynS1 + kshedM1*M10)+(keS1 + k13S)*(ksynS3 + kshedM3*M30))
       denomenator = with(p, (keS1 + k13S)*(keS3 + k31S) - k31S*k13S)
       S30      = numerator  / denomenator
+
+      # Target accumulation in the tumor compartment
       Tacc.tum = Stot3.ss / S30
     }
 

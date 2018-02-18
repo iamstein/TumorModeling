@@ -190,38 +190,6 @@ plots = joined %>% gather(key, AFIRT.value, -param, -fold.change,-drug, -isSol) 
       scale.y.log10() +
       geom_line() +
       geom_point() + 
-      facet_grid(drug ~ param)
-print(g)
-```
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-=======
-  )
+      facet_grid(drug ~ param))
 plots$plot
 ```
->>>>>>> Updated plotting section to split into separate plots according to solubility of drug target.

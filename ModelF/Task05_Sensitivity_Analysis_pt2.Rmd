@@ -35,6 +35,7 @@ suppressMessages(source("ams_initialize_script.R"))
 # compartment - compartment where drug is administered
 # param.to.change - parameter on which to do SA. This must be a string.
 # param.to.change.range - range of parameter on which to do SA. The range must be symmetric in fold change. This must be a vector of odd length.
+# soluble - boolean that is true/false if the drug is soluble/insoluble. Need this since soluble and insoluble are treated differently.
 
 # Output:
 # Data frame of AFIRT vs parameter value
@@ -48,13 +49,11 @@ compare.thy.sim = function(model = model,
                            param.to.change = param.to.change,
                            param.to.change.range = param.to.change.range,
                            soluble = FALSE) {
-
-  # Initialize ------------------------------------------------------------------------------------------
-  ##### This is currently passed as function parameter. The next line may be unnecessary.
-  # Set range for parameters of interest in SA.
-  # param.to.change.range = lseq(param.nominal$param.to.change*.1, param.nominal$param.to.change*10, 7)
   
-  #### Simulation
+  # --------------------------------------------------------------------------------
+  # Simulation
+  # --------------------------------------------------------------------------------
+  
   df_sim = data.frame()
   # Iterate through values in range.
   if (param.to.change == 'dose'){
@@ -72,7 +71,10 @@ compare.thy.sim = function(model = model,
   df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
                              fold.change = param.to.change.range/median(param.to.change.range))
   
-  ### Theory
+  # --------------------------------------------------------------------------------
+  # Theory
+  # --------------------------------------------------------------------------------
+  
   df_thy = data.frame()
   
   # Iterate through values in range.
@@ -92,7 +94,10 @@ compare.thy.sim = function(model = model,
   df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
                              fold.change = param.to.change.range/median(param.to.change.range))
 
+  # --------------------------------------------------------------------------------
   # Arrange theory and simulation in single data frame.
+  # --------------------------------------------------------------------------------
+  
   # I am tired of that "Unequal factor levels" error. This fixes it.
   levels(df_thy$type) = c("theory", "simulation")
   levels(df_sim$type) = c("theory", "simulation")
@@ -109,6 +114,16 @@ compare.thy.sim = function(model = model,
 # Create data frame for multiple drugs and parameters.
 
 ```{r, include=FALSE}
+
+# Note: Insoluble and soluble drugs are treated differently. 
+# For insoluble, Tacc = M3totss/M30. For soluble, Tacc = S3totss/S30. 
+# We are also interested in different parameters in the SA for either case.
+# See writeup for details.
+
+# --------------------------------------------------------------------------------
+# Initialize.
+# --------------------------------------------------------------------------------
+
 # Load model.
 model = ivsc_4cmtct_shedct()
 # Drugs to explore. 
@@ -116,6 +131,7 @@ drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
 # List of parameters of interest.
 parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
 # names(parameters) = parameters
+# Create vector of soluble drugs.
 soluble = "Bevacizumab"
 
 # Create paths to data files for each drug.
@@ -132,7 +148,10 @@ dose.nmol = scale.mpk2nmol
 joined = NULL
 isSoluble = FALSE
 
+# --------------------------------------------------------------------------------
 # Iterate over all the drugs.
+# --------------------------------------------------------------------------------
+
 for (i in 1:length(drugs)){
   # Load parameters.
   param.as.double =  read.param.file(paths[i])
@@ -171,6 +190,9 @@ for (i in 1:length(drugs)){
     dfs[[j]] = dfs[[j]] %>% mutate(drug = drugs[i], isSol = isSoluble)
   }
   joined = bind_rows(joined,dfs)
+  
+  # Reset isSoluble to false since the default in compare.thy.sim is false.
+  isSoluble = FALSE
 }
 ```
 

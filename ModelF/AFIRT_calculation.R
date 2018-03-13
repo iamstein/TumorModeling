@@ -40,7 +40,7 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
 
     # Calculate Mtot3.ss
     numerator.DM   = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedDM1+k13DM)*ksynM3)
-    denomenator.DM = with(p, (keDM1+kshedDM1+k13DM)*(keDM3+kshedM3+k31DM)-k31DM*k13DM)
+    denomenator.DM = with(p, (keDM1+kshedDM1+k13DM)*(keDM3+kshedDM3+k31DM)-k31DM*k13DM)
     Mtot3.ss = numerator.DM / denomenator.DM
 
     # Calculate M30

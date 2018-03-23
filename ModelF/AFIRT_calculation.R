@@ -223,9 +223,9 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
     
     # Simulation of TFIRT
     if (soluble){
-        TFIRT = min(steady_state$Sfree.pct)
+        TFIRT = max(steady_state$Sfree.pct)
     }else {
-        TFIRT = min(steady_state$Mfree.pct)
+        TFIRT = max(steady_state$Mfree.pct)
     } 
 
 

@@ -98,6 +98,44 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     AFIRT.Kss  = Kss *Tacc.tum/(B*Cavg1)
     AFIRT.Kd   = Kd  *Tacc.tum/(B*Cavg1)
 
+    Q_2 = with(p, k12D * VD1)
+    Q_3 = with(p, (k13D/k31D) * VD1)
+
+    a_0 = with(p, (CL/VD1)*(Q_2/VD2)*(Q_3/VD3))
+    a_1 = with(p, (CL/VD1)*(Q_3/VD3) + (Q_2/VD2)*(Q_3/VD3) + (Q_2/VD2)*(Q_3/VD1) + (CL/VD1)*(Q_2/VD2) + (Q_3/VD3)*(Q_2/VD1))
+    a_2 = with(p, (CL/VD1)+ (Q_2/VD1) + (Q_3/VD1) + (Q_2/VD2) + (Q_3/VD3))
+
+    P = a_1 - (a_2^2)/3
+    Q = 2*((a_2^3)/27) - a_1*a_2/3 + a_0 
+    r_1 = (-((P^3)/27))^0.5
+    r_2 = 2*(r_1^(1/3))
+  
+    
+    phi = acos(-Q/(2*r_1))/3
+    
+
+    alpha = -(cos(phi)*r_2 - a_2/3)
+    beta = -(cos(phi + 2*pi/3)*r_2 - a_2/3)
+    gamma = -(cos(phi + 4*pi/3)*r_2 - a_2/3)
+
+    V = with(p, VD1)
+    A = with(p, (1/V)*((k21D - alpha)/(alpha - beta))*((k31D - alpha)/(alpha - gamma)))
+    B = with(p, (1/V)*((k21D - beta)/(beta-alpha))*((k31D - beta)/(beta - gamma)))
+    C = with(p, (1/V)*((k21D - gamma)/(gamma - beta))*((k31D - gamma)/(gamma - alpha)))
+
+    D = dose.nmol
+    C_min = D*((A*exp(-alpha*tau))/(1 - exp(-alpha*tau)) + (B*exp(-beta*tau))/(1 - exp(-beta*tau)) + (C*exp(-gamma*tau))/(1 - exp(-gamma*tau)))
+
+    if(!soluble){
+        T_fold = Mtot3.ss/M30
+    }else{
+        T_fold = Stot3.ss/S30
+    }
+     
+    TFIRT.Kssd = (Kssd*T_fold)/C_min
+    TFIRT.Kss  = (Kss *T_fold)/C_min
+    TFIRT.Kd   = (Kd  *T_fold)/C_min
+
     lumped_parameters_theory = data.frame(type = "theory",
                                           M30=M30,
                                           Mtot3.ss=Mtot3.ss,
@@ -107,7 +145,10 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
                                           Cavg3 = B*Cavg1,
                                           AFIRT.Kssd = AFIRT.Kssd,
                                           AFIRT.Kss  = AFIRT.Kss,
-                                          AFIRT.Kd   = AFIRT.Kd)
+                                          AFIRT.Kd   = AFIRT.Kd,
+                                          TFIRT.Kssd = TFIRT.Kssd,
+                                          TFIRT.Kss  = TFIRT.Kss,
+                                          TFIRT.Kd   = TFIRT.Kd)
     return(lumped_parameters_theory)
  }
 
@@ -179,6 +220,14 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
       AFIRT = mean(steady_state$Sfree.pct)
       Tacc.tum = mean(steady_state$Stot3)/initial_state$S3
     }
+    
+    # Simulation of TFIRT
+    if (soluble){
+        TFIRT = min(steady_state$Sfree.pct)
+    }else {
+        TFIRT = min(steady_state$Mfree.pct)
+    } 
+
 
     lumped_parameters_sim = data.frame(type = "simulation",
                                      M30=M30,
@@ -188,7 +237,9 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
                                      Cavg3 = Cavg3,
                                      B     = Cavg3/Cavg1,
                                      AFIRT = AFIRT,
-                                     AFIRT.sim = AFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
+                                     AFIRT.sim = AFIRT,
+                                     TFIRT = TFIRT,
+                                     TFIRT.sim = TFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
 
     return(lumped_parameters_sim)
 }

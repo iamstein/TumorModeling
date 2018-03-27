@@ -212,7 +212,7 @@ plots = joined %>% gather(key, AFIRT.value, -param, -fold.change,-drug, -isSol) 
       scale.y.log10() +
       geom_line() +
       geom_point() + 
-      facet_grid(drug ~ param)
+      facet_grid(drug ~ param))
 plots$plot
 ```
 

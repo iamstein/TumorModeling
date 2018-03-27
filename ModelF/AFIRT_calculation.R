@@ -2,7 +2,7 @@
 # sensitvity analysis
 
 read.param.file = function(filename) {
-  d = read_excel(filename, 1)
+  d                      = read_excel(filename, 1)
   param.as.double        = as.numeric(d$Value)
   names(param.as.double) = d$Parameter
   param.as.double        = param.as.double[model$pin] #keep only parameters used in ODE
@@ -24,10 +24,10 @@ lseq = function(from, to, length.out){
 
 # Function computing lumped parameters from theory
 
-lumped.parameters.theory = function(param.as.double=param.as.double,
-                                    dose.nmol=dose.nmol,
-                                    tau=tau,
-                                    soluble = FALSE){
+lumped.parameters.theory = function(param.as.double = param.as.double,
+                                    dose.nmol       = dose.nmol,
+                                    tau             = tau,
+                                    soluble         = FALSE){
     # Arguments:
     #   params_file_path: full path of the parameters file.
     #   dose.nmol: dosing amout in nmol
@@ -105,22 +105,21 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     a1 = with(pars, (CL/VD1)*(Q3/VD3) + (Q2/VD2)*(Q3/VD3) + (Q2/VD2)*(Q3/VD1) + (CL/VD1)*(Q2/VD2) + (Q3/VD3)*(Q2/VD1))
     a2 = with(pars, (CL/VD1)+ (Q2/VD1) + (Q3/VD1) + (Q2/VD2) + (Q3/VD3))
 
-    p = a1 - (a2^2)/3
-    q = 2*((a2^3)/27) - a1*a2/3 + a0 
-    r1 = (-((p^3)/27))^0.5
+    p  = a1 - (a2^2)/3
+    q  = 2*(a2^3)/27 - a1*a2/3 + a0 
+    r1 = (-(p^3)/27)^0.5
     r2 = 2*(r1^(1/3))
-  
     
     phi = acos(-q/(2*r1))/3
     
 
-    alpha = -(cos(phi)*r2 - a2/3)
-    beta = -(cos(phi + 2*pi/3)*r2 - a2/3)
+    alpha = -(cos(phi)         *r2 - a2/3)
+    beta  = -(cos(phi + 2*pi/3)*r2 - a2/3)
     gamma = -(cos(phi + 4*pi/3)*r2 - a2/3)
 
     V = with(pars, VD1)
     A = with(pars, (1/V) * ((k21D - alpha)/(alpha - beta)) * ((k31D - alpha)/(alpha - gamma)))
-    B = with(pars, (1/V) * ((k21D - beta) /(beta-alpha))   * ((k31D - beta) /(beta - gamma)))
+    B = with(pars, (1/V) * ((k21D - beta )/(beta - alpha)) * ((k31D - beta )/(beta - gamma )))
     C = with(pars, (1/V) * ((k21D - gamma)/(gamma - beta)) * ((k31D - gamma)/(gamma - alpha)))
 
     D = dose.nmol
@@ -138,13 +137,13 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     TFIRT.Kss  = Kss *Tfold/(B*Cmin)
     TFIRT.Kd   = Kd  *Tfold/(B*Cmin)
 
-    lumped_parameters_theory = data.frame(type = "theory",
-                                          M30=M30,
-                                          Mtot3.ss=Mtot3.ss,
-                                          Tacc.tum=Tacc.tum,
-                                          B = B,
-                                          Cavg1 = Cavg1,
-                                          Cavg3 = B*Cavg1,
+    lumped_parameters_theory = data.frame(type       = "theory",
+                                          M30        = M30,
+                                          Mtot3.ss   = Mtot3.ss,
+                                          Tacc.tum   = Tacc.tum,
+                                          B          = B,
+                                          Cavg1      = Cavg1,
+                                          Cavg3      = B*Cavg1,
                                           AFIRT.Kssd = AFIRT.Kssd,
                                           AFIRT.Kss  = AFIRT.Kss,
                                           AFIRT.Kd   = AFIRT.Kd,
@@ -157,8 +156,13 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
 
 # Function simulates the lumped parameters
 
-lumped.parameters.simulation = function(model=model, param.as.double=param.as.double,
-                                        dose.nmol=dose.nmol, tmax=tmax, tau=tau, compartment, soluble = FALSE){
+lumped.parameters.simulation = function(model           = model, 
+                                        param.as.double = param.as.double,
+                                        dose.nmol       = dose.nmol, 
+                                        tmax            = tmax, 
+                                        tau             = tau, 
+                                        compartment,
+                                        soluble         = FALSE){
 
     # Arguments:
     #   model_name: name of the model
@@ -203,52 +207,52 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
       filter(time > (floor(tmax/tau)-1)*tau & time <tmax)
     Mtot3.ss = mean(steady_state$Mtot3)
 
-    Tacc.tum = Mtot3.ss / M30
-
     ## Average drug concentration in central compartment
     dose_applied = out %>%
         filter(time > 0)
     Cavg1 = mean(dose_applied$D1)
 
-
     # Average drug concentration in tumor compartment
     Cavg3 = mean(dose_applied$D3)
 
-    # AFIRT
-    AFIRT = mean(steady_state$Mfree.pct)
-
-    # Soluble case
+    # AFIRT and target accumulation
     if (soluble) {
       AFIRT = mean(steady_state$Sfree.pct)
       Tacc.tum = mean(steady_state$Stot3)/initial_state$S3
+    } else {
+      AFIRT = mean(steady_state$Mfree.pct)
+      Tacc.tum = Mtot3.ss / M30
     }
     
     # Simulation of TFIRT
-    if (soluble){
+    if (soluble) {
         TFIRT = max(steady_state$Sfree.pct)
-    }else {
+    } else {
         TFIRT = max(steady_state$Mfree.pct)
     } 
 
 
-    lumped_parameters_sim = data.frame(type = "simulation",
-                                     M30=M30,
-                                     Mtot3.ss=Mtot3.ss,
-                                     Tacc.tum=Tacc.tum,
-                                     Cavg1 = Cavg1,
-                                     Cavg3 = Cavg3,
-                                     B     = Cavg3/Cavg1,
-                                     AFIRT = AFIRT,
-                                     AFIRT.sim = AFIRT,
-                                     TFIRT = TFIRT,
-                                     TFIRT.sim = TFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
+    lumped_parameters_sim = data.frame(type      = "simulation",
+                                       M30       = M30,
+                                       Mtot3.ss  = Mtot3.ss,
+                                       Tacc.tum  = Tacc.tum,
+                                       Cavg1     = Cavg1,
+                                       Cavg3     = Cavg3,
+                                       B         = Cavg3/Cavg1,
+                                       AFIRT     = AFIRT,
+                                       AFIRT.sim = AFIRT,
+                                       TFIRT     = TFIRT,
+                                       TFIRT.sim = TFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
 
     return(lumped_parameters_sim)
 }
 
 
-simulation = function(model=model, param.as.double=param.as.double,
-                      dose.nmol=dose.nmol, tmax=tmax, tau=tau){
+simulation = function(model           = model, 
+                      param.as.double = param.as.double,
+                      dose.nmol       = dose.nmol, 
+                      tmax            = tmax, 
+                      tau             = tau){
   #d <- xlsx::read.xlsx(params_file_path, 1)
   #param.as.double = d$Value
   #names(param.as.double) = d$Parameter

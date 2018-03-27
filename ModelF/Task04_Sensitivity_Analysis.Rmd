@@ -30,6 +30,7 @@ suppressMessages(source("ams_initialize_script.R"))
 
 # Input: 
 # model - model system of ODE's solved with RxODE. In this project, it is 'ivsc_4cmtct_shedct'.
+# drugs - which drug we are performing SA on. This is just to create a title for the graph.
 # param.as.double - read parameters from Excel file. read.param.file("file directory").
 # dose.nmol - dose in nmol.
 # tmax - time of treatment in days
@@ -43,6 +44,7 @@ suppressMessages(source("ams_initialize_script.R"))
 # Data frame of AFIRT vs parameter value
 
 compare.thy.sim = function(model = model, 
+                           drugs = drugs[i],
                            param.as.double = param.as.double,
                            dose.nmol = dose.nmol,
                            tmax = tmax,
@@ -69,7 +71,8 @@ compare.thy.sim = function(model = model,
     df_sim = rbind(df_sim, row)
     }
   }
-  df_sim$param.to.change = param.to.change.range
+  df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
+                             fold.change = param.to.change.range/median(param.to.change.range))
   
   # Put all theoretical calculations for different dose into one data frame.
   df_thy = data.frame()
@@ -87,11 +90,16 @@ compare.thy.sim = function(model = model,
       df_thy = rbind(df_thy, row)
     }
   }
-  df_thy = df_thy %>% mutate(param.to.change = param.to.change.range)
+  df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
+                             fold.change = param.to.change.range/median(param.to.change.range))
   
   # Arrange theory and simulation into single data frame.
+  levels(df_thy$type) = c("theory", "simulation")
+  levels(df_sim$type) = c("theory", "simulation")
   df_compare = bind_rows(df_thy,df_sim)
+  param = param.to.change
   df_compare = df_compare %>%
+    mutate(param = param) %>%
     arrange(param.to.change,type) %>%
     mutate_if(is.numeric,signif,2)
   
@@ -109,12 +117,13 @@ compare.thy.sim = function(model = model,
 
   # Plot all AFIRT's on same axes.
   g = ggplot(Data, aes(Param, AFIRT.value, color=key)) +
-      # ylim(10^(-4), 1) + 
+      # ylim(10^(-4), 1) +
       scale.x.log10() +
-      scale.y.log10(limits=c(10^(-3), 10^(1))) + 
+      # scale.y.log10(limits=c(10^(-3), 10^(1))) +
+      scale.y.log10() +
       geom_line() +
-      geom_point() + 
-      labs(x = param.to.change)
+      geom_point() +
+      labs(x = param.to.change, title = drugs)
   print(g)
   
   return(df_compare)
@@ -126,18 +135,26 @@ compare.thy.sim = function(model = model,
 ```{r}
 # Load model and parameters.
 model           = ivsc_4cmtct_shedct()
-param.as.double = read.param.file("../data/ModelF_Atezolizumab_Params.xlsx")
+drugs           = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab"); paths = NULL; i = 4
+paths[i]        = paste0("../data/ModelF_", drugs[i],"_Params.xlsx")
+param.as.double = read.param.file(paths[i])
 df_param        = as.data.frame(t(param.as.double))
 dose.nmol       = scale.mpk2nmol
 
 # Set range for parameters of interest in SA.
 dose.nmol.range = lseq(.1,10,7)*scale.mpk2nmol
-ksynM3.range    = lseq(df_param$ksynM3  *.1, df_param$ksynM3  *10, 7)
-kshedM3.range   = lseq(df_param$kshedM3 *.1, df_param$kshedM3 *10, 7)
-kshedDM3.range  = lseq(df_param$kshedDM3*.1, df_param$kshedDM3*10, 7)
+
+# ksynM3.range    = lseq(df_param$ksynM3  *.1, df_param$ksynM3  *10, 7)
+# kshedM3.range   = lseq(df_param$kshedM3 *.1, df_param$kshedM3 *10, 7)
+# kshedDM3.range  = lseq(df_param$kshedDM3*.1, df_param$kshedDM3*10, 7)
+# ksynS3.range    = lseq(df_param$ksynM3  *.1, df_param$ksynM3  *10, 7)
+# kshedS3.range   = lseq(df_param$kshedM3 *.1, df_param$kshedM3 *10, 7)
+# kshedDS3.range  = lseq(df_param$kshedDM3*.1, df_param$kshedDM3*10, 7)
+
 k13D.range      = lseq(df_param$k13D    *.1, df_param$k13D    *10, 7)
 # k13DM.range     = lseq(df_param$k13DM   *.1, df_param$k13DM   *10, 7)
 # k31DM.range     = lseq(df_param$k31DM   *.1, df_param$k31DM   *10, 7)
+
 VD3.range       = lseq(df_param$VD3     *.1, df_param$VD3     *10, 7)
 
 # Dose time, frequency, and compartment
@@ -146,13 +163,14 @@ tau  = 21   #days
 compartment = 2
 
 df_compare = compare.thy.sim(model = model,
+                             drugs = drugs[i],
                              param.as.double = param.as.double,
                              dose.nmol = dose.nmol,
                              tmax = tmax,
                              tau  = tau,
                              compartment = compartment,
-                             param.to.change = 'kshedDM3',
-                             param.to.change.range = kshedDM3.range)
+                             param.to.change = 'k13D',
+                             param.to.change.range = k13D.range)
 ```
 
 

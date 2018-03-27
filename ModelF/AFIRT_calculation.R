@@ -36,48 +36,48 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     # Return:
     #   A data frame of lumped parameters calculated from theory
 
-    p    = as.data.frame(t(param.as.double))
+    pars    = as.data.frame(t(param.as.double))
 
     # Calculate Mtot3.ss
-    numerator.DM   = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedDM1+k13DM)*ksynM3)
-    denomenator.DM = with(p, (keDM1+kshedDM1+k13DM)*(keDM3+kshedDM3+k31DM)-k31DM*k13DM)
+    numerator.DM   = with(pars, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedDM1+k13DM)*ksynM3)
+    denomenator.DM = with(pars, (keDM1+kshedDM1+k13DM)*(keDM3+kshedDM3+k31DM)-k31DM*k13DM)
     Mtot3.ss = numerator.DM / denomenator.DM
 
     # Calculate M30
-    numerator.M    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
-    denomenator.M  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
+    numerator.M    = with(pars, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
+    denomenator.M  = with(pars, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
     M30      = numerator.M  / denomenator.M
 
     # Target accumulation in the tumor compartment
     Tacc.tum = Mtot3.ss / M30
 
     if (!soluble){
-      Kssd = with(p, (koff3 + keDM3 + kshedDM3 + k31DM)/kon3)
-      Kss  = with(p, (koff3 + keDM3 + kshedDM3)        /kon3)
-      Kd   = with(p,  koff3                            /kon3)
+      Kssd = with(pars, (koff3 + keDM3 + kshedDM3 + k31DM)/kon3)
+      Kss  = with(pars, (koff3 + keDM3 + kshedDM3)        /kon3)
+      Kd   = with(pars,  koff3                            /kon3)
     } else {
-      Kssd = with(p, (koff3 + keDS3 + kshedDM3 + k31DS)/kon3)
-      Kss  = with(p, (koff3 + keDS3 + kshedDM3)        /kon3)
-      Kd   = with(p,  koff3                            /kon3)
+      Kssd = with(pars, (koff3 + keDS3 + kshedDM3 + k31DS)/kon3)
+      Kss  = with(pars, (koff3 + keDS3 + kshedDM3)        /kon3)
+      Kd   = with(pars,  koff3                            /kon3)
 
       # Mtot1.ss needed for S3tot.ss calculation.
-      numerator.DS   = with(p, (kshedDM3 + k31DM + keDM3)*ksynM1 + (VD3/VD1)*k31DM*ksynM3)
-      denomenator.DS = with(p, (kshedDM1 + k13DM + keDM1)*(kshedDM3 + k31DM + keDM3) - k13DM*k31DM)
+      numerator.DS   = with(pars, (kshedDM3 + k31DM + keDM3)*ksynM1 + (VD3/VD1)*k31DM*ksynM3)
+      denomenator.DS = with(pars, (kshedDM1 + k13DM + keDM1)*(kshedDM3 + k31DM + keDM3) - k13DM*k31DM)
       Mtot1.ss = numerator.DS / denomenator.DS
 
       # M10 needed for S30 calculation.
-      numerator.S    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
-      denomenator.S  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
+      numerator.S    = with(pars, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
+      denomenator.S  = with(pars, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
       M10 = numerator.S / denomenator.S
 
       # Calculate S3tot.ss
-      numerator   = with(p, k13DS*(VD1/VD3)*(ksynS1 + kshedDM1*Mtot1.ss)+(keDS1+k13DS)*(ksynS3 + kshedDM3*Mtot3.ss))
-      denomenator = with(p, (keDS1+k13DS)*(keDS3+k31DS)-k31DS*k13DS)
+      numerator   = with(pars, k13DS*(VD1/VD3)*(ksynS1 + kshedDM1*Mtot1.ss)+(keDS1+k13DS)*(ksynS3 + kshedDM3*Mtot3.ss))
+      denomenator = with(pars, (keDS1+k13DS)*(keDS3+k31DS)-k31DS*k13DS)
       Stot3.ss = numerator / denomenator
 
       # Calculate S30
-      numerator    = with(p, k13S*(VD1/VD3)*(ksynS1 + kshedM1*M10)+(keS1 + k13S)*(ksynS3 + kshedM3*M30))
-      denomenator = with(p, (keS1 + k13S)*(keS3 + k31S) - k31S*k13S)
+      numerator    = with(pars, k13S*(VD1/VD3)*(ksynS1 + kshedM1*M10)+(keS1 + k13S)*(ksynS3 + kshedM3*M30))
+      denomenator = with(pars, (keS1 + k13S)*(keS3 + k31S) - k31S*k13S)
       S30      = numerator  / denomenator
 
       # Target accumulation in the tumor compartment
@@ -85,10 +85,10 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     }
 
     # Biodistribution coefficient (reference: ModelF_Appendix)
-    B = with(p, (k13D/(keD3 + k31D) * (VD1/VD3)))
+    B = with(pars, (k13D/(keD3 + k31D) * (VD1/VD3)))
 
     # Clearance
-    CL = with(p, (keD1*VD1))
+    CL = with(pars, (keD1*VD1))
 
     # Average drug concentration in the central compartment
     Cavg1 = dose.nmol/(CL*tau)
@@ -97,6 +97,46 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     AFIRT.Kssd = Kssd*Tacc.tum/(B*Cavg1)
     AFIRT.Kss  = Kss *Tacc.tum/(B*Cavg1)
     AFIRT.Kd   = Kd  *Tacc.tum/(B*Cavg1)
+
+    Q2 = with(pars, k12D * VD1)
+    Q3 = with(pars, (k13D/k31D) * VD1)
+
+    a0 = with(pars, (CL/VD1)*(Q2/VD2)*(Q3/VD3))
+    a1 = with(pars, (CL/VD1)*(Q3/VD3) + (Q2/VD2)*(Q3/VD3) + (Q2/VD2)*(Q3/VD1) + (CL/VD1)*(Q2/VD2) + (Q3/VD3)*(Q2/VD1))
+    a2 = with(pars, (CL/VD1)+ (Q2/VD1) + (Q3/VD1) + (Q2/VD2) + (Q3/VD3))
+
+    p = a1 - (a2^2)/3
+    q = 2*((a2^3)/27) - a1*a2/3 + a0 
+    r1 = (-((p^3)/27))^0.5
+    r2 = 2*(r1^(1/3))
+  
+    
+    phi = acos(-q/(2*r1))/3
+    
+
+    alpha = -(cos(phi)*r2 - a2/3)
+    beta = -(cos(phi + 2*pi/3)*r2 - a2/3)
+    gamma = -(cos(phi + 4*pi/3)*r2 - a2/3)
+
+    V = with(pars, VD1)
+    A = with(pars, (1/V) * ((k21D - alpha)/(alpha - beta)) * ((k31D - alpha)/(alpha - gamma)))
+    B = with(pars, (1/V) * ((k21D - beta) /(beta-alpha))   * ((k31D - beta) /(beta - gamma)))
+    C = with(pars, (1/V) * ((k21D - gamma)/(gamma - beta)) * ((k31D - gamma)/(gamma - alpha)))
+
+    D = dose.nmol
+    Cmin = D*((A*exp(-alpha*tau))/(1 - exp(-alpha*tau)) + 
+              (B*exp(-beta *tau))/(1 - exp(-beta *tau)) + 
+              (C*exp(-gamma*tau))/(1 - exp(-gamma*tau)))
+
+    if(!soluble){
+        Tfold = Mtot3.ss/M30
+    }else{
+        Tfold = Stot3.ss/S30
+    }
+     
+    TFIRT.Kssd = Kssd*Tfold/(B*Cmin)
+    TFIRT.Kss  = Kss *Tfold/(B*Cmin)
+    TFIRT.Kd   = Kd  *Tfold/(B*Cmin)
 
     lumped_parameters_theory = data.frame(type = "theory",
                                           M30=M30,
@@ -107,7 +147,10 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
                                           Cavg3 = B*Cavg1,
                                           AFIRT.Kssd = AFIRT.Kssd,
                                           AFIRT.Kss  = AFIRT.Kss,
-                                          AFIRT.Kd   = AFIRT.Kd)
+                                          AFIRT.Kd   = AFIRT.Kd,
+                                          TFIRT.Kssd = TFIRT.Kssd,
+                                          TFIRT.Kss  = TFIRT.Kss,
+                                          TFIRT.Kd   = TFIRT.Kd)
     return(lumped_parameters_theory)
  }
 
@@ -179,6 +222,14 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
       AFIRT = mean(steady_state$Sfree.pct)
       Tacc.tum = mean(steady_state$Stot3)/initial_state$S3
     }
+    
+    # Simulation of TFIRT
+    if (soluble){
+        TFIRT = max(steady_state$Sfree.pct)
+    }else {
+        TFIRT = max(steady_state$Mfree.pct)
+    } 
+
 
     lumped_parameters_sim = data.frame(type = "simulation",
                                      M30=M30,
@@ -188,7 +239,9 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
                                      Cavg3 = Cavg3,
                                      B     = Cavg3/Cavg1,
                                      AFIRT = AFIRT,
-                                     AFIRT.sim = AFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
+                                     AFIRT.sim = AFIRT,
+                                     TFIRT = TFIRT,
+                                     TFIRT.sim = TFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
 
     return(lumped_parameters_sim)
 }

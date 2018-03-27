@@ -1,32 +1,35 @@
 \section{Discussion}
 
-The key insight from this work is that under many clinically relevant scenarios, AFIRT can be estimated using four parameters: a binding constant ($\Keq$), the target accumulation ratio ($\Tacc$), the average drug concentration in circulation ($\Cavg$) and the biodistribution coefficient for the drug to the tissue of interest ($B$)
+The key insight from this work is that under many clinically relevant scenarios, AFIRT can be estimated using four parameters: a binding constant ($\Keq$), the target accumulation ratio ($\Tacc$), the average drug concentration in circulation ($\Cavg$) and the biodistribution coefficient for the drug to the tissue of interest ($B$).  
+
 \begin{equation}
 	\AFIRT = \frac{\Keq \cdot \Tacc}{B \cdot \Cavg}
 \end{equation}
-The binding constant ($\Keq$) above depends on the nature of the target of interest.
+
+This simple formula provides intuition for how changing the dosing regimen, improving the binding affinity of the drug, or enhancing tissue penetration would be expected to alter target inhibition: doubling the dose, halving the dosing interval, halving the binding constant with a higher affinity drug, or doubling the tissue accessibility would all reduce the free target concentration by 50\%.  Even though the model in Figuce~\ref{fig:model} is complex with many parameters, some of which are quite difficult if not impossible to estimate, the AFIRT formula shows that under many practical scenarios, predicting the target inhibition can be done with an estimate of these four lumped parameters that are themselves functions of all the other micro-constants governing drug and target kinetics.
+
+Of the four parameters above, $\Cavg$ is readily estimable from PK data from Phase 1 clinical trials and for many biologics, it can be predicted from preclinical data [FIGURE OUT REF].  The biodistribution coefficient ($B$) has been estimate for many tissues in monkey \cite{shah13} + RECENT PAPER.  And in rare cases, has even been estimated in the clinic CITE SECUKINUMAB SKIN.  The target accumulation factor in tissue $\Tacc$ can generally be assumed to be around 1 for membrane-bound targets.  CITE A FEW IN VITRO PAPERS.  For soluble targets, to our knowledge this has only been measured once for in mice for IL-6 in synovial fluid \cite{chen16}.  There the authors found MANY FOLD ACCUMULATION IN BLOOD, BUT NOT IN TISSUE.  THINK ABOUT THIS.  EXPLANATION - MOE IMPORTANT THAN ELIMINATION IS DRAINING BACK TO BLOOD FROM LYMPH.  MAYBE WE CAN MAKE A PARAMETER TABLE HERE FROM THIS PAPER.
+
+  The binding constant ($\Keq$) above depends on the nature of the target of interest, and could either be the dissociation constant ($\Kd$), the steady state constant ($\Kss$), or the steady state with distribution constant ($\Kssd$).
 \begin{itemize}
 	\item For soluble targets, a surface plasmon resonance estimate for $\Kd$ may be sufficient.  It should be noted that that there have been scenarios where the estimate for the in vitro and in vivo $\Kd$ differed by 1000-fold (e.g. TNF-$\alpha$ \cite[Figure 8]{meno05}).
 	\item For membrane-bound targets on cells where trafficking between tissue and circulation is negligible, $\Kss$ can be estimated by a cell-based assay.
 	\item For membrane-bound targets on cells where trafficking between tissue and circulation is rapid, $\Kssd$ may be needed.  As it is not clear how to directly estimate this parameter, one solution is to adjust a cell-based estimate for $\Kss$ by a "safety factor."
 \end{itemize}
+CAN WE CITE ANYTHING WHERE IT'S BEEN ESTIMATED?  PEMBRO? 
 
+
+\subsection{outline of material yet to be written}
 
 \begin{itemize}
-\item Key Insight = AFIRT
+\item Review Assumptions needed for AFIRT to hold and also how to check that each assumption is true or not.
 	\begin{itemize}
-		\item Just need a few terms, don't need a big mechanistic model
-		\item Mention affect of doubling dose, halving $\Kss$ etc.
-			\subitem But halving $\Kss$ is different from halving $\Kd$.
-	\end{itemize}
-\item Review Assumptions needed for AFIRT to hold
-	\begin{itemize}
-		\item large drug concentration
-		\item distribution of drug-target complex out of tissue can be ignored
+		\item large drug concentration - THOUGH LET'S SEE IF WE CAN GET AN EXPRESSION FOR THIS, ESPECIALLY WHEN THERE IS NO TARGET ACCUMULATION.  IMPORTANT FOR HERCEPTIN.  AND MAYBE ALSO FOR BISPECIFICS (BLINATUMOMAB)
+		\item distribution of drug-target complex into the tissue can be ignored
 		\item fluctuations during dosing interval can be ignored
-		\item others?
+		\item others?		
+		\item homogeneous tissue
 	\end{itemize}
-\item Importance of using $\Kss$ or even $\Kssd$ from cell based assays instead of $\Kd$.  The more realistic the preclinical system, the better.
 \item Things that are ignored
 	\begin{itemize}
 		\item Feedback, though this would be easy to include.  Just need to have different ksyn for initial condition and steady state.
@@ -35,8 +38,16 @@ The binding constant ($\Keq$) above depends on the nature of the target of inter
 	\end{itemize}
 \item Applications
 	\begin{itemize}
-		\item Can rapidly assess new drugs
+		\item Can rapidly assess new drugs.  Don't really need the full pembro treatment.  But you do need to check these specfiic assumptions.  Look at how we would have done atezolizumab and pembrolizumab differently in the context of these results.  The "goldilocks" perspective.  The atezo approach didn't provide enough detail about all the assumptions made.  The pembro approach provided way more detailed assumptions that are necessary.  It's amazing that they predicted the ORR rate.  There are a few papers that do this.  But I just don't see how this always happens.  I mean, given the number of times efficacy in mice fail to predict efficacy in humans, this just can't be.
+		\item What is the "goldilocks" perspective?  It is simplifying the model (using assumptions) in such a way that all assumptions can be exhaustively written on a single power point slide.  Backup material can go into checking these assumptions.  Don't leave anything out.  But also, don't make more than needed. 
+		\begin{itemize}
+			\item atezo: could have been more clear about all the assumptions.  Would have either measured $\Kss$ or stated clearly that we're assuming $\Kd \approx \Kss$.
+			\item pembro: did not need such a complex model
+		\end{itemize}
+		\item Mention on how both approaches are great and it's easy to pick things apart in retrospect.  But going forward, this is what we would recommend.
+		\item Rapidly respond to questions from research.  What if we're targeting a different cell type with a greater receptor number?  What does this mean?  Well, is the drug still in excess to target?  Do we expect $\Kss$ or $\Tacc$ to change?  For these parameters, both could be assessed with an in vitro assay to check.  In our case, our colleagues didn't expect these parameters to differ too much. 
 		\item Can help inform dose finding
+		\item For soluble targets, achieving sufficient inhibition in tissue is actually harder than in plasma, because there is predicted not to be accumulation in the tissue of interest.  So trying to achieve inhibition in plasma is actually harder and could be a good "upper bound" for efficacy.
 	\end{itemize}
 \end{itemize}
 

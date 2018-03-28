@@ -274,34 +274,88 @@ simulation = function(model           = model,
   return(out)
 }
 
+# This function does the sensitivity analysis on the user inputted parameter and compares the theoretical result to the simulated result.
 
+# Input:
+# model - model system of ODE's solved with RxODE. In this project, it is 'ivsc_4cmtct_shedct'.
+# param.as.double - read parameters from Excel file. read.param.file("file directory").
+# dose.nmol - dose in nmol.
+# tmax - time of treatment in days
+# tau - frequency of administering dose in days
+# compartment - compartment where drug is administered
+# param.to.change - parameter on which to do SA. This must be a string.
+# param.to.change.range - range of parameter on which to do SA. The range must be symmetric in fold change. This must be a vector of odd length.
+# soluble - boolean that is true/false if the drug is soluble/insoluble. Need this since soluble and insoluble are treated differently.
 
+# Output:
+# Data frame of AFIRT vs parameter value
 
+compare.thy.sim = function(model = model,
+                           param.as.double = param.as.double,
+                           dose.nmol = dose.nmol,
+                           tmax = tmax,
+                           tau = tau,
+                           compartment = compartment,
+                           param.to.change = param.to.change,
+                           param.to.change.range = param.to.change.range,
+                           soluble = FALSE) {
 
+  # --------------------------------------------------------------------------------
+  # Simulation
+  # --------------------------------------------------------------------------------
 
+  df_sim = data.frame()
+  # Iterate through values in range.
+  if (param.to.change == 'dose'){
+    for (param.iter in param.to.change.range){
+      row = lumped.parameters.simulation(model, param.as.double, param.iter, tmax, tau, compartment, soluble)
+      df_sim = rbind(df_sim, row)
+    }
+  } else {
+    for (param.iter in param.to.change.range){
+      param.as.double[param.to.change] = param.iter
+      row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment, soluble)
+      df_sim = rbind(df_sim, row)
+    }
+  }
+  df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
+                             fold.change = param.to.change.range/median(param.to.change.range))
 
+  # --------------------------------------------------------------------------------
+  # Theory
+  # --------------------------------------------------------------------------------
 
+  df_thy = data.frame()
 
+  # Iterate through values in range.
+  if (param.to.change == 'dose'){
+    for (param.iter in param.to.change.range){
+      row = lumped.parameters.theory(param.as.double, param.iter, tau, soluble)
+      df_thy = rbind(df_thy, row)
+    }
+  } else{
+    for (param.iter in param.to.change.range){
+     param.as.double[param.to.change] = param.iter
+     row = lumped.parameters.theory(param.as.double, dose.nmol, tau, soluble)
+    df_thy = rbind(df_thy, row)
+    }
+  }
 
+  df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
+                             fold.change = param.to.change.range/median(param.to.change.range))
 
+  # --------------------------------------------------------------------------------
+  # Arrange theory and simulation in single data frame.
+  # --------------------------------------------------------------------------------
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+  # I am tired of that "Unequal factor levels" error. This fixes it.
+  levels(df_thy$type) = c("theory", "simulation")
+  levels(df_sim$type) = c("theory", "simulation")
+  df_compare = bind_rows(df_thy,df_sim)
+  param = param.to.change
+  df_compare = df_compare %>%
+    mutate(param = param) %>%
+    arrange(param.to.change,type) %>%
+    mutate_if(is.numeric,signif,2)
+  return(df_compare)
+}

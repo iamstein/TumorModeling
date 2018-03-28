@@ -101,5 +101,9 @@ joined = joined[c("AFIRT.Kssd","AFIRT.sim","param","drug", "param.to.change", "f
 # Use gather to make the long data frame for ggplot.
 plotme = joined %>% gather(key, AFIRT.value, -param,-drug, -param.to.change, -fold.change) %>%
   filter(!is.na(AFIRT.value))
-ggplot(plotme, aes(x = fold.change, y = AFIRT.value, color = key)) + geom_point() + geom_line()
+ggplot(plotme, aes(x = fold.change, y = AFIRT.value, color = key)) + 
+    scale.x.log10() + 
+    scale.y.log10() + 
+    geom_point() + 
+    geom_line()
 ```

@@ -38,22 +38,26 @@ suppressMessages(source("ams_initialize_script.R"))
 # compartment - compartment where drug is administered
 # param.to.change - parameter on which to do SA. This must be a string.
 # param.to.change.range - range of parameter on which to do SA. The range must be symmetric in fold change. This must be a vector of odd length.
+# soluble - boolean that is true/false if the drug is soluble/insoluble. Need this since soluble and insoluble are treated differently.
 
 # Output:
 # Plot of theoretical and simulated AFIRT vs fold change in parameter
 # Data frame of AFIRT vs parameter value
 
-compare.thy.sim = function(model = model, 
-                           drugs = drugs[i],
-                           param.as.double = param.as.double,
-                           dose.nmol = dose.nmol,
-                           tmax = tmax,
-                           tau = tau,
-                           compartment = compartment,
-                           param.to.change = param.to.change,
-                           param.to.change.range = param.to.change.range) {
+compare.thy.sim = function(model                 = model, 
+                           drugs                 = drugs[i],
+                           param.as.double       = param.as.double,
+                           dose.nmol             = dose.nmol,
+                           tmax                  = tmax,
+                           tau                   = tau,
+                           compartment           = compartment,
+                           param.to.change       = param.to.change,
+                           param.to.change.range = param.to.change.range,
+                           soluble               = FALSE) {
   
-  # Evaluate model ------------------------------------------------------------------------------------------
+  # --------------------------------------------------------------------------------
+  # Evaluate model.
+  # --------------------------------------------------------------------------------
 
   # Put all simulations for different dose into one data frame.
   df_sim = data.frame()
@@ -61,13 +65,13 @@ compare.thy.sim = function(model = model,
   # Iterate through values in simulation.
   if (param.to.change == 'dose'){
     for (param.iter in param.to.change.range){
-      row = lumped.parameters.simulation(model, param.as.double, param.iter, tmax, tau, compartment)
+      row = lumped.parameters.simulation(model, param.as.double, param.iter, tmax, tau, compartment, soluble)
       df_sim = rbind(df_sim, row)
     }  
   } else {
     for (param.iter in param.to.change.range){
     param.as.double[param.to.change] = param.iter
-    row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment)
+    row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment, soluble)
     df_sim = rbind(df_sim, row)
     }
   }
@@ -80,20 +84,22 @@ compare.thy.sim = function(model = model,
   # Iterate through values in theory.
   if (param.to.change == 'dose'){
     for (param.iter in param.to.change.range){
-      row = lumped.parameters.theory(param.as.double, param.iter, tau)
+      row = lumped.parameters.theory(param.as.double, param.iter, tau, soluble)
       df_thy = rbind(df_thy, row)
     }
   } else{
     for (param.iter in param.to.change.range){
       param.as.double[param.to.change] = param.iter
-      row = lumped.parameters.theory(param.as.double, dose.nmol, tau)
+      row = lumped.parameters.theory(param.as.double, dose.nmol, tau, soluble)
       df_thy = rbind(df_thy, row)
     }
   }
   df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
                              fold.change = param.to.change.range/median(param.to.change.range))
-  
+
+  # --------------------------------------------------------------------------------
   # Arrange theory and simulation into single data frame.
+  # --------------------------------------------------------------------------------
   levels(df_thy$type) = c("theory", "simulation")
   levels(df_sim$type) = c("theory", "simulation")
   df_compare = bind_rows(df_thy,df_sim)
@@ -103,9 +109,11 @@ compare.thy.sim = function(model = model,
     arrange(param.to.change,type) %>%
     mutate_if(is.numeric,signif,2)
   
-  # Plot results --------------------------------------------------------------------------------------------
-  
-  # Arrange data in a way suitable for plotting.
+  # --------------------------------------------------------------------------------
+  # Plot results.
+  # --------------------------------------------------------------------------------
+
+    # Arrange data in a way suitable for plotting.
   Param  = data.frame(Param = param.to.change.range/median(param.to.change.range))
   AFIRT  = data.frame(AFIRT.sim  = df_sim$AFIRT.sim,
                       AFIRT.Kssd = df_thy$AFIRT.Kssd,
@@ -141,19 +149,31 @@ param.as.double = read.param.file(paths[i])
 df_param        = as.data.frame(t(param.as.double))
 dose.nmol       = scale.mpk2nmol
 
+soluble = "Bevacizumab"
+if (drugs[i] %in% soluble) {
+  isSoluble = TRUE
+  } else {
+  isSoluble = FALSE
+}
+
 # Set range for parameters of interest in SA.
 dose.nmol.range = lseq(.1,10,7)*scale.mpk2nmol
 
 # ksynM3.range    = lseq(df_param$ksynM3  *.1, df_param$ksynM3  *10, 7)
 # kshedM3.range   = lseq(df_param$kshedM3 *.1, df_param$kshedM3 *10, 7)
 # kshedDM3.range  = lseq(df_param$kshedDM3*.1, df_param$kshedDM3*10, 7)
-# ksynS3.range    = lseq(df_param$ksynM3  *.1, df_param$ksynM3  *10, 7)
-# kshedS3.range   = lseq(df_param$kshedM3 *.1, df_param$kshedM3 *10, 7)
-# kshedDS3.range  = lseq(df_param$kshedDM3*.1, df_param$kshedDM3*10, 7)
+# ksynS3.range    = lseq(df_param$ksynS3  *.1, df_param$ksynS3  *10, 7)
+# kshedS3.range   = lseq(df_param$kshedS3 *.1, df_param$kshedS3 *10, 7)
+# kshedDS3.range  = lseq(df_param$kshedDS3*.1, df_param$kshedDS3*10, 7)
 
 k13D.range      = lseq(df_param$k13D    *.1, df_param$k13D    *10, 7)
 # k13DM.range     = lseq(df_param$k13DM   *.1, df_param$k13DM   *10, 7)
 # k31DM.range     = lseq(df_param$k31DM   *.1, df_param$k31DM   *10, 7)
+
+keM3.range      = lseq(df_param$keM3    *.1, df_param$keM3    *10, 7)
+keDM3.range     = lseq(df_param$keDM3   *.1, df_param$keDM3   *10, 7)
+keS3.range      = lseq(df_param$keS3    *.1, df_param$keS3    *10, 7)
+keDS3.range     = lseq(df_param$keDS3   *.1, df_param$keDS3   *10, 7)
 
 VD3.range       = lseq(df_param$VD3     *.1, df_param$VD3     *10, 7)
 
@@ -169,8 +189,9 @@ df_compare = compare.thy.sim(model = model,
                              tmax = tmax,
                              tau  = tau,
                              compartment = compartment,
-                             param.to.change = 'k13D',
-                             param.to.change.range = k13D.range)
+                             param.to.change       = 'keDS3',
+                             param.to.change.range = keDS3.range,
+                             soluble               = isSoluble)
 ```
 
 

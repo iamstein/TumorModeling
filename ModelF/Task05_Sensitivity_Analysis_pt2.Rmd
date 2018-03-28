@@ -130,7 +130,6 @@ model = ivsc_4cmtct_shedct()
 drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
 # List of parameters of interest.
 parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
-# names(parameters) = parameters
 # Create vector of soluble drugs.
 soluble = "Bevacizumab"
 

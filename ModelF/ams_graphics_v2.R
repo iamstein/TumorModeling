@@ -81,12 +81,35 @@ log.breaks = function(dx=1,x1=-10,x2=10) {
 log.labels = function(dx=1,x1=-10,x2=10) {
   labels = sprintf("%1g",log.breaks(dx,x1,x2)) }
 
-scale.x.log10 = function(dx=1,x1=-10,x2=10,...) {
-  s = scale_x_log10(breaks=log.breaks(dx,x1,x2),labels=log.labels(dx,x1,x2),...) }
+log.breaks    = function(dx=1,x1=-10,x2=10)     {signif(10^seq(x1,x2,dx),1) }
+log.labels    = function(dx=1,x1=-10,x2=10)     {sprintf("%1g",log.breaks(dx,x1,x2)) }
 
-scale.y.log10 = function(dx=1,x1=-10,x2=10,...) {
-  s = scale_y_log10(breaks=log.breaks(dx,x1,x2),labels=log.labels(dx,x1,x2),...) }
+scale.x.log10 = function(decade.spacing=1,x1=-10,x2=10,...) {
+  if (length(intersect(c("breaks","labels"),names(list(...))))==0) {
+    scale_command = scale_x_log10(breaks=log.breaks(decade.spacing,x1,x2),
+                                  labels=log.labels(decade.spacing,x1,x2),
+                                  ...)
+  } else {    
+    scale_command = scale_x_log10(...)
+  }
+  return(list(
+    scale_command,
+    annotation_logticks(base = 10, sides = "b", color = "grey50"))
+  )
+}
 
+scale.y.log10 = function(decade.spacing=1,x1=-10,x2=10,...) {
+  if (length(intersect(c("breaks","labels"),names(list(...))))==0) {
+    scale_command = scale_y_log10(breaks=log.breaks(decade.spacing,x1,x2),
+                                  labels=log.labels(decade.spacing,x1,x2),
+                                  ...)
+  } else {    
+    scale_command = scale_y_log10(...)
+  }
+  return(list(
+    scale_command,
+    annotation_logticks(base = 10, sides = "l", color = "grey50"))
+  )}
 #remove legend from plot
 no.legend = function() {
   x = theme(legend.position="none") }

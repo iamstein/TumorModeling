@@ -38,49 +38,43 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
 
     p    = as.data.frame(t(param.as.double))
 
-    # Calculate Mtot3.ss
-    numerator.DM   = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedDM1+k13DM)*ksynM3)
-    denomenator.DM = with(p, (keDM1+kshedDM1+k13DM)*(keDM3+kshedDM3+k31DM)-k31DM*k13DM)
-    Mtot3.ss = numerator.DM / denomenator.DM
+    # Calculate Mtot3.ss, M30, Stot3.ss and S30
+    numerator.DM3   = with(p, k13DM*(VD1/VD3)* ksynM1                      + (keDM1 + kshedDM1 + k13DM)* ksynM3)
+    numerator.DM1   = with(p, k31DM*(VD3/VD1)* ksynM3                      + (keDM3 + kshedDM3 + k31DM)* ksynM1)
+    numerator.M3    = with(p, k13M *(VD1/VD3)* ksynM1                      + (keM1  + kshedM1  + k13M )* ksynM3)
+    numerator.M1    = with(p, k31M *(VD3/VD1)* ksynM3                      + (keM3  + kshedM3  + k13M )* ksynM1)
 
-    # Calculate M30
-    numerator.M    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
-    denomenator.M  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
-    M30      = numerator.M  / denomenator.M
+    denomenator.DM3 = with(p, (keDM1 + kshedDM1 + k13DM)*(keDM3 + kshedDM3 + k31DM)-k31DM*k13DM)
+    denomenator.DM1 = with(p, (keDM3 + kshedDM3 + k31DM)*(keDM1 + kshedDM1 + k13DM)-k31DM*k13DM)
+    denomenator.M3  = with(p, (keM1  + kshedM1  + k13M )*(keM3  + kshedM3  + k31M )-k31M *k13M )
+    denomenator.M1  = with(p, (keM3  + kshedM3  + k31M) *(keM1  + kshedM1  + k13M )-k31M *k13M )
+    
+    Mtot1.ss = numerator.DM1 / denomenator.DM1
+    M10      = numerator.M1  / denomenator.M1
+    Mtot3.ss = numerator.DM3 / denomenator.DM3
+    M30      = numerator.M3  / denomenator.M3   
+    
+    #note that this aligns with the numerator columns above and can be copied and pasted for comparison
+    numerator.DS3  = with(p, k13DS*(VD1/VD3)*(ksynS1 + kshedDM1*Mtot1.ss) + (keDS1             + k13DS)*(ksynS3 + kshedDM3*Mtot3.ss))
+    numerator.S3   = with(p, k13S *(VD1/VD3)*(ksynS1 + kshedM1*M10)       + (keS1              + k13S) *(ksynS3 + kshedM3 *M30))
+    
+    denomenator.DS3= with(p, (keDS1            + k13DS)*(keDS3            + k31DS)-k31DS*k13DS)
+    denomenator.S3 = with(p, (keS1             + k13S )*(keS3             + k31S )-k31S *k13S )
+    
+    Stot3.ss       = numerator.DS3 / denomenator.DS3
+    S30            = numerator.S3  / denomenator.S3
 
-    # Target accumulation in the tumor compartment
-    Tacc.tum = Mtot3.ss / M30
 
     if (!soluble){
       Kssd = with(p, (koff3 + keDM3 + kshedDM3 + k31DM)/kon3)
-      Kss  = with(p, (koff3 + keDM3 + kshedDM3)        /kon3)
+      Kss  = with(p, (koff3 + keDM3 + kshedDM3        )/kon3)
       Kd   = with(p,  koff3                            /kon3)
+      Tacc.tum = Mtot3.ss / M30
+      
     } else {
-      Kssd = with(p, (koff3 + keDS3 + kshedDM3 + k31DS)/kon3)
-      Kss  = with(p, (koff3 + keDS3 + kshedDM3)        /kon3)
+      Kssd = with(p, (koff3 + keDS3 +          + k31DS)/kon3)
+      Kss  = with(p, (koff3 + keDS3                   )/kon3)
       Kd   = with(p,  koff3                            /kon3)
-
-      # Mtot1.ss needed for S3tot.ss calculation.
-      numerator.DS   = with(p, (kshedDM3 + k31DM + keDM3)*ksynM1 + (VD3/VD1)*k31DM*ksynM3)
-      denomenator.DS = with(p, (kshedDM1 + k13DM + keDM1)*(kshedDM3 + k31DM + keDM3) - k13DM*k31DM)
-      Mtot1.ss = numerator.DS / denomenator.DS
-
-      # M10 needed for S30 calculation.
-      numerator.S    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
-      denomenator.S  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
-      M10 = numerator.S / denomenator.S
-
-      # Calculate S3tot.ss
-      numerator   = with(p, k13DS*(VD1/VD3)*(ksynS1 + kshedDM1*Mtot1.ss)+(keDS1+k13DS)*(ksynS3 + kshedDM3*Mtot3.ss))
-      denomenator = with(p, (keDS1+k13DS)*(keDS3+k31DS)-k31DS*k13DS)
-      Stot3.ss = numerator / denomenator
-
-      # Calculate S30
-      numerator    = with(p, k13S*(VD1/VD3)*(ksynS1 + kshedM1*M10)+(keS1 + k13S)*(ksynS3 + kshedM3*M30))
-      denomenator = with(p, (keS1 + k13S)*(keS3 + k31S) - k31S*k13S)
-      S30      = numerator  / denomenator
-
-      # Target accumulation in the tumor compartment
       Tacc.tum = Stot3.ss / S30
     }
 

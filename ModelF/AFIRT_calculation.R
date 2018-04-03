@@ -40,19 +40,17 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
 
     # Calculate Mtot3.ss, M30, Stot3.ss and S30
     numerator.DM3   = with(p, k13DM*(VD1/VD3)* ksynM1                      + (keDM1 + kshedDM1 + k13DM)* ksynM3)
-    numerator.DM1   = with(p, k31DM*(VD3/VD1)* ksynM3                      + (keDM3 + kshedDM3 + k31DM)* ksynM1)
     numerator.M3    = with(p, k13M *(VD1/VD3)* ksynM1                      + (keM1  + kshedM1  + k13M )* ksynM3)
-    numerator.M1    = with(p, k31M *(VD3/VD1)* ksynM3                      + (keM3  + kshedM3  + k13M )* ksynM1)
+    numerator.DM1   = with(p, k31DM*(VD3/VD1)* ksynM3                      + (keDM3 + kshedDM3 + k31DM)* ksynM1)
+    numerator.M1    = with(p, k31M *(VD3/VD1)* ksynM3                      + (keM3  + kshedM3  + k31M )* ksynM1)
 
-    denomenator.DM3 = with(p, (keDM1 + kshedDM1 + k13DM)*(keDM3 + kshedDM3 + k31DM)-k31DM*k13DM)
-    denomenator.DM1 = with(p, (keDM3 + kshedDM3 + k31DM)*(keDM1 + kshedDM1 + k13DM)-k31DM*k13DM)
-    denomenator.M3  = with(p, (keM1  + kshedM1  + k13M )*(keM3  + kshedM3  + k31M )-k31M *k13M )
-    denomenator.M1  = with(p, (keM3  + kshedM3  + k31M) *(keM1  + kshedM1  + k13M )-k31M *k13M )
+    denomenator.DM_1or3 = with(p, (keDM1 + kshedDM1 + k13DM)*(keDM3 + kshedDM3 + k31DM)-k31DM*k13DM)
+    denomenator.M_1or3  = with(p, (keM1  + kshedM1  + k13M )*(keM3  + kshedM3  + k31M )-k31M *k13M )
     
-    Mtot1.ss = numerator.DM1 / denomenator.DM1
-    M10      = numerator.M1  / denomenator.M1
-    Mtot3.ss = numerator.DM3 / denomenator.DM3
-    M30      = numerator.M3  / denomenator.M3   
+    Mtot1.ss = numerator.DM1 / denomenator.DM_1or3
+    Mtot3.ss = numerator.DM3 / denomenator.DM_1or3
+    M10      = numerator.M1  / denomenator.M_1or3
+    M30      = numerator.M3  / denomenator.M_1or3   
     
     #note that this aligns with the numerator columns above and can be copied and pasted for comparison
     numerator.DS3  = with(p, k13DS*(VD1/VD3)*(ksynS1 + kshedDM1*Mtot1.ss) + (keDS1             + k13DS)*(ksynS3 + kshedDM3*Mtot3.ss))

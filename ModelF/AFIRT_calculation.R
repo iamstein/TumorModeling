@@ -42,13 +42,13 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
     pars    = as.data.frame(t(param.as.double))
 
     # Calculate M3tot.ss, M30, S3tot.ss and S30
-    numerator.DM3   = with(p, k13DM*(VD1/VD3)* ksynM1                     + (keDM1 + kshedDM1 + k13DM)* ksynM3)
-    numerator.M3    = with(p, k13M *(VD1/VD3)* ksynM1                     + (keM1  + kshedM1  + k13M )* ksynM3)
-    numerator.DM1   = with(p, k31DM*(VD3/VD1)* ksynM3                     + (keDM3 + kshedDM3 + k31DM)* ksynM1)
-    numerator.M1    = with(p, k31M *(VD3/VD1)* ksynM3                     + (keM3  + kshedM3  + k31M )* ksynM1)
+    numerator.DM3   = with(pars, k13DM*(VD1/VD3)* ksynM1                     + (keDM1 + kshedDM1 + k13DM)* ksynM3)
+    numerator.M3    = with(pars, k13M *(VD1/VD3)* ksynM1                     + (keM1  + kshedM1  + k13M )* ksynM3)
+    numerator.DM1   = with(pars, k31DM*(VD3/VD1)* ksynM3                     + (keDM3 + kshedDM3 + k31DM)* ksynM1)
+    numerator.M1    = with(pars, k31M *(VD3/VD1)* ksynM3                     + (keM3  + kshedM3  + k31M )* ksynM1)
 
-    denomenator.DM_1or3 = with(p, (keDM1 + kshedDM1 + k13DM)*(keDM3 + kshedDM3 + k31DM)-k31DM*k13DM)
-    denomenator.M_1or3  = with(p, (keM1  + kshedM1  + k13M )*(keM3  + kshedM3  + k31M )-k31M *k13M )
+    denomenator.DM_1or3 = with(pars, (keDM1 + kshedDM1 + k13DM)*(keDM3 + kshedDM3 + k31DM)-k31DM*k13DM)
+    denomenator.M_1or3  = with(pars, (keM1  + kshedM1  + k13M )*(keM3  + kshedM3  + k31M )-k31M *k13M )
     
     M1tot.ss = numerator.DM1 / denomenator.DM_1or3
     M3tot.ss = numerator.DM3 / denomenator.DM_1or3
@@ -56,26 +56,26 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
     M30      = numerator.M3  / denomenator.M_1or3   
     
     #note that this aligns with the numerator columns above and can be copied and pasted for comparison
-    numerator.DS3  = with(p, k13DS*(VD1/VD3)*(ksynS1 + kshedDM1*M1tot.ss) + (keDS1             + k13DS)*(ksynS3 + kshedDM3*M3tot.ss))
-    numerator.S3   = with(p, k13S *(VD1/VD3)*(ksynS1 + kshedM1 *M10)      + (keS1              + k13S) *(ksynS3 + kshedM3 *M30))
+    numerator.DS3  = with(pars, k13DS*(VD1/VD3)*(ksynS1 + kshedDM1*M1tot.ss) + (keDS1             + k13DS)*(ksynS3 + kshedDM3*M3tot.ss))
+    numerator.S3   = with(pars, k13S *(VD1/VD3)*(ksynS1 + kshedM1 *M10)      + (keS1              + k13S) *(ksynS3 + kshedM3 *M30))
     
-    denomenator.DS3= with(p, (keDS1            + k13DS)*(keDS3            + k31DS)-k31DS*k13DS)
-    denomenator.S3 = with(p, (keS1             + k13S )*(keS3             + k31S )-k31S *k13S )
+    denomenator.DS3= with(pars, (keDS1            + k13DS)*(keDS3            + k31DS)-k31DS*k13DS)
+    denomenator.S3 = with(pars, (keS1             + k13S )*(keS3             + k31S )-k31S *k13S )
     
     S3tot.ss       = numerator.DS3 / denomenator.DS3
     S30            = numerator.S3  / denomenator.S3
 
 
     if (!soluble){
-      Kssd = with(p, (koff3 + keDM3 + kshedDM3 + k31DM)/kon3)
-      Kss  = with(p, (koff3 + keDM3 + kshedDM3        )/kon3)
-      Kd   = with(p,  koff3                            /kon3)
+      Kssd = with(pars, (koff3 + keDM3 + kshedDM3 + k31DM)/kon3)
+      Kss  = with(pars, (koff3 + keDM3 + kshedDM3        )/kon3)
+      Kd   = with(pars,  koff3                            /kon3)
       Tacc.tum = M3tot.ss / M30
       
     } else {
-      Kssd = with(p, (koff3 + keDS3 +          + k31DS)/kon3)
-      Kss  = with(p, (koff3 + keDS3                   )/kon3)
-      Kd   = with(p,  koff3                            /kon3)
+      Kssd = with(pars, (koff3 + keDS3 +          + k31DS)/kon3)
+      Kss  = with(pars, (koff3 + keDS3                   )/kon3)
+      Kd   = with(pars,  koff3                            /kon3)
       Tacc.tum = S3tot.ss / S30
     }
 

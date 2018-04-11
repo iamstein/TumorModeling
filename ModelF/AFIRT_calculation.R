@@ -197,11 +197,13 @@ lumped.parameters.simulation = function(model           = model,
     initial_state = out %>%
         filter(time==0)
     M30 = initial_state$M3
+    S30 = initial_state$S3
 
     ## Assume the system reaches steady state during the last dosing period
     steady_state = out %>%
       filter(time > (floor(tmax/tau)-1)*tau & time <tmax)
     M3tot.ss = mean(steady_state$Mtot3)
+    S3tot.ss = mean(steady_state$Stot3)
 
     ## Average drug concentration in central compartment
     dose_applied = out %>%
@@ -213,10 +215,10 @@ lumped.parameters.simulation = function(model           = model,
 
     # AFIRT and target accumulation
     if (soluble) {
-      AFIRT = mean(steady_state$Sfree.pct)
-      Tacc.tum = mean(steady_state$Stot3)/initial_state$S3
+      AFIRT    = mean(steady_state$Sfree.pct)
+      Tacc.tum = S3tot.ss / S30
     } else {
-      AFIRT = mean(steady_state$Mfree.pct)
+      AFIRT    = mean(steady_state$Mfree.pct)
       Tacc.tum = M3tot.ss / M30
     }
     

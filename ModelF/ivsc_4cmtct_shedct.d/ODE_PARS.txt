@@ -1,0 +1,1 @@
+VD1 ka F k12D k21D VD2 k13D k31D VD3 kon1 koff1 keD1 kon3 koff3 keD3 ksynS1 kshedM1 k13S k31S VS3 VS1 keS1 ksynS3 kshedM3 keS3 ksynM1 k13M k31M VM3 VM1 keM1 ksynM3 keM3 kshedDM1 k13DS k31DS VDS3 VDS1 keDS1 kshedDM3 keDS3 k13DM k31DM VDM3 VDM1 keDM1 keDM3 

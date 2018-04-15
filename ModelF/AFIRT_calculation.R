@@ -1,8 +1,10 @@
+#----------------------------------------------------------------------------------
 # Helper function that returns a range of variable when performing
 # sensitvity analysis
+#----------------------------------------------------------------------------------
 
 read.param.file = function(filename) {
-  d = read_excel(filename, 1)
+  d                      = read_excel(filename, 1)
   param.as.double        = as.numeric(d$Value)
   names(param.as.double) = d$Parameter
   param.as.double        = param.as.double[model$pin] #keep only parameters used in ODE
@@ -21,13 +23,14 @@ lseq = function(from, to, length.out){
     return(sequence)
 }
 
-
+#----------------------------------------------------------------------------------
 # Function computing lumped parameters from theory
+#----------------------------------------------------------------------------------
 
-lumped.parameters.theory = function(param.as.double=param.as.double,
-                                    dose.nmol=dose.nmol,
-                                    tau=tau,
-                                    soluble = FALSE){
+lumped.parameters.theory = function(param.as.double = param.as.double,
+                                    dose.nmol       = dose.nmol,
+                                    tau             = tau,
+                                    soluble         = FALSE){
     # Arguments:
     #   params_file_path: full path of the parameters file.
     #   dose.nmol: dosing amout in nmol
@@ -36,59 +39,51 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     # Return:
     #   A data frame of lumped parameters calculated from theory
 
-    p    = as.data.frame(t(param.as.double))
+    pars    = as.data.frame(t(param.as.double))
 
-    # Calculate Mtot3.ss
-    numerator.DM   = with(p, k13DM*(VD1/VD3)*ksynM1+(keDM1+kshedDM1+k13DM)*ksynM3)
-    denomenator.DM = with(p, (keDM1+kshedDM1+k13DM)*(keDM3+kshedDM3+k31DM)-k31DM*k13DM)
-    Mtot3.ss = numerator.DM / denomenator.DM
+    # Calculate M3tot.ss, M30, S3tot.ss and S30
+    numerator.DM3   = with(pars, k13DM*(VD1/VD3)* ksynM1                     + (keDM1 + kshedDM1 + k13DM)* ksynM3)
+    numerator.M3    = with(pars, k13M *(VD1/VD3)* ksynM1                     + (keM1  + kshedM1  + k13M )* ksynM3)
+    numerator.DM1   = with(pars, k31DM*(VD3/VD1)* ksynM3                     + (keDM3 + kshedDM3 + k31DM)* ksynM1)
+    numerator.M1    = with(pars, k31M *(VD3/VD1)* ksynM3                     + (keM3  + kshedM3  + k31M )* ksynM1)
 
-    # Calculate M30
-    numerator.M    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
-    denomenator.M  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
-    M30      = numerator.M  / denomenator.M
+    denomenator.DM_1or3 = with(pars, (keDM1 + kshedDM1 + k13DM)*(keDM3 + kshedDM3 + k31DM)-k31DM*k13DM)
+    denomenator.M_1or3  = with(pars, (keM1  + kshedM1  + k13M )*(keM3  + kshedM3  + k31M )-k31M *k13M )
+    
+    M1tot.ss = numerator.DM1 / denomenator.DM_1or3
+    M3tot.ss = numerator.DM3 / denomenator.DM_1or3
+    M10      = numerator.M1  / denomenator.M_1or3
+    M30      = numerator.M3  / denomenator.M_1or3   
+    
+    #note that this aligns with the numerator columns above and can be copied and pasted for comparison
+    numerator.DS3  = with(pars, k13DS*(VD1/VD3)*(ksynS1 + kshedDM1*M1tot.ss) + (keDS1             + k13DS)*(ksynS3 + kshedDM3*M3tot.ss))
+    numerator.S3   = with(pars, k13S *(VD1/VD3)*(ksynS1 + kshedM1 *M10)      + (keS1              + k13S) *(ksynS3 + kshedM3 *M30))
+    
+    denomenator.DS3= with(pars, (keDS1            + k13DS)*(keDS3            + k31DS)-k31DS*k13DS)
+    denomenator.S3 = with(pars, (keS1             + k13S )*(keS3             + k31S )-k31S *k13S )
+    
+    S3tot.ss       = numerator.DS3 / denomenator.DS3
+    S30            = numerator.S3  / denomenator.S3
 
-    # Target accumulation in the tumor compartment
-    Tacc.tum = Mtot3.ss / M30
 
     if (!soluble){
-      Kssd = with(p, (koff3 + keDM3 + kshedDM3 + k31DM)/kon3)
-      Kss  = with(p, (koff3 + keDM3 + kshedDM3)        /kon3)
-      Kd   = with(p,  koff3                            /kon3)
+      Kssd = with(pars, (koff3 + keDM3 + kshedDM3 + k31DM)/kon3)
+      Kss  = with(pars, (koff3 + keDM3 + kshedDM3        )/kon3)
+      Kd   = with(pars,  koff3                            /kon3)
+      Tacc.tum = M3tot.ss / M30
+      
     } else {
-      Kssd = with(p, (koff3 + keDS3 + kshedDM3 + k31DS)/kon3)
-      Kss  = with(p, (koff3 + keDS3 + kshedDM3)        /kon3)
-      Kd   = with(p,  koff3                            /kon3)
-
-      # Mtot1.ss needed for S3tot.ss calculation.
-      numerator.DS   = with(p, (kshedDM3 + k31DM + keDM3)*ksynM1 + (VD3/VD1)*k31DM*ksynM3)
-      denomenator.DS = with(p, (kshedDM1 + k13DM + keDM1)*(kshedDM3 + k31DM + keDM3) - k13DM*k31DM)
-      Mtot1.ss = numerator.DS / denomenator.DS
-
-      # M10 needed for S30 calculation.
-      numerator.S    = with(p, k13M *(VD1/VD3)*ksynM1+(keM1 +kshedM1 +k13M) *ksynM3)
-      denomenator.S  = with(p, (keM1 +kshedM1 +k13M) *(keM3 +kshedM3+k31M) -k31M *k13M)
-      M10 = numerator.S / denomenator.S
-
-      # Calculate S3tot.ss
-      numerator   = with(p, k13DS*(VD1/VD3)*(ksynS1 + kshedDM1*Mtot1.ss)+(keDS1+k13DS)*(ksynS3 + kshedDM3*Mtot3.ss))
-      denomenator = with(p, (keDS1+k13DS)*(keDS3+k31DS)-k31DS*k13DS)
-      Stot3.ss = numerator / denomenator
-
-      # Calculate S30
-      numerator    = with(p, k13S*(VD1/VD3)*(ksynS1 + kshedM1*M10)+(keS1 + k13S)*(ksynS3 + kshedM3*M30))
-      denomenator = with(p, (keS1 + k13S)*(keS3 + k31S) - k31S*k13S)
-      S30      = numerator  / denomenator
-
-      # Target accumulation in the tumor compartment
-      Tacc.tum = Stot3.ss / S30
+      Kssd = with(pars, (koff3 + keDS3 +          + k31DS)/kon3)
+      Kss  = with(pars, (koff3 + keDS3                   )/kon3)
+      Kd   = with(pars,  koff3                            /kon3)
+      Tacc.tum = S3tot.ss / S30
     }
 
     # Biodistribution coefficient (reference: ModelF_Appendix)
-    B = with(p, (k13D/(keD3 + k31D) * (VD1/VD3)))
+    B = with(pars, (k13D/(keD3 + k31D) * (VD1/VD3)))
 
     # Clearance
-    CL = with(p, (keD1*VD1))
+    CL = with(pars, (keD1*VD1))
 
     # Average drug concentration in the central compartment
     Cavg1 = dose.nmol/(CL*tau)
@@ -98,51 +93,52 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     AFIRT.Kss  = Kss *Tacc.tum/(B*Cavg1)
     AFIRT.Kd   = Kd  *Tacc.tum/(B*Cavg1)
 
-    Q_2 = with(p, k12D * VD1)
-    Q_3 = with(p, (k13D/k31D) * VD1)
+    Q2 = with(pars, k12D * VD1)
+    Q3 = with(pars, (k13D/k31D) * VD1)
 
-    a_0 = with(p, (CL/VD1)*(Q_2/VD2)*(Q_3/VD3))
-    a_1 = with(p, (CL/VD1)*(Q_3/VD3) + (Q_2/VD2)*(Q_3/VD3) + (Q_2/VD2)*(Q_3/VD1) + (CL/VD1)*(Q_2/VD2) + (Q_3/VD3)*(Q_2/VD1))
-    a_2 = with(p, (CL/VD1)+ (Q_2/VD1) + (Q_3/VD1) + (Q_2/VD2) + (Q_3/VD3))
+    a0 = with(pars, (CL/VD1)*(Q2/VD2)*(Q3/VD3))
+    a1 = with(pars, (CL/VD1)*(Q3/VD3) + (Q2/VD2)*(Q3/VD3) + (Q2/VD2)*(Q3/VD1) + (CL/VD1)*(Q2/VD2) + (Q3/VD3)*(Q2/VD1))
+    a2 = with(pars, (CL/VD1)+ (Q2/VD1) + (Q3/VD1) + (Q2/VD2) + (Q3/VD3))
 
-    P = a_1 - (a_2^2)/3
-    Q = 2*((a_2^3)/27) - a_1*a_2/3 + a_0 
-    r_1 = (-((P^3)/27))^0.5
-    r_2 = 2*(r_1^(1/3))
-  
+    p  = a1 - (a2^2)/3
+    q  = 2*(a2^3)/27 - a1*a2/3 + a0 
+    r1 = (-(p^3)/27)^0.5
+    r2 = 2*(r1^(1/3))
     
-    phi = acos(-Q/(2*r_1))/3
+    phi = acos(-q/(2*r1))/3
     
 
-    alpha = -(cos(phi)*r_2 - a_2/3)
-    beta = -(cos(phi + 2*pi/3)*r_2 - a_2/3)
-    gamma = -(cos(phi + 4*pi/3)*r_2 - a_2/3)
+    alpha = -(cos(phi)         *r2 - a2/3)
+    beta  = -(cos(phi + 2*pi/3)*r2 - a2/3)
+    gamma = -(cos(phi + 4*pi/3)*r2 - a2/3)
 
-    V = with(p, VD1)
-    A = with(p, (1/V)*((k21D - alpha)/(alpha - beta))*((k31D - alpha)/(alpha - gamma)))
-    B = with(p, (1/V)*((k21D - beta)/(beta-alpha))*((k31D - beta)/(beta - gamma)))
-    C = with(p, (1/V)*((k21D - gamma)/(gamma - beta))*((k31D - gamma)/(gamma - alpha)))
+    V = with(pars, VD1)
+    A = with(pars, (1/V) * ((k21D - alpha)/(alpha - beta)) * ((k31D - alpha)/(alpha - gamma)))
+    B = with(pars, (1/V) * ((k21D - beta )/(beta - alpha)) * ((k31D - beta )/(beta - gamma )))
+    C = with(pars, (1/V) * ((k21D - gamma)/(gamma - beta)) * ((k31D - gamma)/(gamma - alpha)))
 
     D = dose.nmol
-    C_min = D*((A*exp(-alpha*tau))/(1 - exp(-alpha*tau)) + (B*exp(-beta*tau))/(1 - exp(-beta*tau)) + (C*exp(-gamma*tau))/(1 - exp(-gamma*tau)))
+    Cmin = D*((A*exp(-alpha*tau))/(1 - exp(-alpha*tau)) + 
+              (B*exp(-beta *tau))/(1 - exp(-beta *tau)) + 
+              (C*exp(-gamma*tau))/(1 - exp(-gamma*tau)))
 
     if(!soluble){
-        T_fold = Mtot3.ss/M30
+        Tfold = M3tot.ss/M30
     }else{
-        T_fold = Stot3.ss/S30
+        Tfold = S3tot.ss/S30
     }
      
-    TFIRT.Kssd = (Kssd*T_fold)/C_min
-    TFIRT.Kss  = (Kss *T_fold)/C_min
-    TFIRT.Kd   = (Kd  *T_fold)/C_min
+    TFIRT.Kssd = Kssd*Tfold/(B*Cmin)
+    TFIRT.Kss  = Kss *Tfold/(B*Cmin)
+    TFIRT.Kd   = Kd  *Tfold/(B*Cmin)
 
-    lumped_parameters_theory = data.frame(type = "theory",
-                                          M30=M30,
-                                          Mtot3.ss=Mtot3.ss,
-                                          Tacc.tum=Tacc.tum,
-                                          B = B,
-                                          Cavg1 = Cavg1,
-                                          Cavg3 = B*Cavg1,
+    lumped_parameters_theory = data.frame(type       = "theory",
+                                          M30        = M30,
+                                          M3tot.ss   = M3tot.ss,
+                                          Tacc.tum   = Tacc.tum,
+                                          B          = B,
+                                          Cavg1      = Cavg1,
+                                          Cavg3      = B*Cavg1,
                                           AFIRT.Kssd = AFIRT.Kssd,
                                           AFIRT.Kss  = AFIRT.Kss,
                                           AFIRT.Kd   = AFIRT.Kd,
@@ -152,11 +148,17 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     return(lumped_parameters_theory)
  }
 
-
+#----------------------------------------------------------------------------------
 # Function simulates the lumped parameters
+#----------------------------------------------------------------------------------
 
-lumped.parameters.simulation = function(model=model, param.as.double=param.as.double,
-                                        dose.nmol=dose.nmol, tmax=tmax, tau=tau, compartment, soluble = FALSE){
+lumped.parameters.simulation = function(model           = model, 
+                                        param.as.double = param.as.double,
+                                        dose.nmol       = dose.nmol, 
+                                        tmax            = tmax, 
+                                        tau             = tau, 
+                                        compartment,
+                                        soluble         = FALSE){
 
     # Arguments:
     #   model_name: name of the model
@@ -195,58 +197,64 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
     initial_state = out %>%
         filter(time==0)
     M30 = initial_state$M3
+    S30 = initial_state$S3
 
     ## Assume the system reaches steady state during the last dosing period
     steady_state = out %>%
       filter(time > (floor(tmax/tau)-1)*tau & time <tmax)
-    Mtot3.ss = mean(steady_state$Mtot3)
-
-    Tacc.tum = Mtot3.ss / M30
+    M3tot.ss = mean(steady_state$Mtot3)
+    S3tot.ss = mean(steady_state$Stot3)
 
     ## Average drug concentration in central compartment
     dose_applied = out %>%
         filter(time > 0)
     Cavg1 = mean(dose_applied$D1)
 
-
     # Average drug concentration in tumor compartment
     Cavg3 = mean(dose_applied$D3)
 
-    # AFIRT
-    AFIRT = mean(steady_state$Mfree.pct)
-
-    # Soluble case
+    # AFIRT and target accumulation
     if (soluble) {
-      AFIRT = mean(steady_state$Sfree.pct)
-      Tacc.tum = mean(steady_state$Stot3)/initial_state$S3
+      AFIRT    = mean(steady_state$Sfree.pct)
+      Tacc.tum = S3tot.ss / S30
+    } else {
+      AFIRT    = mean(steady_state$Mfree.pct)
+      Tacc.tum = M3tot.ss / M30
     }
     
     # Simulation of TFIRT
-    if (soluble){
+    if (soluble) {
         TFIRT = max(steady_state$Sfree.pct)
-    }else {
+    } else {
         TFIRT = max(steady_state$Mfree.pct)
     } 
 
 
-    lumped_parameters_sim = data.frame(type = "simulation",
-                                     M30=M30,
-                                     Mtot3.ss=Mtot3.ss,
-                                     Tacc.tum=Tacc.tum,
-                                     Cavg1 = Cavg1,
-                                     Cavg3 = Cavg3,
-                                     B     = Cavg3/Cavg1,
-                                     AFIRT = AFIRT,
-                                     AFIRT.sim = AFIRT,
-                                     TFIRT = TFIRT,
-                                     TFIRT.sim = TFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
+    lumped_parameters_sim = data.frame(type      = "simulation",
+                                       M30       = M30,
+                                       M3tot.ss  = M3tot.ss,
+                                       Tacc.tum  = Tacc.tum,
+                                       Cavg1     = Cavg1,
+                                       Cavg3     = Cavg3,
+                                       B         = Cavg3/Cavg1,
+                                       AFIRT     = AFIRT,
+                                       AFIRT.sim = AFIRT,
+                                       TFIRT     = TFIRT,
+                                       TFIRT.sim = TFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
 
     return(lumped_parameters_sim)
 }
 
+#----------------------------------------------------------------------------------
+# Function runs simulation
+#----------------------------------------------------------------------------------
 
-simulation = function(model=model, param.as.double=param.as.double,
-                      dose.nmol=dose.nmol, tmax=tmax, tau=tau){
+
+simulation = function(model           = model, 
+                      param.as.double = param.as.double,
+                      dose.nmol       = dose.nmol, 
+                      tmax            = tmax, 
+                      tau             = tau){
   #d <- xlsx::read.xlsx(params_file_path, 1)
   #param.as.double = d$Value
   #names(param.as.double) = d$Parameter
@@ -266,6 +274,92 @@ simulation = function(model=model, param.as.double=param.as.double,
              Mfree.pct = M3/init["M3"],
              dose.nmol = dose.nmol)
   return(out)
+}
+
+#----------------------------------------------------------------------------------
+# This function does the sensitivity analysis on the user inputted parameter 
+# and compares the theoretical result to the simulated result.
+#----------------------------------------------------------------------------------
+
+# Input: 
+# model - model system of ODE's solved with RxODE. In this project, it is 'ivsc_4cmtct_shedct'.
+# param.as.double - read parameters from Excel file. read.param.file("file directory").
+# dose.nmol - dose in nmol.
+# tmax - time of treatment in days
+# tau - frequency of administering dose in days
+# compartment - compartment where drug is administered
+# param.to.change - parameter on which to do SA. This must be a string.
+# param.to.change.range - range of parameter on which to do SA. The range must be symmetric in fold change. This must be a vector of odd length.
+# soluble - boolean that is true/false if the drug is soluble/insoluble. Need this since soluble and insoluble are treated differently.
+
+# Output:
+# Data frame of AFIRT vs parameter value
+
+compare.thy.sim = function(model                 = model,
+                           param.as.double       = param.as.double,
+                           dose.nmol             = dose.nmol,
+                           tmax                  = tmax,
+                           tau                   = tau,
+                           compartment           = compartment,
+                           param.to.change       = param.to.change,
+                           param.to.change.range = param.to.change.range,
+                           soluble               = FALSE) {
+  
+  # Simulation
+  
+  df_sim = data.frame()
+  
+  # Iterate through values in range.
+  if (param.to.change == 'dose'){
+    for (param.iter in param.to.change.range){
+      row = lumped.parameters.simulation(model, param.as.double, param.iter, tmax, tau, compartment, soluble)
+      df_sim = rbind(df_sim, row)
+    }  
+  } else {
+    for (param.iter in param.to.change.range){
+      param.as.double[param.to.change] = param.iter
+      row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment, soluble)
+      df_sim = rbind(df_sim, row)
+    }
+  }
+  
+  df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
+                             fold.change = param.to.change.range/median(param.to.change.range))
+  
+  # Theory
+  
+  df_thy = data.frame()
+  
+  # Iterate through values in range.
+  if (param.to.change == 'dose'){
+    for (param.iter in param.to.change.range){
+      row = lumped.parameters.theory(param.as.double, param.iter, tau, soluble)
+      df_thy = rbind(df_thy, row)
+    }
+  } else{
+    for (param.iter in param.to.change.range){
+      param.as.double[param.to.change] = param.iter
+      row = lumped.parameters.theory(param.as.double, dose.nmol, tau, soluble)
+      df_thy = rbind(df_thy, row)
+    }
+  }
+  
+  df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
+                             fold.change = param.to.change.range/median(param.to.change.range))
+  
+  # Arrange theory and simulation in single data frame.
+  
+  # I am tired of that "Unequal factor levels" error. This fixes it.
+  levels(df_thy$type) = c("theory", "simulation")
+  levels(df_sim$type) = c("theory", "simulation")
+  df_compare = bind_rows(df_thy,df_sim)
+  param = param.to.change
+  df_compare = df_compare %>%
+    mutate(param = param) %>%
+    arrange(param.to.change,type) %>%
+    mutate_if(is.numeric,signif,2)
+  
+  return(df_compare)
 }
 
 

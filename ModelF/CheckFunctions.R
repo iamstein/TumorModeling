@@ -16,7 +16,7 @@ compare_eigenvalues = function(param.as.double){
   # Matrix A is defined below
   a11 = with(pars, -(keD1 + k12D + k13D))
   a12 = with(pars, (VD2/VD1)*k21D)
-  a13 = with(pars, (VD2/VD1)*k31D)
+  a13 = with(pars, (VD3/VD1)*k31D)
   a21 = with(pars, (VD1/VD2)*k12D)
   a22 = with(pars, -k21D)
   a23 = 0

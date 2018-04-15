@@ -124,7 +124,7 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
     C = with(p, (1/V)*((k21D - gamma)/(gamma - beta))*((k31D - gamma)/(gamma - alpha)))
 
     D = dose.nmol
-    C_min = D*((A*exp(-alpha*tau))/(1 - exp(-alpha*tau)) + (B*exp(-beta*tau))/(1 - exp(-beta*tau)) + (C*exp(-gamma*tau))/(1 - exp(-gamma*tau)))
+    Cmin1 = D*((A*exp(-alpha*tau))/(1 - exp(-alpha*tau)) + (B*exp(-beta*tau))/(1 - exp(-beta*tau)) + (C*exp(-gamma*tau))/(1 - exp(-gamma*tau)))
 
     if(!soluble){
         T_fold = Mtot3.ss/M30
@@ -132,9 +132,9 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
         T_fold = Stot3.ss/S30
     }
      
-    TFIRT.Kssd = (Kssd*T_fold)/C_min
-    TFIRT.Kss  = (Kss *T_fold)/C_min
-    TFIRT.Kd   = (Kd  *T_fold)/C_min
+    TFIRT.Kssd = (Kssd*T_fold)/Cmin1
+    TFIRT.Kss  = (Kss *T_fold)/Cmin1
+    TFIRT.Kd   = (Kd  *T_fold)/Cmin1
 
     lumped_parameters_theory = data.frame(type = "theory",
                                           M30=M30,
@@ -143,12 +143,14 @@ lumped.parameters.theory = function(param.as.double=param.as.double,
                                           B = B,
                                           Cavg1 = Cavg1,
                                           Cavg3 = B*Cavg1,
+                                          Cmin1 = Cmin1,
                                           AFIRT.Kssd = AFIRT.Kssd,
                                           AFIRT.Kss  = AFIRT.Kss,
                                           AFIRT.Kd   = AFIRT.Kd,
                                           TFIRT.Kssd = TFIRT.Kssd,
                                           TFIRT.Kss  = TFIRT.Kss,
-                                          TFIRT.Kd   = TFIRT.Kd)
+                                          TFIRT.Kd   = TFIRT.Kd
+                                          )
     return(lumped_parameters_theory)
  }
 
@@ -211,6 +213,10 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
 
     # Average drug concentration in tumor compartment
     Cavg3 = mean(dose_applied$D3)
+    
+    Cmin1 = min(dose_applied$D1)
+    
+    Cmin3 = min(dose_applied$D3)
 
     # AFIRT
     AFIRT = mean(steady_state$Mfree.pct)
@@ -235,6 +241,8 @@ lumped.parameters.simulation = function(model=model, param.as.double=param.as.do
                                      Tacc.tum=Tacc.tum,
                                      Cavg1 = Cavg1,
                                      Cavg3 = Cavg3,
+                                     Cmin1 = Cmin1,
+                                     Cmin3 = Cmin3,
                                      B     = Cavg3/Cavg1,
                                      AFIRT = AFIRT,
                                      AFIRT.sim = AFIRT,

@@ -1,0 +1,83 @@
+---
+
+---
+
+# Preliminary stuff
+
+```{r, warning=FALSE}
+# Need this to get rxode working. I don't know why I keep having to run this.
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:/RBuildTools/3.4/bin/",
+            "C:/RBuildTools/3.4/mingw_64/bin", sep = ";"))
+Sys.setenv(BINPREF = "C:/RBuildTools/3.4/mingw_64/bin/")
+
+# To be called at the top of every Rmd file. Initialization code and some useful constants.
+suppressMessages(source("ams_initialize_script.R"))
+```
+
+# Simulate model
+
+```{r}
+
+# Dose time, frequency, compartment, nominal dose
+tmax = 26*7 #days
+tau  = 21   #days
+compartment = 2
+dose.nmol = scale.mpk2nmol
+joined = NULL
+isSoluble = FALSE
+
+# Load model.
+model = ivsc_4cmtct_shedct()
+# Drugs to explore. 
+drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
+i = 1
+# Set file path.
+path = paste0("../data/ModelF_", drugs[i],"_Params.xlsx")
+# Load parameters.
+param.as.double =  read.param.file(path)
+param.as.double
+
+# Dose time, frequency, compartment, nominal dose
+tmax = 26*7 #days
+tau  = 21   #days
+compartment = 2
+dose.nmol = scale.mpk2nmol
+
+# Simulate model.
+out = simulation(model           = model,
+                 param.as.double = param.as.double,
+                 dose.nmol       = dose.nmol,
+                 tmax            = tmax,
+                 tau             = tau)
+# Modify for selected output and plotting format.
+out = out %>% 
+      select(time,D1,D3,M1,DM1,M3,DM3,S1,DS1,S3,DS3) %>%
+      gather(vars, value, -c(time))
+
+# Plot result
+g = ggplot(out, aes(x=time, y=value, group=vars, color=vars)) + 
+    geom_line() +
+    # xlim(0,tmax) + 
+    scale.y.log10()
+g = xscale("w27",increment = 3)
+print(g)
+
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

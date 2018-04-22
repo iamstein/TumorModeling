@@ -209,14 +209,14 @@ lumped.parameters.simulation = function(model           = model,
     ## Average drug concentration in central compartment
     dose_applied = out %>%
         filter(time > 0)
-    Cavg1 = mean(dose_applied$D1)
+    Cavg1 = mean(steady_state$D1)
+    
+    Cmin1 = min(steady_state$D1)
 
     # Average drug concentration in tumor compartment
-    Cavg3 = mean(dose_applied$D3)
+    Cavg3 = mean(steady_state$D3)
     
-    Cmin1 = min(dose_applied$D1)
-    
-    Cmin3 = min(dose_applied$D3)
+    Cmin3 = min(steady_state$D3)
 
     # AFIRT and target accumulation
     if (soluble) {

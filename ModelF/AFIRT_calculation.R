@@ -139,6 +139,7 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
                                           B          = B,
                                           Cavg1      = Cavg1,
                                           Cavg3      = B*Cavg1,
+                                          Cmin.thy   = Cmin,
                                           AFIRT.Kssd = AFIRT.Kssd,
                                           AFIRT.Kss  = AFIRT.Kss,
                                           AFIRT.Kd   = AFIRT.Kd,
@@ -186,9 +187,9 @@ lumped.parameters.simulation = function(model           = model,
 
     #model = do.call(model_name, list()) # model file can contain only one model
     init = model$init(param.as.double)
-    out = model$rxode$solve(param.as.double, ev, init)
-    out = model$rxout(out)
-    out = out %>%
+    out  = model$rxode$solve(param.as.double, ev, init)
+    out  = model$rxout(out)
+    out  = out %>%
         mutate(Sfree.pct = S3/init["S3"],
                Mfree.pct = M3/init["M3"],
                dose.nmol = dose.nmol)
@@ -204,14 +205,19 @@ lumped.parameters.simulation = function(model           = model,
       filter(time > (floor(tmax/tau)-1)*tau & time <tmax)
     M3tot.ss = mean(steady_state$Mtot3)
     S3tot.ss = mean(steady_state$Stot3)
-
-    ## Average drug concentration in central compartment
+    
+    # Drug concentration
     dose_applied = out %>%
-        filter(time > 0)
+      filter(time > 0)
+    
+    # Average drug concentration in central compartment
     Cavg1 = mean(dose_applied$D1)
 
     # Average drug concentration in tumor compartment
     Cavg3 = mean(dose_applied$D3)
+    
+    # Minimum drug concentration in central compartment
+    Cmin = min(dose_applied$D1)
 
     # AFIRT and target accumulation
     if (soluble) {
@@ -236,6 +242,7 @@ lumped.parameters.simulation = function(model           = model,
                                        Tacc.tum  = Tacc.tum,
                                        Cavg1     = Cavg1,
                                        Cavg3     = Cavg3,
+                                       Cmin.sim  = Cmin,
                                        B         = Cavg3/Cavg1,
                                        AFIRT     = AFIRT,
                                        AFIRT.sim = AFIRT,
@@ -267,12 +274,12 @@ simulation = function(model           = model,
                 dosing.to=2)
 
   init = model$init(param.as.double)
-  out = model$rxode$solve(param.as.double, ev, init)
-  out = model$rxout(out)
-  out = out %>%
+  out  = model$rxode$solve(param.as.double, ev, init)
+  out  = model$rxout(out)
+  out  = out %>%
     mutate(Sfree.pct = S1/init["S1"],
-             Mfree.pct = M3/init["M3"],
-             dose.nmol = dose.nmol)
+           Mfree.pct = M3/init["M3"],
+           dose.nmol = dose.nmol)
   return(out)
 }
 
@@ -353,7 +360,7 @@ compare.thy.sim = function(model                 = model,
   levels(df_thy$type) = c("theory", "simulation")
   levels(df_sim$type) = c("theory", "simulation")
   df_compare = bind_rows(df_thy,df_sim)
-  param = param.to.change
+  param      = param.to.change
   df_compare = df_compare %>%
     mutate(param = param) %>%
     arrange(param.to.change,type) %>%

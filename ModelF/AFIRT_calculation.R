@@ -118,7 +118,7 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
     C = with(pars, (1/V) * ((k21D - gamma)/(gamma - beta)) * ((k31D - gamma)/(gamma - alpha)))
 
     D = dose.nmol
-    Cmin = D*((A*exp(-alpha*tau))/(1 - exp(-alpha*tau)) + 
+    Cmin1 = D*((A*exp(-alpha*tau))/(1 - exp(-alpha*tau)) + 
               (B*exp(-beta *tau))/(1 - exp(-beta *tau)) + 
               (C*exp(-gamma*tau))/(1 - exp(-gamma*tau)))
 
@@ -139,13 +139,14 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
                                           B          = B,
                                           Cavg1      = Cavg1,
                                           Cavg3      = B*Cavg1,
-                                          Cmin.thy   = Cmin,
+                                          Cmin.thy   = Cmin1,
                                           AFIRT.Kssd = AFIRT.Kssd,
                                           AFIRT.Kss  = AFIRT.Kss,
                                           AFIRT.Kd   = AFIRT.Kd,
                                           TFIRT.Kssd = TFIRT.Kssd,
                                           TFIRT.Kss  = TFIRT.Kss,
-                                          TFIRT.Kd   = TFIRT.Kd)
+                                          TFIRT.Kd   = TFIRT.Kd
+                                          )
     return(lumped_parameters_theory)
  }
 
@@ -163,7 +164,7 @@ lumped.parameters.simulation = function(model           = model,
 
     # Arguments:
     #   model_name: name of the model
-    #   params_file_path: full path of the parameters file.
+            #   params_file_path: full path of the parameters file.
     #   dose.nmol: dosing amount in nmol
     #   tmax: maximum doing period in days
     #   tau: dosing interval in days
@@ -208,17 +209,18 @@ lumped.parameters.simulation = function(model           = model,
     
     # Drug concentration
     dose_applied = out %>%
-      filter(time > 0)
-    
+        filter(time > 0)
+  
     # Average drug concentration in central compartment
-    Cavg1 = mean(dose_applied$D1)
+    Cavg1 = mean(steady_state$D1)
+    # Minimum drug concentration in central compartment
+    Cmin1 = min(steady_state$D1)
 
     # Average drug concentration in tumor compartment
-    Cavg3 = mean(dose_applied$D3)
-    
-    # Minimum drug concentration in central compartment
-    Cmin = min(dose_applied$D1)
-
+    Cavg3 = mean(steady_state$D3)
+    # Minimum drug concentration in tumor compartment
+    Cmin3 = min(steady_state$D3)
+  
     # AFIRT and target accumulation
     if (soluble) {
       AFIRT    = mean(steady_state$Sfree.pct)
@@ -242,7 +244,7 @@ lumped.parameters.simulation = function(model           = model,
                                        Tacc.tum  = Tacc.tum,
                                        Cavg1     = Cavg1,
                                        Cavg3     = Cavg3,
-                                       Cmin.sim  = Cmin,
+                                       Cmin.sim  = Cmin1,
                                        B         = Cavg3/Cavg1,
                                        AFIRT     = AFIRT,
                                        AFIRT.sim = AFIRT,

@@ -128,9 +128,9 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
         Tfold = S3tot.ss/S30
     }
      
-    TFIRT.Kssd = Kssd*Tfold/(B*Cmin)
-    TFIRT.Kss  = Kss *Tfold/(B*Cmin)
-    TFIRT.Kd   = Kd  *Tfold/(B*Cmin)
+    TFIRT.Kssd = Kssd*Tfold/(B*Cmin1)
+    TFIRT.Kss  = Kss *Tfold/(B*Cmin1)
+    TFIRT.Kd   = Kd  *Tfold/(B*Cmin1)
 
     lumped_parameters_theory = data.frame(type       = "theory",
                                           M30        = M30,

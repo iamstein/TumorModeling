@@ -27,7 +27,6 @@ joined = NULL
 isSoluble = FALSE
 
 # Load model.
-model = ivsc_4cmtct_shedct()
 # Drugs to explore. 
 drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
 i = 1
@@ -44,11 +43,24 @@ compartment = 2
 dose.nmol = scale.mpk2nmol
 
 # Simulate model.
+source("ivsc_4cmtct_shedct.R")
+model  = ivsc_4cmtct_shedct()
+source("ivsc_4cmtct_shedct2.R")
+model2 = ivsc_4cmtct_shedct2()
 out = simulation(model           = model,
                  param.as.double = param.as.double,
                  dose.nmol       = dose.nmol,
                  tmax            = tmax,
                  tau             = tau)
+out2= simulation(model           = model2,
+                 param.as.double = param.as.double,
+                 dose.nmol       = dose.nmol,
+                 tmax            = tmax,
+                 tau             = tau)
+
+print(out$M3[1])
+print(out2$M3[1])
+
 # Modify for selected output and plotting format.
 out = out %>% 
       select(time,D1,D3,M1,DM1,M3,DM3,S1,DS1,S3,DS3) %>%

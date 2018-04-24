@@ -18,6 +18,19 @@ suppressMessages(source("ams_initialize_script.R"))
 
 ```{r}
 
+for (i in 1:2){
+  
+if (i == 1){
+  target = TRUE
+  title.str = 'Yes Target'
+} else {
+  target = FALSE
+  title.str = 'No Target'
+}
+
+# Load model
+model = ivsc_4cmtct_shedct(target = target)
+
 # Dose time, frequency, compartment, nominal dose
 tmax = 26*7 #days
 tau  = 21   #days
@@ -26,15 +39,13 @@ dose.nmol = scale.mpk2nmol
 joined = NULL
 isSoluble = FALSE
 
-# Load model.
 # Drugs to explore. 
 drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
-i = 1
+j = 1
 # Set file path.
-path = paste0("../data/ModelF_", drugs[i],"_Params.xlsx")
+path = paste0("../data/ModelF_", drugs[j],"_Params.xlsx")
 # Load parameters.
 param.as.double =  read.param.file(path)
-param.as.double
 
 # Dose time, frequency, compartment, nominal dose
 tmax = 26*7 #days
@@ -43,23 +54,16 @@ compartment = 2
 dose.nmol = scale.mpk2nmol
 
 # Simulate model.
-source("ivsc_4cmtct_shedct.R")
-model  = ivsc_4cmtct_shedct()
-source("ivsc_4cmtct_shedct2.R")
-model2 = ivsc_4cmtct_shedct2()
 out = simulation(model           = model,
                  param.as.double = param.as.double,
                  dose.nmol       = dose.nmol,
                  tmax            = tmax,
                  tau             = tau)
-out2= simulation(model           = model2,
-                 param.as.double = param.as.double,
-                 dose.nmol       = dose.nmol,
-                 tmax            = tmax,
-                 tau             = tau)
-
-print(out$M3[1])
-print(out2$M3[1])
+# out2= simulation(model           = model2,
+#                  param.as.double = param.as.double,
+#                  dose.nmol       = dose.nmol,
+#                  tmax            = tmax,
+#                  tau             = tau)
 
 # Modify for selected output and plotting format.
 out = out %>% 
@@ -68,11 +72,13 @@ out = out %>%
 
 # Plot result
 g = ggplot(out, aes(x=time, y=value, group=vars, color=vars)) + 
-    geom_line() +
-    # xlim(0,tmax) + 
-    scale.y.log10()
+    geom_line() + 
+    scale.y.log10() +
+    ggtitle(title.str)
 g = xscale("w27",increment = 3)
 print(g)
+
+}
 
 ```
 

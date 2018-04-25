@@ -1,4 +1,7 @@
-ivsc_4cmtct_shedct = function(target = target) {
+#target = presence of target
+#if TRUE, target is present
+#if FALSE, then target concentratinons are zero
+ivsc_4cmtct_shedct = function(target = TRUE) {
   model           = list()
   # model$name      = as.character(sys.calls()[[sys.nframe()]])
   model$name = 'ivsc_4cmtct_shedct'

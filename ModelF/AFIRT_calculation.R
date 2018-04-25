@@ -93,13 +93,10 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
     AFIRT.Kss  = Kss *Tacc.tum/(B*Cavg1)
     AFIRT.Kd   = Kd  *Tacc.tum/(B*Cavg1)
 
-    Q2 = with(pars, k12D * VD1)
-    Q3 = with(pars, (k13D/k31D) * VD1)
-
-    a0 = with(pars, (CL/VD1)*(Q2/VD2)*(Q3/VD3))
-    a1 = with(pars, (CL/VD1)*(Q3/VD3) + (Q2/VD2)*(Q3/VD3) + (Q2/VD2)*(Q3/VD1) + (CL/VD1)*(Q2/VD2) + (Q3/VD3)*(Q2/VD1))
-    a2 = with(pars, (CL/VD1)+ (Q2/VD1) + (Q3/VD1) + (Q2/VD2) + (Q3/VD3))
-
+    a0 = with(pars, keD1*k21D*k31D)
+    a1 = with(pars, keD1*k31D + k21D*k31D + k21D*k13D + keD1*k21D + k31D*k12D)
+    a2 = with(pars, keD1 + k12D + k13D + k21D + k31D)
+    
     p  = a1 - (a2^2)/3
     q  = 2*(a2^3)/27 - a1*a2/3 + a0 
     r1 = (-(p^3)/27)^0.5

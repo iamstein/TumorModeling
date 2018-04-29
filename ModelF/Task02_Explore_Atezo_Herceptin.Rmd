@@ -24,7 +24,9 @@ model = ivsc_4cmtct_shedct()
 tmax = 26*7 #days
 tau  = 21   #days
 compartment = 2
-
+```
+### Function for comparing theory and simulation
+```{r}
 compare.theory.sim = function(model=model, param.as.double=param.as.double,
                           dose.nmol.range = dose.nmol.range,
                           tmax=tmax,tau=tau,dt=dt,compartment=compartment) {
@@ -46,7 +48,8 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
   }
   df_thy = df_thy %>%
     mutate(Dose = dose.nmol.range,
-           AFIRT = AFIRT.Kssd)
+           AFIRT = AFIRT.Kssd,
+           TFIRT = TFIRT.Kssd)
   
   df_compare = bind_rows(df_thy,df_sim)
   df_compare = df_compare %>%
@@ -129,40 +132,3 @@ df_compare = compare.theory.sim(model = model,
                                 tau  = tau,
                                 compartment = compartment) 
 ```
-
-
-<!-- #### consider case where there is no distribution of DM between compartments -->
-<!-- k13DM = k31DM = 0 -->
-
-<!-- ```{r} -->
-<!--   p = p0 -->
-<!--   p[c("k13DM","k31DM")] = 0 -->
-
-<!-- df_compare = compare.theory.sim(model = model, -->
-<!--                                 param.as.double = p, -->
-<!--                                 dose.nmol.range = dose.nmol.range, -->
-<!--                                 tmax = tmax, -->
-<!--                                 tau  = tau, -->
-<!--                                 compartment = compartment)    -->
-
-<!-- ``` -->
-
-
-<!-- #### koff = 30/d and kon scaled to keep Kd the same -->
-
-<!-- Here, agreement between the simulation and theory is better -->
-
-<!-- ```{r warning=FALSE} -->
-
-<!-- p = p0 -->
-<!-- p[c("koff1","koff3")] = 30 -->
-<!-- p[c("kon1","kon3")] = 12 -->
-
-<!-- df_compare = compare.theory.sim(model = model, -->
-<!--                                 param.as.double = p, -->
-<!--                                 dose.nmol.range = dose.nmol.range, -->
-<!--                                 tmax = tmax, -->
-<!--                                 tau  = tau, -->
-<!--                                 compartment = compartment)  -->
-
-<!-- ``` -->

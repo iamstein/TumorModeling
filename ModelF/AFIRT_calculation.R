@@ -139,12 +139,14 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
                                           Cavg1      = Cavg1,
                                           Cavg3      = B*Cavg1,
                                           Cmin.thy   = Cmin1,
+                                          Cmin       = Cmin1,
                                           AFIRT.Kssd = AFIRT.Kssd,
                                           AFIRT.Kss  = AFIRT.Kss,
                                           AFIRT.Kd   = AFIRT.Kd,
                                           TFIRT.Kssd = TFIRT.Kssd,
                                           TFIRT.Kss  = TFIRT.Kss,
-                                          TFIRT.Kd   = TFIRT.Kd
+                                          TFIRT.Kd   = TFIRT.Kd,
+                                          stringsAsFactors = FALSE
                                           )
     return(lumped_parameters_theory)
  }
@@ -246,11 +248,13 @@ lumped.parameters.simulation = function(model           = model,
                                        Cavg1     = Cavg1,
                                        Cavg3     = Cavg3,
                                        Cmin.sim  = Cmin1,
+                                       Cmin      = Cmin1,
                                        B         = Cavg3/Cavg1,
                                        AFIRT     = AFIRT,
                                        AFIRT.sim = AFIRT,
                                        TFIRT     = TFIRT,
-                                       TFIRT.sim = TFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
+                                       TFIRT.sim = TFIRT,
+                                       stringsAsFactors = FALSE) #having one named sim will be helpful later on in Task01, Task02, etc.
 
     return(lumped_parameters_sim)
 }
@@ -360,8 +364,6 @@ compare.thy.sim = function(model                 = model,
   # Arrange theory and simulation in single data frame.
   
   # I am tired of that "Unequal factor levels" error. This fixes it.
-  levels(df_thy$type) = c("theory", "simulation")
-  levels(df_sim$type) = c("theory", "simulation")
   df_compare = bind_rows(df_thy,df_sim)
   param      = param.to.change
   df_compare = df_compare %>%

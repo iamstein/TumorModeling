@@ -87,16 +87,16 @@ compare.theory.sim = function(model=model, param.as.double=param.as.double,
 }
 ```
 
-### Herceptin
-Because the receptor density of Herceptin is high, it make sense you need much higher doses to get good agreement.  In the clinic, Herceptin is dosed at only 6 mg/kg or `r 6*scale.mpk2nmol` nmol.  
+### Trastuzumab
+Because the receptor density of Trastuzumab is high, it make sense you need much higher doses to get good agreement.  In the clinic, Trastuzumab is dosed at only 6 mg/kg or `r 6*scale.mpk2nmol` nmol.  
 
 What I believe is happening then is all the drug in the tumor (Cavg3) is getting sucked into the tumor and thus intratumoral concentrations are lower than the theory predicts. 
 
-It would mkae sense to check this against other Herceptin modeling papers to see if they agree that there isn't saturation around 6 mg/kg.  Could check in with Greg Thurber at some point.
+It would mkae sense to check this against other Trastuzumab modeling papers to see if they agree that there isn't saturation around 6 mg/kg.  Could check in with Greg Thurber at some point.
 
 ```{r, warning=FALSE}
-param.as.double =  read.param.file("../data/ModelF_Herceptin_Params.xlsx")
-p.herceptin     =  as.data.frame(t(param.as.double))
+param.as.double =  read.param.file("../data/ModelF_Trastuzumab_Params.xlsx")
+p.Trastuzumab     =  as.data.frame(t(param.as.double))
 df_compare = compare.theory.sim(model = model,
                                 param.as.double = param.as.double,
                                 dose.nmol.range = dose.nmol.range,

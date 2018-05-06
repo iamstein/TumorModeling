@@ -2,12 +2,11 @@
 title: "Task05_Sensitivity_Analysis_pt2"
 author: "Miandra Ellis"
 date: "`r format(Sys.time(), '%d %B, %Y')`"
-output: html_document
-# output:
-#   html_document:
-#     toc: true
-#     toc_float: true
-#     code_folding: hide
+output:
+   html_document:
+     toc: true
+     toc_float: true
+     code_folding: hide
 ---
 
 # Preliminary stuff
@@ -38,9 +37,9 @@ suppressMessages(source("ams_initialize_script.R"))
 # Load model.
 model = ivsc_4cmtct_shedct(target = TRUE)
 # Drugs to explore. 
-drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
+drugs = c("Atezolizumab", "Trastuzumab", "Pembrolizumab", "Bevacizumab")
 # List of parameters of interest.
-parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
+parameters = c("dose", "ksynM3", "k13D","k13DM", "kshedDM3", "VD3")
 # names(parameters) = parameters
 # Create vector of soluble drugs.
 soluble = "Bevacizumab"
@@ -83,8 +82,8 @@ for (i in 1:length(drugs)){
   # Check which parameters are nonzero, not including dose which isn't in df_param.
   nnzero = df_param[parameters[which(parameters != "dose")]] != 0
   nnzero = colnames(nnzero)[which(nnzero)]
-  params.to.iterate = data.frame(dose = lseq(scale.mpk2nmol*.1,scale.mpk2nmol*10,7),
-                                 lapply(df_param[nnzero], function(x) lseq(x*0.1, x*10, 7)))
+  params.to.iterate = data.frame(dose = lseq(scale.mpk2nmol*.01,scale.mpk2nmol*100,7),
+                                 lapply(df_param[nnzero], function(x) lseq(x*0.01, x*100, 7)))
   
   dfs = list()
   # Iterate all of the parameters for a single drug.
@@ -105,6 +104,8 @@ for (i in 1:length(drugs)){
   # Reset isSoluble to false since the default in compare.thy.sim is false.
   isSoluble = FALSE
 }
+joined = joined %>%
+  mutate(drug = factor(drug,levels=c("Pembrolizumab","Atezolizumab","Trastuzumab")))
 ```
 
 # Plot the output AFIRT.
@@ -138,7 +139,7 @@ plots.T = joined.T %>% gather(key, TFIRT.value, -param, -fold.change,-drug, -isS
   filter(!is.na(TFIRT.value)) %>%
   # Group by isSoluble to create to separate plots.
   group_by(isSol)%>%
-  do(plot = ggplot(., aes(fold.change, TFIRT.value, color=key)) +
+  do(plot = ggplot(., aes(fold.change, TFIRT.value, color=key, linetype=key)) +
       scale.x.log10() +
       scale.y.log10() +
       geom_line() +
@@ -165,7 +166,7 @@ plots.T$plot
 # Load model.
 model = ivsc_4cmtct_shedct(target = FALSE)
 # Drugs to explore. 
-drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
+drugs = c("Atezolizumab", "Trastuzumab", "Pembrolizumab", "Bevacizumab")
 # List of parameters of interest.
 parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
 # names(parameters) = parameters
@@ -211,7 +212,7 @@ for (i in 1:length(drugs)){
   nnzero = df_param[parameters[which(parameters != "dose")]] != 0
   nnzero = colnames(nnzero)[which(nnzero)]
   params.to.iterate = data.frame(dose = lseq(scale.mpk2nmol*.1,scale.mpk2nmol*10,7),
-                                 lapply(df_param[nnzero], function(x) lseq(x*0.1, x*10, 7)))
+                                 lapply(df_param[nnzero], function(x) lseq(x*0.01, x*100, 7)))
   
   dfs = list()
   # Iterate all of the parameters for a single drug.
@@ -246,7 +247,7 @@ plots.Cmin = joined.Cmin %>% gather(key, Cmin.value, -param, -fold.change,-drug,
   filter(!is.na(Cmin.value)) %>%
   # Group by isSoluble to create to separate plots.
   group_by(isSol)%>%
-  do(plot = ggplot(., aes(fold.change, Cmin.value, color=key)) +
+  do(plot = ggplot(., aes(fold.change, Cmin.value, color=key,linetype=key)) +
       scale.x.log10() +
       scale.y.log10() +
       geom_line() +

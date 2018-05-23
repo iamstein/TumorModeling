@@ -332,9 +332,6 @@ compare.thy.sim = function(model                 = model,
     }
   }
   
-  # df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
-  #                            fold.change = param.to.change.range/median(param.to.change.range))
-  
   if (param.to.change == 'dose'){
     df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
                                fold.change = param.to.change.range/dose.nmol)
@@ -360,9 +357,6 @@ compare.thy.sim = function(model                 = model,
       df_thy = rbind(df_thy, row)
     }
   }
-  
-  # df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
-  #                            fold.change = param.to.change.range/median(param.to.change.range))
   
   if (param.to.change == 'dose'){
     df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,

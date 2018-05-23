@@ -309,8 +309,10 @@ compare.thy.sim = function(model                 = model,
                            param.to.change.range = param.to.change.range,
                            soluble               = FALSE) {
   
-  param.as.double.copy = param.as.double
-  param.to.change.copy = param.to.change
+  # Store the orignal parameter set and parameter to be changed. 
+  # This is needed to divide by the baseline value when calculating the fold change.
+  param.as.double.original = param.as.double
+  param.to.change.original = param.to.change
   
   # Simulation
   
@@ -335,7 +337,7 @@ compare.thy.sim = function(model                 = model,
                                fold.change = param.to.change.range/dose.nmol)
   } else {
     df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
-                               fold.change = param.to.change.range/param.as.double.copy[param.to.change.copy])
+                               fold.change = param.to.change.range/param.as.double.original[param.to.change.original])
   }
   
   # Theory
@@ -361,7 +363,7 @@ compare.thy.sim = function(model                 = model,
                                fold.change = param.to.change.range/dose.nmol)
   } else {
     df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
-                               fold.change = param.to.change.range/param.as.double.copy[param.to.change.copy])
+                               fold.change = param.to.change.range/param.as.double.original[param.to.change.original])
   }
   
   # Arrange theory and simulation in single data frame.

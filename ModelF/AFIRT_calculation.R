@@ -1,11 +1,7 @@
-#----------------------------------------------------------------------------------
-# Helper function that returns a range of variable when performing
-# sensitvity analysis
-#----------------------------------------------------------------------------------
-
+# Helper function that returns a range of variable when performing sensitvity analysis  -----------------------------------------------------
 read.param.file = function(filename) {
   d                      = read_excel(filename, 1)
-  param.as.double        = as.numeric(d$Value)
+  param.as.double        = suppressWarnings(as.numeric(d$Value))
   names(param.as.double) = d$Parameter
   param.as.double        = param.as.double[model$pin] #keep only parameters used in ODE
 }
@@ -23,10 +19,7 @@ lseq = function(from, to, length.out){
     return(sequence)
 }
 
-#----------------------------------------------------------------------------------
-# Function computing lumped parameters from theory
-#----------------------------------------------------------------------------------
-
+# Theoretical lumped parameters #----------------------------------------------------------------------------------
 lumped.parameters.theory = function(param.as.double = param.as.double,
                                     dose.nmol       = dose.nmol,
                                     tau             = tau,
@@ -81,7 +74,8 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
 
     # Biodistribution coefficient (reference: ModelF_Appendix)
     B = with(pars, (k13D/(keD3 + k31D) * (VD1/VD3)))
-
+    Biodist = B
+    
     # Clearance
     CL = with(pars, (keD1*VD1))
 
@@ -125,31 +119,35 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
         Tfold = S3tot.ss/S30
     }
      
-    TFIRT.Kssd = Kssd*Tfold/(B*Cmin1)
-    TFIRT.Kss  = Kss *Tfold/(B*Cmin1)
-    TFIRT.Kd   = Kd  *Tfold/(B*Cmin1)
+    TFIRT.Kssd = Kssd*Tfold/(Biodist*Cmin1)
+    TFIRT.Kss  = Kss *Tfold/(Biodist*Cmin1)
+    TFIRT.Kd   = Kd  *Tfold/(Biodist*Cmin1)
 
     lumped_parameters_theory = data.frame(type       = "theory",
                                           M30        = M30,
+                                          S30        = S30,
                                           M3tot.ss   = M3tot.ss,
+                                          S3tot.ss   = S3tot.ss,
                                           Tacc.tum   = Tacc.tum,
-                                          B          = B,
+                                          B          = Biodist,
                                           Cavg1      = Cavg1,
-                                          Cavg3      = B*Cavg1,
+                                          Cavg3      = Biodist*Cavg1,
                                           Cmin.thy   = Cmin1,
+                                          Cmin       = Cmin1,
                                           AFIRT.Kssd = AFIRT.Kssd,
                                           AFIRT.Kss  = AFIRT.Kss,
                                           AFIRT.Kd   = AFIRT.Kd,
+                                          AFIRT      = AFIRT.Kssd,
                                           TFIRT.Kssd = TFIRT.Kssd,
                                           TFIRT.Kss  = TFIRT.Kss,
-                                          TFIRT.Kd   = TFIRT.Kd
+                                          TFIRT.Kd   = TFIRT.Kd,
+                                          TFIRT      = TFIRT.Kssd,
+                                          stringsAsFactors = FALSE
                                           )
     return(lumped_parameters_theory)
  }
 
-#----------------------------------------------------------------------------------
-# Function simulates the lumped parameters
-#----------------------------------------------------------------------------------
+# Simulated lumped parameters ----------------------------------------------------------------------------------
 
 lumped.parameters.simulation = function(model           = model, 
                                         param.as.double = param.as.double,
@@ -238,22 +236,24 @@ lumped.parameters.simulation = function(model           = model,
     lumped_parameters_sim = data.frame(type      = "simulation",
                                        M30       = M30,
                                        M3tot.ss  = M3tot.ss,
+                                       S30       = S30,
+                                       S3tot.ss  = S3tot.ss,
                                        Tacc.tum  = Tacc.tum,
                                        Cavg1     = Cavg1,
                                        Cavg3     = Cavg3,
                                        Cmin.sim  = Cmin1,
+                                       Cmin      = Cmin1,
                                        B         = Cavg3/Cavg1,
                                        AFIRT     = AFIRT,
                                        AFIRT.sim = AFIRT,
                                        TFIRT     = TFIRT,
-                                       TFIRT.sim = TFIRT) #having one named sim will be helpful later on in Task01, Task02, etc.
+                                       TFIRT.sim = TFIRT,
+                                       stringsAsFactors = FALSE) #having one named sim will be helpful later on in Task01, Task02, etc.
 
     return(lumped_parameters_sim)
 }
 
-#----------------------------------------------------------------------------------
-# Function runs simulation
-#----------------------------------------------------------------------------------
+# Runs simulation -----------------------------------------------------
 
 
 simulation = function(model           = model, 
@@ -282,10 +282,8 @@ simulation = function(model           = model,
   return(out)
 }
 
-#----------------------------------------------------------------------------------
-# This function does the sensitivity analysis on the user inputted parameter 
-# and compares the theoretical result to the simulated result.
-#----------------------------------------------------------------------------------
+# Compare Theory to Simulation for sensitivity analysis ----------------------------------------------------------------------------------
+#  on the user inputted parameter 
 
 # Input: 
 # model - model system of ODE's solved with RxODE. In this project, it is 'ivsc_4cmtct_shedct'.
@@ -369,8 +367,6 @@ compare.thy.sim = function(model                 = model,
   # Arrange theory and simulation in single data frame.
   
   # I am tired of that "Unequal factor levels" error. This fixes it.
-  levels(df_thy$type) = c("theory", "simulation")
-  levels(df_sim$type) = c("theory", "simulation")
   df_compare = bind_rows(df_thy,df_sim)
   param      = param.to.change
   df_compare = df_compare %>%
@@ -380,35 +376,3 @@ compare.thy.sim = function(model                 = model,
   
   return(df_compare)
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-

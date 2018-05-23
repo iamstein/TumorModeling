@@ -309,6 +309,9 @@ compare.thy.sim = function(model                 = model,
                            param.to.change.range = param.to.change.range,
                            soluble               = FALSE) {
   
+  param.as.double.copy = param.as.double
+  param.to.change.copy = param.to.change
+  
   # Simulation
   
   df_sim = data.frame()
@@ -327,8 +330,13 @@ compare.thy.sim = function(model                 = model,
     }
   }
   
-  df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
-                             fold.change = param.to.change.range/median(param.to.change.range))
+  if (param.to.change == 'dose'){
+    df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
+                               fold.change = param.to.change.range/dose.nmol)
+  } else {
+    df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
+                               fold.change = param.to.change.range/param.as.double.copy[param.to.change.copy])
+  }
   
   # Theory
   
@@ -348,8 +356,13 @@ compare.thy.sim = function(model                 = model,
     }
   }
   
-  df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
-                             fold.change = param.to.change.range/median(param.to.change.range))
+  if (param.to.change == 'dose'){
+    df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
+                               fold.change = param.to.change.range/dose.nmol)
+  } else {
+    df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
+                               fold.change = param.to.change.range/param.as.double.copy[param.to.change.copy])
+  }
   
   # Arrange theory and simulation in single data frame.
   

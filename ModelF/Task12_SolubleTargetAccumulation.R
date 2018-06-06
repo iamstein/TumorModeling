@@ -1,0 +1,95 @@
+# Preliminary stuff
+
+# Need this to get rxode working. I don't know why I keep having to run this.
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:/RBuildTools/3.4/bin/",
+            "C:/RBuildTools/3.4/mingw_64/bin", sep = ";"))
+Sys.setenv(BINPREF = "C:/RBuildTools/3.4/mingw_64/bin/")
+
+# To be called at the top of every Rmd file. Initialization code and some useful constants.
+suppressMessages(source("ams_initialize_script.R"))
+
+# --------------------------------------------------------------------------------
+# Initialize.
+# --------------------------------------------------------------------------------
+
+# Load model.
+model = ivsc_4cmtct_shedct()
+# Drugs to explore. 
+drugs = c("Bevacizumab")
+# List of parameters of interest.
+parameters = c("keS3")
+# Create vector of soluble drugs.
+soluble = "Bevacizumab"
+
+# Create paths to data files for each drug.
+paths = NULL
+for (i in 1:length(drugs)) {
+  paths[i] = paste0("../data/ModelF_", drugs[i],"_Params.xlsx")
+}
+
+# Dose time, frequency, compartment, nominal dose
+tmax = 26*7 #days
+tau  = 21   #days
+compartment = 2
+dose.nmol = scale.mpk2nmol
+joined = NULL
+isSoluble = FALSE
+
+# --------------------------------------------------------------------------------
+# Iterate over all the drugs.
+# --------------------------------------------------------------------------------
+
+for (i in 1:length(drugs)){
+  # Load parameters.
+  param.as.double =  read.param.file(paths[i])
+  df_param =  as.data.frame(t(param.as.double))
+  
+  # Check if drug has soluble target.
+  if (drugs[i] %in% soluble) {
+    # Change any non-shed parameters including M to S.
+    parameters = sapply(parameters, 
+                        function(x) {
+                          if (!grepl("shed|dose",x)) {return(gsub("M","S", x))}
+                          return(x)
+                        })
+    isSoluble = TRUE
+  }
+
+  # Set range for parameters of interest in SA.
+  # Check which parameters are nonzero, not including dose which isn't in df_param.
+  nnzero = df_param[parameters[which(parameters != "dose")]] != 0
+  nnzero = colnames(nnzero)[which(nnzero)]
+  params.to.iterate = data.frame(lapply(df_param[nnzero], function(x) lseq(x*0.1, x*10, 7)))
+  
+  dfs = list()
+  # Iterate all of the parameters for a single drug.
+  for (j in 1:ncol(params.to.iterate)){
+    dfs[[j]] = compare.thy.sim(model = model,
+                               param.as.double = param.as.double,
+                               dose.nmol = dose.nmol,
+                               tmax = tmax,
+                               tau  = tau,
+                               compartment = compartment,
+                               param.to.change = names(params.to.iterate)[j],
+                               param.to.change.range = params.to.iterate[[j]],
+                               soluble = isSoluble)
+    dfs[[j]] = dfs[[j]] %>% mutate(drug = drugs[i], isSol = isSoluble, 
+                                   test = Tacc.tum*param.to.change/df_param[["keDS3"]])
+                                   }
+  joined = bind_rows(joined,dfs)
+  
+  # Reset isSoluble to false since the default in compare.thy.sim is false.
+  isSoluble = FALSE
+}
+
+# I only wanted a subset of the parameters for gather.
+joined = joined[c("AFIRT.sim","drug","param.to.change", "Tacc.tum")] %>% 
+    gather(key, AFIRT.value,-drug, -param.to.change, -Tacc.tum) %>%
+    filter(!is.na(AFIRT.value))
+
+# Use gather to make the long data frame for ggplot.
+ggplot(joined, aes(x = Tacc.tum, y = AFIRT.value, color = key)) +
+    scale.x.log10() +
+    scale.y.log10() +
+    geom_point() +
+    geom_line()

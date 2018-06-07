@@ -1,0 +1,196 @@
+# Preliminary stuff
+    
+# Need this to get rxode working. I don't know why I keep having to run this.
+Sys.setenv(PATH = paste(Sys.getenv("PATH"), "C:/RBuildTools/3.4/bin/",
+                        "C:/RBuildTools/3.4/mingw_64/bin", sep = ";"))
+Sys.setenv(BINPREF = "C:/RBuildTools/3.4/mingw_64/bin/")
+
+# To be called at the top of every Rmd file. Initialization code and some useful constants.
+suppressMessages(source("ams_initialize_script.R"))
+
+# Function to compute sensitivity analysis
+
+# This function does the sensitivity analysis on the user inputted parameter and compares the theoretical result to the simulated result.
+
+# Input: 
+# model - model system of ODE's solved with RxODE. In this project, it is 'ivsc_4cmtct_shedct'.
+# param.as.double - read parameters from Excel file. read.param.file("file directory").
+# dose.nmol - dose in nmol.
+# tmax - time of treatment in days
+# tau - frequency of administering dose in days
+# compartment - compartment where drug is administered
+# param.to.change - parameter on which to do SA. This must be a string.
+# param.to.change.range - range of parameter on which to do SA. The range must be symmetric in fold change. This must be a vector of odd length.
+# soluble - boolean that is true/false if the drug is soluble/insoluble. Need this since soluble and insoluble are treated differently.
+
+# Output:
+# Data frame of AFIRT vs parameter value
+
+compare.thy.sim = function(model = model, 
+                           param.as.double = param.as.double,
+                           dose.nmol = dose.nmol,
+                           tmax = tmax,
+                           tau = tau,
+                           compartment = compartment,
+                           param.to.change = param.to.change,
+                           param.to.change.range = param.to.change.range,
+                           soluble = FALSE) {
+    
+    # --------------------------------------------------------------------------------
+    # Simulation
+    # --------------------------------------------------------------------------------
+    
+    df_sim = data.frame()
+    # Iterate through values in range.
+    if (param.to.change == 'dose'){
+        for (param.iter in param.to.change.range){
+            row = lumped.parameters.simulation(model, param.as.double, param.iter, tmax, tau, compartment, soluble)
+            df_sim = rbind(df_sim, row)
+        }  
+    } else {
+        for (param.iter in param.to.change.range){
+            param.as.double[param.to.change] = param.iter
+            row = lumped.parameters.simulation(model, param.as.double, dose.nmol, tmax, tau, compartment, soluble)
+            df_sim = rbind(df_sim, row)
+        }
+    }
+    df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
+                               fold.change = param.to.change.range/median(param.to.change.range))
+    
+    # --------------------------------------------------------------------------------
+    # Theory
+    # --------------------------------------------------------------------------------
+    
+    df_thy = data.frame()
+    
+    # Iterate through values in range.
+    if (param.to.change == 'dose'){
+        for (param.iter in param.to.change.range){
+            row = lumped.parameters.theory(param.as.double, param.iter, tau, soluble)
+            df_thy = rbind(df_thy, row)
+        }
+    } else{
+        for (param.iter in param.to.change.range){
+            param.as.double[param.to.change] = param.iter
+            row = lumped.parameters.theory(param.as.double, dose.nmol, tau, soluble)
+            df_thy = rbind(df_thy, row)
+        }
+    }
+    
+    df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
+                               fold.change = param.to.change.range/median(param.to.change.range))
+    
+    # --------------------------------------------------------------------------------
+    # Arrange theory and simulation in single data frame.
+    # --------------------------------------------------------------------------------
+    
+    # I am tired of that "Unequal factor levels" error. This fixes it.
+    levels(df_thy$type) = c("theory", "simulation")
+    levels(df_sim$type) = c("theory", "simulation")
+    df_compare = bind_rows(df_thy,df_sim)
+    param = param.to.change
+    df_compare = df_compare %>%
+        mutate(param = param) %>%
+        arrange(param.to.change,type) %>%
+        mutate_if(is.numeric,signif,2)
+    return(df_compare)
+}
+
+# Create data frame for multiple drugs and parameters.
+
+
+# Note: Insoluble and soluble drugs are treated differently. 
+# For insoluble, Tacc = M3totss/M30. For soluble, Tacc = S3totss/S30. 
+# We are also interested in different parameters in the SA for either case.
+# See writeup for details.
+
+# --------------------------------------------------------------------------------
+# Initialize.
+# --------------------------------------------------------------------------------
+
+# Load model.
+model = ivsc_4cmtct_shedct()
+# Drugs to explore. 
+drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
+# List of parameters of interest.
+parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
+# Create vector of soluble drugs.
+soluble = "Bevacizumab"
+
+# Create paths to data files for each drug.
+paths = NULL
+for (i in 1:length(drugs)) {
+    paths[i] = paste0("../data/ModelF_", drugs[i],"_Params.xlsx")
+}
+
+# Dose time, frequency, compartment, nominal dose
+tmax = 26*7 #days
+tau  = 21   #days
+compartment = 2
+dose.nmol = scale.mpk2nmol
+joined = NULL
+isSoluble = FALSE
+
+# --------------------------------------------------------------------------------
+# Iterate over all the drugs.
+# --------------------------------------------------------------------------------
+
+for (i in 1:length(drugs)){
+    # Load parameters.
+    param.as.double =  read.param.file(paths[i])
+    df_param =  as.data.frame(t(param.as.double))
+    
+    # Check if drug has soluble target.
+    if (drugs[i] %in% soluble) {
+        # Change any non-shed parameters including M to S.
+        parameters = sapply(parameters, 
+                            function(x) {
+                                if (!grepl("shed|dose",x)) {return(gsub("M","S", x))}
+                                return(x)
+                            })
+        isSoluble = TRUE
+    }
+    
+    # Set range for parameters of interest in SA.
+    # Check which parameters are nonzero, not including dose which isn't in df_param.
+    nnzero = df_param[parameters[which(parameters != "dose")]] != 0
+    nnzero = colnames(nnzero)[which(nnzero)]
+    params.to.iterate = data.frame(dose = lseq(scale.mpk2nmol*.1,scale.mpk2nmol*10,7),
+                                   lapply(df_param[nnzero], function(x) lseq(x*0.1, x*10, 7)))
+    
+    dfs = list()
+    # Iterate all of the parameters for a single drug.
+    for (j in 1:ncol(params.to.iterate)){
+        dfs[[j]] = compare.thy.sim(model = model,
+                                   param.as.double = param.as.double,
+                                   dose.nmol = dose.nmol,
+                                   tmax = tmax,
+                                   tau  = tau,
+                                   compartment = compartment,
+                                   param.to.change = names(params.to.iterate)[j],
+                                   param.to.change.range = params.to.iterate[[j]],
+                                   soluble = isSoluble)
+        dfs[[j]] = dfs[[j]] %>% mutate(drug = drugs[i], isSol = isSoluble)
+    }
+    joined = bind_rows(joined,dfs)
+    
+    # Reset isSoluble to false since the default in compare.thy.sim is false.
+    isSoluble = FALSE
+}
+
+# I only wanted a subset of the parameters for gather.
+joined = joined[c("fold.change","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", 
+                  "TFIRT.Kssd", "TFIRT.Kss", "TFIRT.Kd", "TFIRT.sim","param","drug", "isSol")] %>% 
+         gather(key, AFIRT.value, -param, -fold.change,-drug, -isSol) %>%
+         filter(!is.na(AFIRT.value)) 
+    
+plots = joined %>%
+    # Group by isSoluble to create to separate plots.
+    group_by(str_detect(key,"AFIRT"))%>%
+    do(plot = ggplot(., aes(fold.change, AFIRT.value, color=key)) +
+           scale.x.log10() +
+           scale.y.log10() +
+           geom_line() +
+           geom_point() +
+           facet_grid(drug ~ param))
+plots$plot

@@ -17,7 +17,7 @@ suppressMessages(source("ams_initialize_script.R"))
 # Load model.
 model = ivsc_4cmtct_shedct(target = TRUE)
 # Drugs to explore. 
-drugs = c("Atezolizumab", "Herceptin", "Pembrolizumab", "Bevacizumab")
+drugs = c("Atezolizumab", "Trastuzumab", "Pembrolizumab", "Bevacizumab")
 # List of parameters of interest.
 parameters = c("dose")
 # names(parameters) = parameters
@@ -82,15 +82,18 @@ for (i in 1:length(drugs)){
 # Plot the output AFIRT ----
 
 # I only wanted a subset of the parameters for gather.
-joined.A = joined[c("fold.change.param","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug", "isSol","M30","S30")]
+joined.AT = joined[c("fold.change.param","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "TFIRT.Kssd", "TFIRT.Kss", "TFIRT.Kd", "TFIRT.sim","param","drug", "isSol","M30","S30")]
 
 # Use gather to make the long data frame for ggplot.
-plots.A = joined.A %>% 
+plots.AT = joined.AT %>% 
   gather(key, AFIRT.value, -param, -fold.change.param,-drug, -isSol, -M30, -S30) %>%
   filter(!is.na(AFIRT.value)) %>%
   mutate(Target = ifelse(isSol,"Soluble","Membrane-Bd"),
          Target = factor(Target,levels=c("Soluble","Membrane-Bd")),
-         key    = str_replace(key,"AFIRT.",""),
+         AT     = NA,
+         AT     = ifelse(str_detect(key,"AFIRT"),"AFIRT",AT),
+         AT     = ifelse(str_detect(key,"TFIRT"),"TFIRT",AT),
+         key    = str_replace(key,"\\wFIRT.",""),
          key    = str_replace(key,"sim","simulation"),
          key    = str_replace(key,"K","theory.K"),
          key    = factor(key,levels=c("simulation","theory.Kssd","theory.Kss","theory.Kd")),
@@ -99,7 +102,10 @@ plots.A = joined.A %>%
   mutate(drug   = str_replace(drug,"Herceptin","Trastuzumab"),
          drug = factor(drug,levels=c("Bevacizumab","Pembrolizumab","Atezolizumab","Trastuzumab")))
 
-g = ggplot(plots.A, aes(fold.change.param, AFIRT.value, color=key, shape=key, linetype=key, alpha=key))
+  plots.A = filter(plots.AT,AT!="TFIRT")
+  plots.T = filter(plots.AT,AT!="AFIRT")
+
+g = ggplot(plots.A, aes(fold.change.param, AFIRT.value, color=key, shape=key, linetype=key))
 g = g + scale.x.log10(limits=c(.05,10))
 g = g + scale.y.log10()
 g = g + geom_line(mapping=aes(size=key))
@@ -110,8 +116,7 @@ g = g + labs(x     = "Dose (mg/kg) every 3 weeks",
              color = "",
              shape = "",
              size  = "",
-             linetype="",
-             alpha = "")
+             linetype="")
 g = g + scale_color_manual(values = c(simulation = "black",
                                       theory.Kd  = "red",
                                       theory.Kss = "green4",
@@ -134,6 +139,12 @@ g = g + scale_alpha_manual(values  = c(simulation = .5,
                                        theory.Kssd = 1))
 
 print(g)
-ggsave("../results/Task09_PAGE_Figure.pdf",width = 8,height=2.7)
+width = 7
+height = 2.7
+ggsave("../results/Task09_PAGE_Figure_AFTIR.pdf",width = width,height=height)
 
+g = g %+% plots.T
+g = g + labs(y="Trough Free Tissue target to\ninitial target Ratio (TFTIR)")
+print(g)
+ggsave("../results/Task09_PAGE_Figure_TFTIR.pdf",width = width,height=height)
 

@@ -332,7 +332,6 @@ compare.thy.sim = function(model                 = model,
     }
   }
   
-  # Add fold change column for parameter of interest.
   if (param.to.change == 'dose'){
     df_sim = df_sim %>% mutate(param.to.change = param.to.change.range,
                                fold.change.param = param.to.change.range/dose.nmol)
@@ -369,7 +368,6 @@ compare.thy.sim = function(model                 = model,
     }
   }
   
-  # Add fold change column for parameter of interest.
   if (param.to.change == 'dose'){
     df_thy = df_thy %>% mutate(param.to.change = param.to.change.range,
                                fold.change.param = param.to.change.range/dose.nmol)
@@ -389,6 +387,7 @@ compare.thy.sim = function(model                 = model,
   df_thy = df_thy %>% mutate(fold.change.AFIRT.Kss  = AFIRT.Kss /AFIRT.Kss [baseline.index])
   df_thy = df_thy %>% mutate(fold.change.AFIRT.Kd   = AFIRT.Kd  /AFIRT.Kd  [baseline.index])
   df_thy = df_thy %>% mutate(fold.change.Tacc.tum   = Tacc.tum  /Tacc.tum  [baseline.index])
+  }
   
   # Arrange theory and simulation in single data frame.
   

@@ -387,7 +387,6 @@ compare.thy.sim = function(model                 = model,
   df_thy = df_thy %>% mutate(fold.change.AFIRT.Kss  = AFIRT.Kss /AFIRT.Kss [baseline.index])
   df_thy = df_thy %>% mutate(fold.change.AFIRT.Kd   = AFIRT.Kd  /AFIRT.Kd  [baseline.index])
   df_thy = df_thy %>% mutate(fold.change.Tacc.tum   = Tacc.tum  /Tacc.tum  [baseline.index])
-  }
   
   # Arrange theory and simulation in single data frame.
   

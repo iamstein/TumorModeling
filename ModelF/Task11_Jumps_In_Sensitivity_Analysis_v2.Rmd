@@ -75,13 +75,13 @@ AFIRT = compare.thy.sim(model=model,
                     soluble = FALSE)
 
 # get the relevant data from the above frame
-relevant = AFIRT[c("fold.change", "AFIRT.Kssd", "AFIRT.Kss","AFIRT.Kd", "AFIRT.sim", "param")]
+relevant = AFIRT[c("fold.change.param", "AFIRT.Kssd", "AFIRT.Kss","AFIRT.Kd", "AFIRT.sim", "param")]
 
 relevant = relevant %>% 
-  gather(key, AFIRT.value, -param, -fold.change) %>%
+  gather(key, AFIRT.value, -param, -fold.change.param) %>%
   filter(!is.na(AFIRT.value))
 
-g = ggplot(relevant, aes(fold.change, AFIRT.value, color=key, linetype=key)) +
+g = ggplot(relevant, aes(fold.change.param, AFIRT.value, color=key, linetype=key)) +
   scale.x.log10() + 
   scale.y.log10() + 
   geom_line() + 
@@ -105,13 +105,13 @@ AFIRT = compare.thy.sim(model=model,
                     soluble = FALSE)
 
 # get the relevant data from the above frame
-relevant = AFIRT[c("fold.change", "AFIRT.Kssd", "AFIRT.Kss","AFIRT.Kd", "AFIRT.sim", "param")]
+relevant = AFIRT[c("fold.change.param", "AFIRT.Kssd", "AFIRT.Kss","AFIRT.Kd", "AFIRT.sim", "param")]
 
 relevant = relevant %>% 
-  gather(key, AFIRT.value, -param, -fold.change) %>%
+  gather(key, AFIRT.value, -param, -fold.change.param) %>%
   filter(!is.na(AFIRT.value))
 
-g = ggplot(relevant, aes(fold.change, AFIRT.value, color=key, linetype=key)) +
+g = ggplot(relevant, aes(fold.change.param, AFIRT.value, color=key, linetype=key)) +
   scale.x.log10() + 
   scale.y.log10() + 
   geom_line() + 

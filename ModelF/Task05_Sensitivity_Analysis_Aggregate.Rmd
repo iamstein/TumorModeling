@@ -112,14 +112,14 @@ joined = joined %>%
 
 ```{r}
 # I only wanted a subset of the parameters for gather.
-joined.A = joined[c("fold.change","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug", "isSol")]
+joined.A = joined[c("fold.change.param","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug", "isSol")]
 
 # Use gather to make the long data frame for ggplot.
-plots.A = joined.A %>% gather(key, AFIRT.value, -param, -fold.change,-drug, -isSol) %>%
+plots.A = joined.A %>% gather(key, AFIRT.value, -param, -fold.change.param,-drug, -isSol) %>%
   filter(!is.na(AFIRT.value)) %>%
   # Group by isSoluble to create to separate plots.
   group_by(isSol)%>%
-  do(plot = ggplot(., aes(fold.change, AFIRT.value, color=key)) +
+  do(plot = ggplot(., aes(fold.change.param, AFIRT.value, color=key)) +
       scale.x.log10() +
       scale.y.log10() +
       geom_line() +
@@ -132,14 +132,14 @@ plots.A$plot
 
 ```{r}
 # I only wanted a subset of the parameters for gather.
-joined.T = joined[c("fold.change","TFIRT.Kssd", "TFIRT.Kss", "TFIRT.Kd", "TFIRT.sim", "param","drug", "isSol")]
+joined.T = joined[c("fold.change.param","TFIRT.Kssd", "TFIRT.Kss", "TFIRT.Kd", "TFIRT.sim", "param","drug", "isSol")]
 
 # Use gather to make the long data frame for ggplot.
-plots.T = joined.T %>% gather(key, TFIRT.value, -param, -fold.change,-drug, -isSol) %>%
+plots.T = joined.T %>% gather(key, TFIRT.value, -param, -fold.change.param,-drug, -isSol) %>%
   filter(!is.na(TFIRT.value)) %>%
   # Group by isSoluble to create to separate plots.
   group_by(isSol)%>%
-  do(plot = ggplot(., aes(fold.change, TFIRT.value, color=key, linetype=key)) +
+  do(plot = ggplot(., aes(fold.change.param, TFIRT.value, color=key, linetype=key)) +
       scale.x.log10() +
       scale.y.log10() +
       geom_line() +
@@ -240,14 +240,14 @@ for (i in 1:length(drugs)){
 ```{r}
 
 # I only wanted a subset of the parameters for gather.
-joined.Cmin = joined[c("fold.change","Cmin.thy", "Cmin.sim", "param","drug", "isSol")]
+joined.Cmin = joined[c("fold.change.param","Cmin.thy", "Cmin.sim", "param","drug", "isSol")]
 
 # Use gather to make the long data frame for ggplot.
-plots.Cmin = joined.Cmin %>% gather(key, Cmin.value, -param, -fold.change,-drug, -isSol) %>%
+plots.Cmin = joined.Cmin %>% gather(key, Cmin.value, -param, -fold.change.param,-drug, -isSol) %>%
   filter(!is.na(Cmin.value)) %>%
   # Group by isSoluble to create to separate plots.
   group_by(isSol)%>%
-  do(plot = ggplot(., aes(fold.change, Cmin.value, color=key,linetype=key)) +
+  do(plot = ggplot(., aes(fold.change.param, Cmin.value, color=key,linetype=key)) +
       scale.x.log10() +
       scale.y.log10() +
       geom_line() +

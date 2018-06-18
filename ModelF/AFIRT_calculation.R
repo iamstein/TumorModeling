@@ -342,11 +342,12 @@ compare.thy.sim = function(model                 = model,
   }
   
   # Add fold change column for variables of interest.
-  for (i in 1:length(df_sim$param.to.change)){
-    if(round(df_sim$param.to.change[i], digits=4) == round(as.numeric(param.as.double.original[param.to.change.original]), digits=4)){
-      baseline.index = i
-    }
+  if (param.to.change == 'dose'){
+    baseline.index = which(round(df_sim$param.to.change, digits=4) == round(as.numeric(dose.nmol), digits=4))
+  } else {
+    baseline.index = which(round(df_sim$param.to.change, digits=4) == round(as.numeric(param.as.double.original[param.to.change.original]), digits=4))
   }
+
   df_sim = df_sim %>% mutate(fold.change.AFIRT.sim = AFIRT.sim/AFIRT.sim[baseline.index])
   df_sim = df_sim %>% mutate(fold.change.Tacc.tum  = Tacc.tum /Tacc.tum [baseline.index])
   
@@ -378,11 +379,12 @@ compare.thy.sim = function(model                 = model,
   }
   
   # Add fold change column for variables of interest.
-  for (i in 1:length(df_thy$param.to.change)){
-    if(round(df_thy$param.to.change[i], digits=4) == round(as.numeric(param.as.double.original[param.to.change.original]), digits=4)){
-      baseline.index = i
-    }
+  if (param.to.change == 'dose'){
+    baseline.index = which(round(df_thy$param.to.change, digits=4) == round(as.numeric(dose.nmol), digits=4))
+  } else {
+    baseline.index = which(round(df_thy$param.to.change, digits=4) == round(as.numeric(param.as.double.original[param.to.change.original]), digits=4))
   }
+
   df_thy = df_thy %>% mutate(fold.change.AFIRT.Kssd = AFIRT.Kssd/AFIRT.Kssd[baseline.index])
   df_thy = df_thy %>% mutate(fold.change.AFIRT.Kss  = AFIRT.Kss /AFIRT.Kss [baseline.index])
   df_thy = df_thy %>% mutate(fold.change.AFIRT.Kd   = AFIRT.Kd  /AFIRT.Kd  [baseline.index])

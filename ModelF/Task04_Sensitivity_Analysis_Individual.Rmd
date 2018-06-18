@@ -44,7 +44,7 @@ if (drugs[i] %in% soluble) {
 # Set parameter of interest and range for SA.
 dose.nmol.range = lseq(.1,10,7)*scale.mpk2nmol
 param.to.change = 'keS3'
-param.to.change.range = lseq(as.numeric(df_param[param.to.change])*.01, as.numeric(df_param[param.to.change])*100, 7)
+param.to.change.range = lseq(as.numeric(df_param[param.to.change])*.0001, as.numeric(df_param[param.to.change])*10000, 7)
 
 # Dose time, frequency, compartment
 tmax = 26*7 #days
@@ -68,13 +68,14 @@ df_sim = subset(df_compare, type=='simulation')
 df_thy = subset(df_compare, type=='theory')
 
 # Plot.
-ggplot(df_sim, aes(x=fold.change.param, y=fold.change.AFIRT.sim)) + 
+ggplot(df_sim, aes(x=Tacc.tum, y=AFIRT.sim)) + 
   geom_line() + 
   geom_point() +
   scale.x.log10() +
-  # scale.y.log10() +
-  scale.y.log10(limits=c(10^-2, 10^2)) +
-  labs(x=param.to.change, y='AFIRT')
+  scale.y.log10() +
+  # scale.y.log10(limits=c(10^-4, 10^4)) +
+  # labs(x=param.to.change, y='AFIRT')
+  labs(x='Target Accumulation', y='AFIRT')
 
 ```
 

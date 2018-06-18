@@ -82,11 +82,11 @@ for (i in 1:length(drugs)){
 # Plot the output AFIRT ----
 
 # I only wanted a subset of the parameters for gather.
-joined.A = joined[c("fold.change","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug", "isSol","M30","S30")]
+joined.A = joined[c("fold.change.param","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug", "isSol","M30","S30")]
 
 # Use gather to make the long data frame for ggplot.
 plots.A = joined.A %>% 
-  gather(key, AFIRT.value, -param, -fold.change,-drug, -isSol, -M30, -S30) %>%
+  gather(key, AFIRT.value, -param, -fold.change.param,-drug, -isSol, -M30, -S30) %>%
   filter(!is.na(AFIRT.value)) %>%
   mutate(Target = ifelse(isSol,"Soluble","Membrane-Bd"),
          Target = factor(Target,levels=c("Soluble","Membrane-Bd")),
@@ -99,7 +99,7 @@ plots.A = joined.A %>%
   mutate(drug   = str_replace(drug,"Herceptin","Trastuzumab"),
          drug = factor(drug,levels=c("Bevacizumab","Pembrolizumab","Atezolizumab","Trastuzumab")))
 
-g = ggplot(plots.A, aes(fold.change, AFIRT.value, color=key, shape=key, linetype=key, alpha=key))
+g = ggplot(plots.A, aes(fold.change.param, AFIRT.value, color=key, shape=key, linetype=key, alpha=key))
 g = g + scale.x.log10(limits=c(.05,10))
 g = g + scale.y.log10()
 g = g + geom_line(mapping=aes(size=key))

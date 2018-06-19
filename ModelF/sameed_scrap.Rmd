@@ -111,6 +111,36 @@ joined = joined %>%
 # Plot the output variable of interest
 
 ```{r}
+# I only wanted a subset of the parameters for gather.
+joined.A = joined[c("fold.change.param","AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug", "isSol")]
+joined.T = joined[c("fold.change.param","TFIRT.Kssd", "TFIRT.Kss", "TFIRT.Kd", "TFIRT.sim", "param","drug", "isSol")]
+
+# Use gather to make the long data frame for ggplot. Group by isSoluble to create to separate plots.
+plots.A = joined.A %>% gather(key, Value, -param, -fold.change.param, -drug, -isSol) %>%
+  filter(!is.na(Value)) %>%
+  group_by(isSol) 
+
+plots.T = joined.T %>% gather(key, Value, -param, -fold.change.param, -drug, -isSol) %>%
+  filter(!is.na(Value)) %>%
+  group_by(isSol) 
+
+g = ggplot(plots.A, aes(fold.change.param, Value, color=key)) +
+      scale.x.log10() +
+      scale.y.log10() +
+      geom_line() +
+      geom_point() +
+      facet_grid(drug ~ param)
+
+plot(g)
+
+g = g %+% plots.T
+
+plot(g)
+```
+
+
+
+```{r}
 
 ##################### User input #####################
 # Variable of interest. Options: 'AFIRT', 'TFIRT' 
@@ -137,15 +167,6 @@ plot.all = joined.plot %>% gather(key, Value, -param, -fold.change.param, -drug,
      geom_point() + 
      facet_grid(drug ~ param))
 plot.all$plot
-
-# g = ggplot(plot.all, aes(fold.change.param, Value, color=key)) +
-#       scale.x.log10() +
-#       scale.y.log10() +
-#       geom_line() +
-#       geom_point() + 
-#       facet_grid(drug ~ param)
-# 
-# plot(g)
 ```
 
 

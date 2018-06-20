@@ -104,7 +104,6 @@ for (i in 1:length(drugs)){
   # Reset isSoluble to false since the default in compare.thy.sim is false.
   isSoluble = FALSE
 }
-
 joined = joined %>%
   mutate(drug = factor(drug,levels=c("Atezolizumab", "Trastuzumab", "Pembrolizumab", "Bevacizumab")))
 ```
@@ -139,115 +138,36 @@ g = g %+% plots.T
 plot(g)
 ```
 
-# Create data frame for multiple drugs and parameters.
-# This is redone for no target in order to compare Cmin.
-# The only difference is 'target = FALSE' is the input for the model.
 
-```{r, include=FALSE}
-
-# Note: Insoluble and soluble drugs are treated differently. 
-# For insoluble, Tacc = M3totss/M30. For soluble, Tacc = S3totss/S30. 
-# We are also interested in different parameters in the SA for either case.
-# See writeup for details.
-
-# --------------------------------------------------------------------------------
-# Initialize.
-# --------------------------------------------------------------------------------
-
-# Load model.
-model = ivsc_4cmtct_shedct(target = FALSE)
-# Drugs to explore. 
-drugs = c("Atezolizumab", "Trastuzumab", "Pembrolizumab", "Bevacizumab")
-# List of parameters of interest.
-parameters = c("dose", "ksynM3", "k13D", "kshedM3", "kshedDM3", "VD3")
-# names(parameters) = parameters
-# Create vector of soluble drugs.
-soluble = "Bevacizumab"
-
-# Create paths to data files for each drug.
-paths = NULL
-for (i in 1:length(drugs)) {
-  paths[i] = paste0("../data/ModelF_", drugs[i],"_Params.xlsx")
-}
-
-# Dose time, frequency, compartment, nominal dose
-tmax = 26*7 #days
-tau  = 21   #days
-compartment = 2
-dose.nmol = scale.mpk2nmol
-joined = NULL
-isSoluble = FALSE
-
-# --------------------------------------------------------------------------------
-# Iterate over all the drugs.
-# --------------------------------------------------------------------------------
-
-for (i in 1:length(drugs)){
-  # Load parameters.
-  param.as.double =  read.param.file(paths[i])
-  df_param =  as.data.frame(t(param.as.double))
-  
-  # Check if drug has soluble target.
-  if (drugs[i] %in% soluble) {
-    # Change any non-shed parameters including M to S.
-    parameters = sapply(parameters, 
-                        function(x) {
-                          if (!grepl("shed|dose",x)) {return(gsub("M","S", x))}
-                          return(x)
-                        })
-    isSoluble = TRUE
-  }
-
-  # Set range for parameters of interest in SA.
-  # Check which parameters are nonzero, not including dose which isn't in df_param.
-  nnzero = df_param[parameters[which(parameters != "dose")]] != 0
-  nnzero = colnames(nnzero)[which(nnzero)]
-  params.to.iterate = data.frame(dose = lseq(scale.mpk2nmol*.1,scale.mpk2nmol*10,7),
-                                 lapply(df_param[nnzero], function(x) lseq(x*0.01, x*100, 7)))
-  
-  dfs = list()
-  # Iterate all of the parameters for a single drug.
-  for (j in 1:ncol(params.to.iterate)){
-    dfs[[j]] = compare.thy.sim(model = model,
-                               param.as.double = param.as.double,
-                               dose.nmol = dose.nmol,
-                               tmax = tmax,
-                               tau  = tau,
-                               compartment = compartment,
-                               param.to.change = names(params.to.iterate)[j],
-                               param.to.change.range = params.to.iterate[[j]],
-                               soluble = isSoluble)
-    dfs[[j]] = dfs[[j]] %>% mutate(drug = drugs[i], isSol = isSoluble)
-  }
-  joined = bind_rows(joined,dfs)
-  
-  # Reset isSoluble to false since the default in compare.thy.sim is false.
-  isSoluble = FALSE
-}
-```
-
-# Plot the output Cmin.
 
 ```{r}
 
+##################### User input #####################
+# Variable of interest. Options: 'AFIRT', 'TFIRT' 
+var.of.int = 'TFIRT' 
+##################### User input #####################
+
+var.of.int1 = paste(var.of.int,'.Kssd',sep='')
+var.of.int2 = paste(var.of.int,'.Kss' ,sep='')
+var.of.int3 = paste(var.of.int,'.Kd'  ,sep='')
+var.of.int4 = paste(var.of.int,'.sim' ,sep='')
+
 # I only wanted a subset of the parameters for gather.
-joined.Cmin = joined[c("fold.change.param","Cmin.thy", "Cmin.sim", "param","drug", "isSol")]
+joined.plot = joined[c("fold.change.param", var.of.int1, var.of.int2, var.of.int3, var.of.int4, "param", "drug", "isSol")]
 
 # Use gather to make the long data frame for ggplot.
-plots.Cmin = joined.Cmin %>% gather(key, Cmin.value, -param, -fold.change.param, -drug, -isSol) %>%
-  filter(!is.na(Cmin.value)) %>%
+plot.all = joined.plot %>% gather(key, Value, -param, -fold.change.param, -drug, -isSol) %>%
+  filter(!is.na(Value)) %>%
   # Group by isSoluble to create to separate plots.
-  group_by(isSol)%>%
-  do(plot = ggplot(., aes(fold.change.param, Cmin.value, color=key,linetype=key)) +
-      scale.x.log10() +
-      scale.y.log10() +
-      geom_line() +
-      geom_point() + 
-      facet_grid(drug ~ param))
-plots.Cmin$plot
-
+  group_by(isSol) %>%
+  do(plot = ggplot(., aes(fold.change.param, Value, color=key)) +
+     scale.x.log10() +
+     scale.y.log10() +
+     geom_line() +
+     geom_point() + 
+     facet_grid(drug ~ param))
+plot.all$plot
 ```
-
 
 
 

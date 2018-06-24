@@ -15,7 +15,7 @@ over a range of dose
 ```{r}
 suppressMessages(source("ams_initialize_script.R"))
 
-dose.nmol.range = lseq(0.1, 100, 7)
+dose.nmol.range = lseq(0.1, 100000, 7)
 model = ivsc_4cmtct_shedct()
 tmax = 26*7 #days
 tau = 21 #days
@@ -52,7 +52,7 @@ Make a data frame with 4 columns:
 Dose, AFIRT.Kssd, AFIRT_, AFIRT.sim
 ```{r}
 df_compare = df_thy %>%
-  select(Dose, AFIRT.Kssd, AFIRT_)
+  select(Dose, AFIRT.Kssd, AFIRT.Kssd_)
 
 df_compare$AFIRT.sim = df_sim$AFIRT.sim
 ```
@@ -65,7 +65,7 @@ g = ggplot(df_plot, aes(Dose, value, group=AFIRT, color=AFIRT)) +
   geom_line() + 
   geom_point()+
   scale.x.log10() +
-  scale.y.log10() +
+  scale.y.log10()
 
 print(g)
 ```

@@ -128,7 +128,8 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
     # I will use AFIRT_ for AFIRT*, because * is means multiplication in R 
 
     TEC_50 = Kssd*Tfold
-    AFIRT_ = TEC_50/(TEC_50 + Biodist*Cavg1)
+    AFIRT.Kssd_ = TEC_50/(TEC_50 + Biodist*Cavg1)
+    TFIRT.Kssd_ = TEC_50/(TEC_50 + Biodist*Cmin1)
     
 
     lumped_parameters_theory = data.frame(type       = "theory",
@@ -151,7 +152,8 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
                                           TFIRT.Kd   = TFIRT.Kd,
                                           TFIRT      = TFIRT.Kssd,
                                           TEC_50     = TEC_50,
-                                          AFIRT_     = AFIRT_,
+                                          AFIRT.Kssd_= AFIRT.Kssd_,
+                                          TFIRT.Kssd_= TFIRT.Kssd_,
                                           stringsAsFactors = FALSE
                                           )
     return(lumped_parameters_theory)

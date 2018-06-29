@@ -39,7 +39,7 @@ model = ivsc_4cmtct_shedct(target = TRUE)
 # Drugs to explore. 
 drugs = c("Atezolizumab", "Trastuzumab", "Pembrolizumab", "Bevacizumab")
 # List of parameters of interest.
-parameters = c("dose", "ksynM3", "k13D","k13DM", "kshedDM3", "VD3")
+parameters = c("dose", "ksynM3", "k13D","k13DM", "kshedDM3")
 # names(parameters) = parameters
 # Create vector of soluble drugs.
 soluble = "Bevacizumab"
@@ -82,8 +82,8 @@ for (i in 1:length(drugs)){
   # Check which parameters are nonzero, not including dose which isn't in df_param.
   nnzero = df_param[parameters[which(parameters != "dose")]] != 0
   nnzero = colnames(nnzero)[which(nnzero)]
-  params.to.iterate = data.frame(dose = lseq(scale.mpk2nmol*.01,scale.mpk2nmol*100,7),
-                                 lapply(df_param[nnzero], function(x) lseq(x*0.01, x*100, 7)))
+  params.to.iterate = data.frame(dose = lseq(scale.mpk2nmol*.01,scale.mpk2nmol*10,13),
+                                 lapply(df_param[nnzero], function(x) lseq(x*0.01, x*10, 13)))
   
   dfs = list()
   # Iterate all of the parameters for a single drug.
@@ -106,15 +106,15 @@ for (i in 1:length(drugs)){
 }
 
 joined = joined %>%
-  mutate(drug = factor(drug,levels=c("Atezolizumab", "Trastuzumab", "Pembrolizumab", "Bevacizumab")))
+  mutate(drug = factor(drug,levels=c("Bevacizumab","Pembrolizumab","Atezolizumab", "Trastuzumab")))
 ```
 
 # Plot the output variable of interest
 
 ```{r}
 # I only wanted a subset of the parameters for gather.
-joined.A = joined[c("fold.change.param","AFIRT.Kssd_", "AFIRT.Kssd", "AFIRT.Kss", "AFIRT.Kd", "AFIRT.sim", "param","drug", "isSol")]
-joined.T = joined[c("fold.change.param","TFIRT.Kssd_", "TFIRT.Kssd", "TFIRT.Kss", "TFIRT.Kd", "TFIRT.sim", "param","drug", "isSol")]
+joined.A = joined[c("fold.change.param","AFIRT.Kssd_", "AFIRT.Kssd", "AFIRT.sim", "param","drug", "isSol")]
+joined.T = joined[c("fold.change.param","TFIRT.Kssd_", "TFIRT.Kssd", "TFIRT.sim", "param","drug", "isSol")]
 
 # Use gather to make the long data frame for ggplot. Group by isSoluble to create to separate plots.
 plots.A = joined.A %>% gather(key, Value, -param, -fold.change.param, -drug, -isSol) %>%
@@ -125,18 +125,42 @@ plots.T = joined.T %>% gather(key, Value, -param, -fold.change.param, -drug, -is
   filter(!is.na(Value)) %>%
   group_by(isSol) 
 
-g = ggplot(plots.A, aes(fold.change.param, Value, color=key)) +
-      scale.x.log10() +
-      scale.y.log10() +
-      geom_line() +
-      geom_point() +
-      facet_grid(drug ~ param)
+#Rename for plotting - map M->T and S->T (for target)
+plots.A = plots.A %>%
+  mutate(param = str_replace(param,"M","T"),
+         param = str_replace(param,"S","T"),
+         key   = str_replace(key,"_","*"),
+         key   = str_replace(key,"AFIRT\\.",""),
+         key   = str_replace(key,"Kssd","theory.Kssd"),
+         key   = str_replace(key,"sim","simulation"))
+plots.T = plots.T %>%
+  mutate(param = str_replace(param,"M","T"),
+         param = str_replace(param,"S","T"),
+         key   = str_replace(key,"_","*"),
+         key   = str_replace(key,"TFIRT\\.",""),
+         key   = str_replace(key,"Kssd","theory.Kssd"),
+         key   = str_replace(key,"sim","simulation"))
 
+g = ggplot(plots.A, aes(fold.change.param, Value, color=key,linetype=key))
+g = g + scale.x.log10(limits=c(.003,30))
+g = g + scale.y.log10()
+g = g + geom_line()
+g = g + facet_grid(drug ~ param,switch = "y")
+g = g + scale_linetype_manual(values  = c("solid","longdash","dashed"))
+g = g + labs(x="Fold Change in Parameter",
+             y="AFTIR",
+             color = "Estimate",
+             linetype = "Estimate")
+width = 8
+height = 5
 plot(g)
+ggsave("../results/Task05_AFTIR.pdf",width = width,height=height)
 
 g = g %+% plots.T
-
+g = g + labs(y="TFTIR")
 plot(g)
+ggsave("../results/Task05_TFTIR.pdf",width = width,height=height)
+
 ```
 
 # Create data frame for multiple drugs and parameters.

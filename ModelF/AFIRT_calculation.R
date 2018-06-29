@@ -131,6 +131,13 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
     AFIRT.Kssd_ = TEC_50/(TEC_50 + Biodist*Cavg1)
     TFIRT.Kssd_ = TEC_50/(TEC_50 + Biodist*Cmin1)
     
+    TEC_50      = Kss*Tfold
+    AFIRT.Kss_  = TEC_50/(TEC_50 + Biodist*Cavg1)
+    TFIRT.Kss_  = TEC_50/(TEC_50 + Biodist*Cmin1)
+    
+    TEC_50      = Kd*Tfold
+    AFIRT.Kd_   = TEC_50/(TEC_50 + Biodist*Cavg1)
+    TFIRT.Kd_   = TEC_50/(TEC_50 + Biodist*Cmin1)    
 
     lumped_parameters_theory = data.frame(type       = "theory",
                                           M30        = M30,
@@ -154,6 +161,10 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
                                           TEC_50     = TEC_50,
                                           AFIRT.Kssd_= AFIRT.Kssd_,
                                           TFIRT.Kssd_= TFIRT.Kssd_,
+                                          AFIRT.Kss_ = AFIRT.Kss_,
+                                          TFIRT.Kss_ = TFIRT.Kss_,
+                                          AFIRT.Kd_  = AFIRT.Kd_,                                          
+                                          TFIRT.Kd_  = TFIRT.Kd_,                                          
                                           stringsAsFactors = FALSE
                                           )
     return(lumped_parameters_theory)

@@ -47,9 +47,8 @@
              results.local = "results/")
 
 #ggplot settings
-  #theme_set(theme_classic() + theme(panel.border=element_rect(color="black",fill=NA)))
-  theme_set(theme_bw())
-  
+  theme_set(theme_classic() + theme(panel.border=element_rect(color="black",fill=NA)))
+
 #scaling params
   scale.mpk2nmol = 70*1e-3/150e3*1e9
   scale.nmol2mpk = 1/scale.mpk2nmol #nM->mg/kg

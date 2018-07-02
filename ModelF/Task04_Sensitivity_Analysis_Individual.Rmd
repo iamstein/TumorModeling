@@ -30,6 +30,7 @@ model           = ivsc_4cmtct_shedct()
 drugs           = c("Atezolizumab", "Trastuzumab", "Pembrolizumab", "Bevacizumab"); paths = NULL; i = 4
 paths[i]        = paste0("../data/ModelF_", drugs[i],"_Params.xlsx")
 param.as.double = read.param.file(paths[i])
+param.as.double["keS3"] = 1
 df_param        = as.data.frame(t(param.as.double))
 dose.nmol       = scale.mpk2nmol
 
@@ -44,7 +45,9 @@ if (drugs[i] %in% soluble) {
 # Set parameter of interest and range for SA.
 dose.nmol.range = lseq(.1,10,7)*scale.mpk2nmol
 param.to.change = 'keS3'
-param.to.change.range = lseq(as.numeric(df_param[param.to.change])*.0001, as.numeric(df_param[param.to.change])*10000, 7)
+param.to.change.range = lseq(as.numeric(df_param[param.to.change])*.001,   
+                             as.numeric(df_param[param.to.change])*1000, 
+                             7)
 
 # Dose time, frequency, compartment
 tmax = 26*7 #days
@@ -70,12 +73,13 @@ df_thy = subset(df_compare, type=='theory')
 # Plot.
 ggplot(df_sim, aes(x=Tacc.tum, y=AFIRT.sim)) + 
   geom_line() + 
-  geom_point() +
   scale.x.log10() +
   scale.y.log10() +
   # scale.y.log10(limits=c(10^-4, 10^4)) +
   # labs(x=param.to.change, y='AFIRT')
-  labs(x='Target Accumulation', y='AFIRT')
+  labs(x='Target Accumulation (Tfold)', y='Average Free Tissue target\nto Inital target Ratio (AFTIR)\nby simulation ')
+
+ggsave("../results/Task04_Taccum.pdf",width = 4,height=3)
 
 ```
 

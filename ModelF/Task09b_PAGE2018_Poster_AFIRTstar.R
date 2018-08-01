@@ -115,7 +115,7 @@ g = g + geom_line(mapping=aes(size=key))
 #g = g + geom_point()
 g = g + facet_grid(.~drug + Target + T30)
 g = g + labs(x     = "Dose (mg/kg) every 3 weeks",
-             y     = "Average Free Tissue target to\nInitial target Ratio (AFTIR)",
+             y     = "Average Free Tissue target to\nInitial target Ratio* (AFTIR*)",
              color = "",
              shape = "",
              size  = "",
@@ -144,10 +144,10 @@ g = g + scale_alpha_manual(values  = c(simulation = .5,
 print(g)
 width = 7
 height = 2.7
-ggsave("../results/Task09c_PAGE_Figure_AFTIRstar.pdf",width = width,height=height)
+ggsave("../results/Task09b_PAGE_Figure_AFTIRstar.pdf",width = width,height=height)
 
 g = g %+% plots.T
 g = g + labs(y="Trough Free Tissue target to\ninitial target Ratio* (TFTIR*)")
 print(g)
-ggsave("../results/Task09c_PAGE_Figure_TFTIRstar.pdf",width = width,height=height)
+ggsave("../results/Task09b_PAGE_Figure_TFTIRstar.pdf",width = width,height=height)
 

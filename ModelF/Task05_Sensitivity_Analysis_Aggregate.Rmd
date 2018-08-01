@@ -149,7 +149,7 @@ plots.A.Kssd = plots.A.Kssd %>%
          param  = str_replace(param,"S","T"),
          key    = str_replace(key,"_",""),
          key    = str_replace(key,"AFIRT\\.",""),
-         key    = str_replace(key,"Kssd","Theory (AFTIR*)"),
+         key    = str_replace(key,"Kssd","Theory (AFTIR)"),
          key    = str_replace(key,"sim","Simulation"),
          Target = ifelse(isSol,"Soluble","Membrane-Bd"),
          Target = factor(Target,levels=c("Soluble","Membrane-Bd")))
@@ -158,7 +158,7 @@ plots.T.Kssd = plots.T.Kssd %>%
          param  = str_replace(param,"S","T"),
          key    = str_replace(key,"_",""),
          key    = str_replace(key,"TFIRT\\.",""),
-         key    = str_replace(key,"Kssd","Theory (TFTIR*)"),
+         key    = str_replace(key,"Kssd","Theory (TFTIR)"),
          key    = str_replace(key,"sim","Simulation"),
          Target = ifelse(isSol,"Soluble","Membrane-Bd"),
          Target = factor(Target,levels=c("Soluble","Membrane-Bd")))
@@ -168,7 +168,7 @@ plots.A.Kss = plots.A.Kss %>%
          param  = str_replace(param,"S","T"),
          key    = str_replace(key,"_",""),
          key    = str_replace(key,"AFIRT\\.",""),
-         key    = str_replace(key,"Kss","Theory (AFTIR*)"),
+         key    = str_replace(key,"Kss","Theory (AFTIR)"),
          key    = str_replace(key,"sim","Simulation"),
          Target = ifelse(isSol,"Soluble","Membrane-Bd"),
          Target = factor(Target,levels=c("Soluble","Membrane-Bd")))
@@ -177,7 +177,7 @@ plots.T.Kss = plots.T.Kss %>%
          param  = str_replace(param,"S","T"),
          key    = str_replace(key,"_",""),
          key    = str_replace(key,"TFIRT\\.",""),
-         key    = str_replace(key,"Kss","Theory (TFTIR*)"),
+         key    = str_replace(key,"Kss","Theory (TFTIR)"),
          key    = str_replace(key,"sim","Simulation"),
          Target = ifelse(isSol,"Soluble","Membrane-Bd"),
          Target = factor(Target,levels=c("Soluble","Membrane-Bd")))
@@ -187,7 +187,7 @@ plots.A.Kd = plots.A.Kd %>%
          param  = str_replace(param,"S","T"),
          key    = str_replace(key,"_",""),
          key    = str_replace(key,"AFIRT\\.",""),
-         key    = str_replace(key,"Kd","Theory (AFTIR*)"),
+         key    = str_replace(key,"Kd","Theory (AFTIR)"),
          key    = str_replace(key,"sim","Simulation"),
          Target = ifelse(isSol,"Soluble","Membrane-Bd"),
          Target = factor(Target,levels=c("Soluble","Membrane-Bd")))
@@ -196,7 +196,7 @@ plots.T.Kd = plots.T.Kd %>%
          param  = str_replace(param,"S","T"),
          key    = str_replace(key,"_",""),
          key    = str_replace(key,"TFIRT\\.",""),
-         key    = str_replace(key,"Kd","Theory (TFTIR*)"),
+         key    = str_replace(key,"Kd","Theory (TFTIR)"),
          key    = str_replace(key,"sim","Simulation"),
          Target = ifelse(isSol,"Soluble","Membrane-Bd"),
          Target = factor(Target,levels=c("Soluble","Membrane-Bd")))
@@ -208,10 +208,9 @@ g = g + geom_line()
 g = g + facet_grid(drug + Target ~ param, switch = "y")
 g = g + scale_linetype_manual(values  = c("solid","longdash"))
 g = g + labs(x="Fold Change in Parameter",
-             y="Average Free Tissue target to\nInitial target Ratio (AFTIR)",
+             y="Average Free Tissue target to\nInitial target Ratio (AFTIR)")
              # color = "Estimate",
-             # linetype = "Estimate",
-             caption = "Kssd")
+             # linetype = "Estimate")
 g = g + theme(legend.position="bottom", 
               text=element_text(size=15), 
               axis.title.x=element_text(size=20), 
@@ -224,30 +223,25 @@ height = 7
 plot(g)
 ggsave("../results/Task05_AFTIR.Kssd.pdf",width = width,height=height)
 g = g %+% plots.T.Kssd
-g = g + labs(y="Trough Free Tissue target to\ninitial target Ratio (TFTIR)",
-             caption = "Kssd")
+g = g + labs(y="Trough Free Tissue target to\ninitial target Ratio (TFTIR)")
 plot(g)
 ggsave("../results/Task05_TFTIR.Kssd.pdf",width = width,height=height)
 
 g = g %+% plots.A.Kss
-g = g + labs(y="Average Free Tissue target to\nInitial target Ratio (AFTIR)",
-             caption = "Kss")
+g = g + labs(y="Average Free Tissue target to\nInitial target Ratio (AFTIR)")
 plot(g)
 ggsave("../results/Task05_AFTIR.Kss.pdf",width = width,height=height)
 g = g %+% plots.T.Kss
-g = g + labs(y="Trough Free Tissue target to\ninitial target Ratio (TFTIR)",
-             caption = "Kss")
+g = g + labs(y="Trough Free Tissue target to\ninitial target Ratio (TFTIR)")
 plot(g)
 ggsave("../results/Task05_TFTIR.Kss.pdf",width = width,height=height)
 
 g = g %+% plots.A.Kd
-g = g + labs(y="Average Free Tissue target to\nInitial target Ratio (AFTIR)",
-             caption = "Kd")
+g = g + labs(y="Average Free Tissue target to\nInitial target Ratio (AFTIR)")
 plot(g)
 ggsave("../results/Task05_AFTIR.Kd.pdf",width = width,height=height)
 g = g %+% plots.T.Kd
-g = g + labs(y="Trough Free Tissue target to\ninitial target Ratio (TFTIR)",
-             caption = "Kd")
+g = g + labs(y="Trough Free Tissue target to\ninitial target Ratio (TFTIR)")
 plot(g)
 ggsave("../results/Task05_TFTIR.Kd.pdf",width = width,height=height)
 ```

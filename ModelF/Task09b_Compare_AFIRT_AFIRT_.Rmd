@@ -136,32 +136,32 @@ g = g + scale_color_manual   (values = c(simulation   = "black",
                                          theory.Kssd  = "red",
                                          theory.Kssd_ = "green4"),
                               labels = c(simulation   = "Simulation", 
-                                         theory.Kssd  = "Theory Kssd", 
-                                         theory.Kssd_ = "Theory Kssd*"))
+                                         theory.Kssd  = "Theory Kssd simple", 
+                                         theory.Kssd_ = "Theory Kssd"))
 g = g + scale_shape_manual   (values = c(simulation   = 46,
                                          theory.Kssd  = 15,
                                          theory.Kssd_ = 17),
                               labels = c(simulation   = "Simulation", 
-                                         theory.Kssd  = "Theory Kssd", 
-                                         theory.Kssd_ = "Theory Kssd*"))
+                                         theory.Kssd  = "Theory Kssd simple", 
+                                         theory.Kssd_ = "Theory Kssd"))
 g = g + scale_size_manual    (values = c(simulation   = 1,
                                          theory.Kssd  = 1,
                                          theory.Kssd_ = 1),
                               labels = c(simulation   = "Simulation", 
-                                         theory.Kssd  = "Theory Kssd", 
-                                         theory.Kssd_ = "Theory Kssd*"))
+                                         theory.Kssd  = "Theory Kssd simple", 
+                                         theory.Kssd_ = "Theory Kssd"))
 g = g + scale_linetype_manual(values = c(simulation   = "solid",
                                          theory.Kssd  = "dotdash",
                                          theory.Kssd_ = "dashed"),
                               labels = c(simulation   = "Simulation", 
-                                         theory.Kssd  = "Theory Kssd", 
-                                         theory.Kssd_ = "Theory Kssd*"))
+                                         theory.Kssd  = "Theory Kssd simple", 
+                                         theory.Kssd_ = "Theory Kssd"))
 g = g + scale_alpha_manual   (values = c(simulation   = .5,
                                          theory.Kssd  = 1,
                                          theory.Kssd_ = 1),
                               labels = c(simulation   = "Simulation", 
-                                         theory.Kssd  = "Theory Kssd", 
-                                         theory.Kssd_ = "Theory Kssd*"))
+                                         theory.Kssd  = "Theory Kssd simple", 
+                                         theory.Kssd_ = "Theory Kssd"))
 
 print(g)
 width = 10

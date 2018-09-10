@@ -132,6 +132,9 @@ g = g + labs(x        = "Dose (mg/kg) every 3 weeks",
              shape    = "",
              size     = "",
              linetype = "")
+g = g + theme(axis.title  = element_text(size=15),
+              strip.text  = element_text(size=12),
+              legend.text = element_text(size=12))
 g = g + scale_color_manual   (values = c(simulation   = "black",
                                          theory.Kssd  = "red",
                                          theory.Kssd_ = "green4"),
@@ -144,9 +147,9 @@ g = g + scale_shape_manual   (values = c(simulation   = 46,
                               labels = c(simulation   = "Simulation", 
                                          theory.Kssd  = "Theory Kssd", 
                                          theory.Kssd_ = "Theory Kssd*"))
-g = g + scale_size_manual    (values = c(simulation   = 1,
-                                         theory.Kssd  = 1,
-                                         theory.Kssd_ = 1),
+g = g + scale_size_manual    (values = c(simulation   = 1.5,
+                                         theory.Kssd  = 1.5,
+                                         theory.Kssd_ = 1.5),
                               labels = c(simulation   = "Simulation", 
                                          theory.Kssd  = "Theory Kssd", 
                                          theory.Kssd_ = "Theory Kssd*"))
@@ -165,7 +168,7 @@ g = g + scale_alpha_manual   (values = c(simulation   = .5,
 
 print(g)
 width = 10
-height = 2.7
+height = 4
 ggsave("../results/Task09b_Compare_AFTIR_AFTIRstar.pdf",width=width,height=height)
 
 g = g %+% plots.T

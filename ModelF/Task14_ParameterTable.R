@@ -28,10 +28,17 @@ for (i in 1:length(drugs)) {
 }
 d = bind_rows(param) %>%
   select(Drug,Parameter,Value) %>%
+  mutate(Value = as.character(signif(Value,2))) %>%
   spread(Drug,Value)
 
 units = param[[1]] %>%
   select(Parameter,Units)
 d = left_join(d,units,by="Parameter") %>% 
   select(Parameter,Units,everything())
+
+file.prefix = paste0("../results/Task14_ParamTable")
+readr::write_csv(d,paste0(file.prefix,".csv")) #to csv file
+xtab = xtable::xtable(d) #to latex file
+print(xtab,file=paste0(file.prefix,".tex"),include.rownames=FALSE,floating = FALSE)
+kable(d)
 

@@ -138,6 +138,13 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
     TEC_50      = Kd*Tfold
     AFIRT.Kd_   = TEC_50/(TEC_50 + Biodist*Cavg1)
     TFIRT.Kd_   = TEC_50/(TEC_50 + Biodist*Cmin1)    
+    
+    if(soluble) {
+      Thiele    = NA #with(pars,keDS3*S3tot.ss/(k13D*Cavg1*VD1/VD3))
+    } else {
+      Thiele    = with(pars,(kshedDM3 + keDM3)*M3tot.ss/(k13D*Cavg1*VD1/VD3))
+    }
+      
 
     lumped_parameters_theory = data.frame(type       = "theory",
                                           M30        = M30,
@@ -164,7 +171,8 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
                                           AFIRT.Kss_ = AFIRT.Kss_,
                                           TFIRT.Kss_ = TFIRT.Kss_,
                                           AFIRT.Kd_  = AFIRT.Kd_,                                          
-                                          TFIRT.Kd_  = TFIRT.Kd_,                                          
+                                          TFIRT.Kd_  = TFIRT.Kd_,    
+                                          Thiele     = Thiele,
                                           stringsAsFactors = FALSE
                                           )
     return(lumped_parameters_theory)

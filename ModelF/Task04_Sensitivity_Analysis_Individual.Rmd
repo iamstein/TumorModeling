@@ -77,7 +77,7 @@ ggplot(df_sim, aes(x=Tacc.tum, y=AFIRT.sim)) +
   scale.y.log10() +
   # scale.y.log10(limits=c(10^-4, 10^4)) +
   # labs(x=param.to.change, y='AFIRT')
-  labs(x='Target Accumulation (Tfold)', y='Average Free Tissue target\nto Inital target Ratio (AFTIR)\nby simulation ')
+  labs(x='Target Accumulation (Tfold)', y='AFTIR')
 
 ggsave("../results/Task04_Taccum.pdf",width = 4,height=3)
 

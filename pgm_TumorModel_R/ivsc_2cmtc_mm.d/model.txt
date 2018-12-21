@@ -1,6 +1,0 @@
-
-     D            =  Ac/Vc;
-     d/dt(Ad)     =  -ka *Ad;
-     d/dt(Ac)     = F*ka *Ad - k12*Ac + k21*Ap    - keD *Ac  - Vm*D/(D+Km);
-     d/dt(Ap)     =            k12*Ac - k21*Ap;
-   

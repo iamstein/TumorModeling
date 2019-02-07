@@ -118,7 +118,7 @@ joined.g = joined %>%
   mutate(T30                = ifelse(isSol,S30,M30),
          Cavg3_Thresh       = Cavg3 < 10*T30,
          Thiele_Thresh      = Thiele > 0.2,
-         Assumptions.Failed = ifelse(Cavg3_Thresh | Thiele_Thresh,0.2, NA)) %>%
+         Assumptions.Failed = ifelse(Thiele_Thresh,0.2, NA)) %>%
   select(                 fold.change.param,param,param,drug,isSol,starts_with("AFIRT"),starts_with("TFIRT"),"Assumptions.Failed") %>%
   gather(Measure,Value,-c(fold.change.param,param,param,drug,isSol)) %>%
   filter(!is.na(Value))
@@ -164,7 +164,7 @@ g = g + scale_alpha_manual(values     = c(Simulation   = 1,
 width  = 10
 height = 7
 print(g)
-ggsave("../results/Task05e_AFTIR.Kssd.pdf",width = width,height=height)
+ggsave("../results/Task05e_AFIRT_Kssd.pdf",width = width,height=height)
 ```
 
 #Loop through the other plots

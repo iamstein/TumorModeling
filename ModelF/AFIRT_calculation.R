@@ -142,7 +142,7 @@ lumped.parameters.theory = function(param.as.double = param.as.double,
     if(soluble) {
       Thiele    = NA #with(pars,keDS3*S3tot.ss/(k13D*Cavg1*VD1/VD3))
     } else {
-      Thiele    = with(pars,(kshedDM3 + keDM3)*M3tot.ss/(k13D*Cavg1*VD1/VD3))
+      Thiele    = with(pars,(keD3+keDM3+kshedDM3)*M3tot.ss/(k13D*Cavg1*VD1/VD3))
     }
       
 

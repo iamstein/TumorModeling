@@ -26,4 +26,5 @@ These contain the key functions that are called by multiple scripts above.  They
 -	ams_tmdd_helper.R - Could potentially be helpful for doing sensitivity analysis.
 -	ivsc_4cmtc_shedct.R - ODE for Model F, written to work with RxODE
 
+## Graphical Abstract
 ![Graphical Abstract](./Graphical_Abstract.png)

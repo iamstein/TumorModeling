@@ -7,8 +7,8 @@ The parameter files are stored in the data directory and are called "ModelF_DRUG
 ## Key R Scripts and Rmarkdown files
 These are short Tasks in Rmarkdown or R for generating key figures for the manuscript or other helpful codes.
 They are stored in the ModelF folder.
--	Task10  - illustrates some simple graphs for how code can be executed
-- Task09e - Varying dose and checking AFTIR for each drug
+- Task10  - illustrates some simple graphs for how code can be executed
+- Task09f - Varying dose and checking AFTIR for each drug
 - Task09d - comparison of simple formulation of AFTIR to the full formulation of AFTIR
 - Task05e - Varying other parameters and checking AFTIR accuracy for each drug
 - Task04  - look at how changing target accumulation affects AFTIR

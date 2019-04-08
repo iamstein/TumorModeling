@@ -9,7 +9,7 @@ These are short Tasks in Rmarkdown or R for generating key figures for the manus
 They are stored in the ModelF folder.
 - Task10  - illustrates some simple graphs for how code can be executed
 - Task09f - Varying dose and checking AFTIR for each drug
-- Task09d - comparison of simple formulation of AFTIR to the full formulation of AFTIR
+- Task09dV2 - comparison of simple formulation of AFTIR to the full formulation of AFTIR
 - Task05e - Varying other parameters and checking AFTIR accuracy for each drug
 - Task04  - look at how changing target accumulation affects AFTIR
 
